@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <link rel="canonical" href="{{canonical}}">
+  <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+{{header}}
+  <main class="prose">
+    <h1>About Audiobook Project</h1>
+    <p class="lede">Audiobook Project is a free, open-source tool that turns ebooks into audiobooks.</p>
+
+    <h2>What it does</h2>
+    <p>You upload a DRM-free EPUB or a PDF. It finds the chapters, reads them aloud with a natural-sounding neural voice, and gives you an audiobook: a chaptered M4B for Apple Books, a single MP3 that plays anywhere, or a private podcast feed for your phone. The first chapter is ready in about a minute.</p>
+
+    <h2>Why it exists</h2>
+    <p>Most books never get an audiobook. Public-domain classics, indie books, out-of-print titles and your own writing usually have no recording at all, and a professional one costs thousands of dollars. Plenty of people need to listen rather than read: people with dyslexia or low vision, people learning a language, people who read on the commute or at the gym.</p>
+    <p>Good text-to-speech is now free and open. Audiobook Project puts it in one place that is simple, honest and doesn't ask for anything in return.</p>
+
+    <h2>Who runs it</h2>
+    <p>I'm <strong>Joe Philleo</strong>. I started Audiobook Project in 2026 and build it in the open. It isn't a company with investors, and it isn't trying to sell your data. If something is broken or confusing, <a href="{{github}}/issues">open an issue on GitHub</a> and I'll read it.</p>
+
+    <h2>How it's paid for</h2>
+    <ul>
+      <li><strong>Free voices are free, permanently.</strong> They run on open models on our own servers, so the only cost is computer time.</li>
+      <li><strong>Donations</strong> pay for those servers. <a href="/donate">Here's where the money goes.</a></li>
+      <li><strong>Premium voices</strong>, when they launch, will cost a small amount per word, because every word costs us money with the services that provide them. The price will be shown before you pay.</li>
+    </ul>
+    <p>There are no ads and no data sales. Audiobook Project isn't a registered nonprofit, so donations aren't tax-deductible.</p>
+
+    <h2>Open source</h2>
+    <p>All of the code that turns a book into audio is <a href="{{github}}">on GitHub</a> under the AGPL-3.0 license. You can read exactly what happens to your files, run it on your own computer, or improve it. Contributions are welcome, especially fixes for books that come out wrong.</p>
+
+    <h2>Your responsibility</h2>
+    <p>Only upload books you own the rights to or that are in the public domain. Audiobooks you make here are for your own listening. If you believe something on this site infringes your copyright, <a href="{{github}}/issues">contact us</a> and it will be removed.</p>
+  </main>
+{{footer}}
+</body>
+</html>

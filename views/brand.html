@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brand guide — Audiobook Project</title>
+  <meta name="description" content="How Audiobook Project looks, sounds and fits together: logo, color, type, layout and voice.">
+  <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .top, main, .foot { max-width: 760px; }
+    .guide h1 { margin-top: 40px; }
+    .guide h2 { font-size: 20px; color: var(--ink); font-weight: 650; letter-spacing: -.015em; margin: 56px 0 4px; }
+    .guide h3 { font-size: 13px; font-weight: 600; color: var(--ink-2); margin: 24px 0 8px; }
+    .guide p, .guide li { color: var(--ink-2); max-width: 600px; }
+    .guide ul { padding-left: 18px; }
+    .guide strong { color: var(--ink); font-weight: 600; }
+    .toc { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; margin: 0 0 8px; }
+    .toc a { color: var(--ink-2); text-decoration: none; }
+    .toc a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+    .tiles { grid-template-columns: 1fr 1fr; }
+    .tile { margin: 0; border: 1px solid var(--line); border-radius: 14px; padding: 36px 20px 14px; display: grid; gap: 28px; justify-items: center; align-content: space-between; }
+    .m { flex: none; }
+    .tile.ink { background: #111; border-color: #111; color: #f2f2f0; }
+    .tile.soft { background: var(--soft); }
+    .tile figcaption { font-size: 12px; color: var(--ink-3); justify-self: stretch; display: flex; justify-content: space-between; }
+    .tile.ink figcaption { color: #8a8a85; }
+    .tile figcaption a { color: inherit; }
+    .wordmark { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 650; font-size: 26px; letter-spacing: -.02em; }
+    .wordmark img, .wordmark .m { width: 40px; height: 40px; }
+    .tile:not(.ink) .m, .anatomy .m, .misuse .m:not([style*="color"]) { color: var(--brand); }
+    .wordmark .soft { color: var(--ink-3); font-weight: 500; }
+    .tile.ink .wordmark .soft { color: #8a8a85; }
+    .m { display: block; background: currentColor; -webkit-mask: url(/brand/mark.svg) center / contain no-repeat; mask: url(/brand/mark.svg) center / contain no-repeat; }
+    .sizes { display: flex; align-items: center; gap: 22px; }
+
+    .seal { position: relative; display: inline-block; flex: none; color: var(--brand); }
+    .seal svg { width: 100%; height: 100%; stroke: none; }
+    .seal .m { position: absolute; left: 30%; top: 30%; width: 40%; height: 40%; }
+    .seal text { font-family: var(--display); }
+    .seals { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; margin-top: 12px; padding: 28px; border: 1px solid var(--line); border-radius: 14px; }
+    .seal-badge { display: grid; place-items: center; width: 120px; height: 120px; border-radius: 22%; background: #1f5640; }
+    .seal-badge .seal { color: #f2f2f0; }
+
+    .anatomy { display: grid; grid-template-columns: 160px 1fr; gap: 24px; align-items: center; margin-top: 12px; }
+    .anatomy .m { width: 160px; height: 160px; }
+
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
+    .sw { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 12px; }
+    .sw .chip { height: 64px; display: flex; }
+    .sw .chip span { flex: 1; }
+    .sw .meta { padding: 8px 10px; display: grid; gap: 1px; }
+    .sw .meta b { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .sw .meta code { color: var(--ink-3); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .type-row { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .type-row:first-of-type { border-top: 1px solid var(--line); }
+    .type-row code { color: var(--ink-3); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .dd { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+    .dd h4 { margin: 0 0 8px; font-size: 13px; }
+    .dd.do h4 { color: var(--green); }
+    .dd.dont h4 { color: var(--red); }
+    .dd ul { margin: 0; padding-left: 18px; font-size: 14px; }
+    .demo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+    .misuse { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+    .misuse figure { margin: 0; border: 1px solid var(--line); border-radius: 12px; padding: 18px 10px 10px; display: grid; justify-items: center; gap: 10px; }
+    .misuse figcaption { font-size: 12px; color: var(--ink-3); text-align: center; }
+    .misuse .m { width: 44px; height: 44px; }
+    @media (max-width: 640px) {
+      .dodont, .anatomy, .tiles { grid-template-columns: 1fr; }
+      .wordmark { font-size: 22px; }
+      .misuse { grid-template-columns: 1fr 1fr; }
+      .type-row { grid-template-columns: 1fr; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+{{header}}
+
+  <main class="guide">
+    <h1>Brand guide</h1>
+    <p class="lede">Audiobook Project should feel like a public library, not a startup: plain, calm, trustworthy, and quietly well made.</p>
+    <nav class="toc">
+      <a href="#principles">Principles</a><a href="#name">Name</a><a href="#logo">Logo</a><a href="#seal">Seal</a><a href="#color">Color</a><a href="#type">Type</a><a href="#layout">Layout</a><a href="#voice">Voice</a><a href="#downloads">Downloads</a>
+    </nav>
+
+    <h2 id="principles">Principles</h2>
+    <ul>
+      <li><strong>Useful first.</strong> Every page is a working tool. The product is the proof; no hero illustrations, no marketing sections.</li>
+      <li><strong>Plain, not bland.</strong> Ink on paper, one primary action per screen, nothing decorative that doesn't carry meaning.</li>
+      <li><strong>Trust through restraint.</strong> No hype, no dark patterns, no surprise costs. Say what happens to people's files.</li>
+      <li><strong>Built to last.</strong> One free, self-hosted typeface, a short list of colors, simple shapes. It should look the same in five years.</li>
+    </ul>
+
+    <h2 id="name">Name</h2>
+    <p>Always <strong>Audiobook Project</strong>: two words, title case. The domain is <strong>audiobookproject.org</strong>, in lowercase. In running text it's fine to say "the Project" after the first mention.</p>
+    <p>Never "AudiobookProject", "ABP", "the Audiobook Project app", or a tagline like "Audiobook Project AI". The repository is <code>audiobook-project</code>.</p>
+
+    <h2 id="logo">Logo</h2>
+    <p>A humpback leaping out of an open book. The pages are the water: it springs from the left page and arcs toward the right, and drops fall from its tail back into the ripple it left behind. It says what the Project does: a story jumping off the page and coming to life.</p>
+
+    <div class="tiles">
+      <figure class="tile">
+        <span class="wordmark"><span class="m"></span><span>Audiobook <span class="soft">Project</span></span></span>
+        <figcaption><span>Primary lockup</span><a href="/brand/mark.svg" download>mark.svg</a></figcaption>
+      </figure>
+      <figure class="tile ink">
+        <span class="wordmark"><span class="m"></span><span>Audiobook <span class="soft">Project</span></span></span>
+        <figcaption><span>On ink</span><span>same files, paper color</span></figcaption>
+      </figure>
+      <figure class="tile soft">
+        <img src="/brand/icon.svg" width="72" height="72" alt="App icon">
+        <figcaption><span>App icon, favicon</span><a href="/brand/icon.svg" download>icon.svg</a></figcaption>
+      </figure>
+      <figure class="tile">
+        <div class="sizes"><span class="m" style="width:64px;height:64px"></span><span class="m" style="width:32px;height:32px"></span><span class="m" style="width:20px;height:20px"></span><img src="/brand/icon.svg" width="16" height="16" alt=""></div>
+        <figcaption><span>Down to 16px</span><span>the whale still reads</span></figcaption>
+      </figure>
+    </div>
+
+    <h3>Construction</h3>
+    <div class="anatomy">
+      <span class="m" aria-hidden="true"></span>
+      <ul>
+        <li>Drawn on a 96 × 96 grid. The whale is one flat humpback silhouette in a gentle arc: long head, a soft hump, a short pectoral fin tucked under the belly, broad notched flukes. One small eye is cut out; no mouth, no outline, no shading.</li>
+        <li>The book is an open hardcover: pages on top, the cover showing beneath them, separated by a cut gap. The ripple is a flat ring cut into the middle of the left page, right under the tail.</li>
+        <li>Three drops fall between the tail and the ripple, never overlapping the whale or the pages.</li>
+        <li>The mark is Library green (<code>#1F5640</code>) on paper, or paper on Library green or ink. It never takes another color.</li>
+        <li>The wordmark is Public Sans at 650 with tight tracking (−0.02em). "Project" is set at 500 in the muted ink color.</li>
+        <li>Clear space around the logo is at least the height of the whale's head on every side. Minimum size: 16px for the mark, 120px wide for the lockup.</li>
+      </ul>
+    </div>
+
+    <h3>Don't</h3>
+    <div class="misuse">
+      <figure><span class="m" style="color:#7c3aed"></span><figcaption>Recolor it with an accent or gradient</figcaption></figure>
+      <figure><span class="m" style="transform:scaleX(1.5)"></span><figcaption>Stretch, skew or rotate it</figcaption></figure>
+      <figure><span class="m" style="filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))"></span><figcaption>Add shadows, glows or outlines</figcaption></figure>
+      <figure><span style="display:flex;gap:4px;align-items:center"><span class="m" style="width:28px;height:28px"></span><span style="font-size:20px">🎧</span></span><figcaption>Pair it with emoji or clip-art</figcaption></figure>
+    </div>
+
+    <h2 id="seal">Seal</h2>
+    <p>A round badge for stickers, social avatars, the donate page and anything printed. It sits beside the logo and never replaces it: the header and the favicon always use the mark.</p>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <symbol id="seal-ring" viewBox="0 0 200 200">
+        <path id="seal-top" d="M100 100 m-75 0 a75 75 0 1 1 150 0" fill="none"/><path id="seal-bottom" d="M100 100 m-85 0 a85 85 0 0 0 170 0" fill="none"/>
+        <circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="3"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text fill="currentColor" style="font-size:15px;font-weight:600;letter-spacing:2.6px"><textPath href="#seal-top" startOffset="50%" text-anchor="middle">AUDIOBOOK PROJECT</textPath></text>
+        <text fill="currentColor" style="font-size:12px;font-weight:400;letter-spacing:2.8px"><textPath href="#seal-bottom" startOffset="50%" text-anchor="middle">FREE TO ALL · EST. 2026</textPath></text>
+        <circle cx="20" cy="100" r="2.4" fill="currentColor"/><circle cx="180" cy="100" r="2.4" fill="currentColor"/>
+      </symbol>
+    </svg>
+    <div class="seals">
+      <span class="seal" style="width:180px;height:180px"><svg viewBox="0 0 200 200" aria-label="Audiobook Project seal: Free to all, established 2026" role="img"><use href="#seal-ring"/></svg><span class="m"></span></span>
+      <span class="seal" style="width:96px;height:96px"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#seal-ring"/></svg><span class="m"></span></span>
+      <span class="seal-badge"><span class="seal" style="width:100px;height:100px"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#seal-ring"/></svg><span class="m"></span></span></span>
+    </div>
+    <ul>
+      <li>The name runs around the top in Public Sans capitals at 600; "Free to all · Est. 2026" runs around the bottom at 400. Two rings, two dots at the sides, the mark in the middle.</li>
+      <li>Library green on paper, or paper on Library green. Same rules as the mark: no other colors, no effects.</li>
+      <li>Use it at 96px or larger, where the ring text is readable. Below that, use the mark.</li>
+    </ul>
+
+    <h2 id="color">Color</h2>
+    <p>Ink on paper. Almost everything is black, white and three greys. Color is reserved for meaning: blue shows progress, green confirms, red warns. Never use more than one of them in the same view, and never as decoration.</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip"><span style="background:#1f5640"></span><span style="background:#7fbf9c"></span></div><div class="meta"><b>Library green — logo only</b><code>#1F5640 · dark #7FBF9C</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#111111"></span><span style="background:#f2f2f0"></span></div><div class="meta"><b>Ink</b><code>#111111 · dark #F2F2F0</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#ffffff"></span><span style="background:#111111"></span></div><div class="meta"><b>Paper</b><code>#FFFFFF · dark #111111</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#f6f6f4"></span><span style="background:#1a1a19"></span></div><div class="meta"><b>Soft</b><code>#F6F6F4 · dark #1A1A19</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#e9e9e7"></span><span style="background:#262625"></span></div><div class="meta"><b>Line</b><code>#E9E9E7 · dark #262625</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#555555"></span><span style="background:#a8a8a4"></span></div><div class="meta"><b>Ink 2 (body)</b><code>#555555 · dark #A8A8A4</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#8a8a8a"></span><span style="background:#75756f"></span></div><div class="meta"><b>Ink 3 (hints)</b><code>#8A8A8A · dark #75756F</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#2563eb"></span><span style="background:#6b9bff"></span></div><div class="meta"><b>Blue — progress</b><code>#2563EB · dark #6B9BFF</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#16803c"></span><span style="background:#4cc278"></span></div><div class="meta"><b>Green — confirm</b><code>#16803C · dark #4CC278</code></div></div>
+      <div class="sw"><div class="chip"><span style="background:#c62828"></span><span style="background:#ff7a70"></span></div><div class="meta"><b>Red — warn</b><code>#C62828 · dark #FF7A70</code></div></div>
+    </div>
+    <p>Generated book covers are the one place with gentle tints: a muted hue derived from the title (22% saturation, 90% lightness in light mode), with the title in a serif.</p>
+
+    <h2 id="type">Type</h2>
+    <p>Two faces with separate jobs.</p>
+    <ul>
+      <li><strong>Public Sans</strong> is the name: the wordmark and page titles (h1). It was made for U.S. government websites, so it reads as public, plain and trustworthy, and it gives the name the same shape on every device. It's free (SIL Open Font License) and self-hosted from <code>/fonts</code>, so pages never call another server.</li>
+      <li><strong>The system font</strong> runs everything else: San Francisco on Apple devices, Segoe on Windows, Roboto on Android, Inter as the fallback. Buttons, labels, body copy and section headings. It loads instantly and feels native everywhere.</li>
+    </ul>
+    <p>The only serif is book text: the voice samples and generated covers, set in the device's own serif.</p>
+    <div>
+      <div class="type-row"><code>Title · Public Sans 34/650 · −0.025em</code><span style="font-family:var(--display);font-size:34px;font-weight:650;letter-spacing:-.025em;line-height:1.15">Turn any EPUB into an audiobook.</span></div>
+      <div class="type-row"><code>Lede · 17/400 · Ink 2</code><span style="font-size:17px;color:var(--ink-2)">Upload a book, choose a voice, and start listening.</span></div>
+      <div class="type-row"><code>Body · 15/400</code><span>Narration keeps going if you close this page.</span></div>
+      <div class="type-row"><code>Label · 13/600 · Ink 2</code><span style="font-size:13px;font-weight:600;color:var(--ink-2)">Your books</span></div>
+      <div class="type-row"><code>Hint · 13/400 · Ink 3</code><span style="font-size:13px;color:var(--ink-3)">About 9 h 40 min of audio · 89,412 words</span></div>
+    </div>
+    <p>Sentence case everywhere except the name. Numbers use tabular figures where they change (timers, progress).</p>
+
+    <h2 id="layout">Layout and components</h2>
+    <ul>
+      <li><strong>One column</strong>, 680px wide, generous top space. Content is separated by hairlines, not boxed in cards. One bordered panel per screen at most.</li>
+      <li><strong>One primary button</strong> per screen, in ink. Everything else is a secondary button or a plain text link.</li>
+      <li><strong>Icons</strong> are 1.75-stroke outlines with round caps, 18px. No filled icon sets, no emoji in the interface.</li>
+      <li><strong>Corners</strong>: 9px on buttons and inputs, 14px on panels, round on play buttons. No drop shadows except the floating player's blur.</li>
+      <li><strong>Motion</strong> is functional only: progress, spinners, a 120ms hover fade.</li>
+    </ul>
+    <div class="demo">
+      <button class="btn primary">Create audiobook — free</button>
+      <button class="btn">Add to podcast app</button>
+      <button class="link">Select all</button>
+    </div>
+
+    <h2 id="voice">Voice</h2>
+    <p>Write like a helpful librarian: short, specific, calm. Say exactly what will happen. Prefer real numbers to adjectives.</p>
+    <div class="dodont">
+      <div class="dd do"><h4>Do</h4><ul>
+        <li>"About 9 h 40 min of audio"</li>
+        <li>"You can close this page. Narration keeps going."</li>
+        <li>"This book is DRM-protected, so it can't be converted."</li>
+        <li>"Free" when it's free, with no asterisk.</li>
+      </ul></div>
+      <div class="dd dont"><h4>Don't</h4><ul>
+        <li>"Unleash the power of AI narration ✨"</li>
+        <li>"Revolutionary", "seamless", "magic", "effortless"</li>
+        <li>Urgency, countdowns, or fake scarcity</li>
+        <li>Exclamation marks in interface copy</li>
+      </ul></div>
+    </div>
+
+    <h2 id="downloads">Downloads</h2>
+    <ul>
+      <li><a href="/brand/mark.svg" download>mark.svg</a>: the mark alone, in <code>currentColor</code> so it takes the surrounding text color.</li>
+      <li><a href="/brand/icon.svg" download>icon.svg</a>: paper mark on a Library green tile, for favicons and app icons.</li>
+      <li><a href="/brand/icon-512.png" download>icon-512.png</a> and <a href="/brand/icon-180.png" download>icon-180.png</a>: PNG versions for platforms that need them.</li>
+    </ul>
+  </main>
+
+{{footer}}
+</body>
+</html>

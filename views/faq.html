@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <link rel="canonical" href="{{canonical}}">
+  <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+{{header}}
+  <main class="prose">
+    <h1>Frequently asked questions</h1>
+    <p class="lede">Short answers. If yours isn't here, <a href="{{github}}/issues">ask on GitHub</a>.</p>
+
+    <h2>Using it</h2>
+    <div class="qa">
+      <details open><summary>Is it really free?</summary>
+        <p>Yes. The standard voices are free with no account, no trial and no watermark. Premium voices will cost a small amount per word when they launch, and the price will always be shown before you pay.</p></details>
+      <details><summary>Which files work?</summary>
+        <p>DRM-free EPUB files, and PDFs with selectable text, up to 50 MB. Scanned PDFs (photos of pages) don't work yet.</p></details>
+      <details><summary>Why won't my Kindle or Apple Books purchase work?</summary>
+        <p>Books bought from Amazon, Apple, Kobo and most other stores are DRM-protected, which means they're locked to that store's app. Audiobook Project can't convert them and won't help remove the protection. Books from Project Gutenberg, Standard Ebooks and many indie authors are DRM-free.</p></details>
+      <details><summary>How long does it take?</summary>
+        <p>The first chapter is usually ready in about a minute, and you can start listening while the rest is narrated. A full novel takes a few hours. You can close the page; narration keeps going.</p></details>
+      <details><summary>What voices are there?</summary>
+        <p>The free voices come from Kokoro, an open neural text-to-speech model. There are about two dozen American and British English voices. Press "Sample" to hear any voice read the opening of your own book.</p></details>
+      <details><summary>Can I choose which chapters to narrate?</summary>
+        <p>Yes. Copyright pages, tables of contents and license text are unticked automatically, and you can tick or untick any chapter yourself.</p></details>
+    </div>
+
+    <h2>Listening</h2>
+    <div class="qa">
+      <details><summary>What's the difference between M4B and MP3?</summary>
+        <p>M4B is the standard audiobook format: one file with chapter markers and cover art that remembers your place. It plays in Apple Books, BookPlayer and Audiobookshelf. MP3 plays on almost anything, including older players and car stereos. Both have chapter markers.</p></details>
+      <details><summary>How do I listen on my phone?</summary>
+        <p>Press "Add to podcast app" and paste the link into Apple Podcasts, Overcast or Pocket Casts. Each chapter appears as an episode, with your place and speed remembered. Or download the M4B and open it in Apple Books.</p></details>
+    </div>
+
+    <h2>Privacy and rights</h2>
+    <div class="qa">
+      <details><summary>Who can see my books?</summary>
+        <p>Only you. Your books are tied to your browser, not to an account, and they never appear anywhere public. See the <a href="/privacy">privacy page</a> for exactly what is stored.</p></details>
+      <details><summary>How long are my files kept?</summary>
+        <p>30 days after you upload them, then the book, its text and its audio are deleted automatically. You can delete a book yourself at any time.</p></details>
+      <details><summary>Do you use my books to train AI?</summary>
+        <p>No. Your books are used only to make your audiobook.</p></details>
+      <details><summary>Can I share or sell the audiobook I make?</summary>
+        <p>Only if you have the rights to the book. Public-domain books are yours to share. For anything else, the audiobook is for your own listening.</p></details>
+    </div>
+
+    <h2>The project</h2>
+    <div class="qa">
+      <details><summary>Who makes this?</summary>
+        <p>Joe Philleo, in the open, with anyone who wants to help. <a href="/about">More about the project.</a></p></details>
+      <details><summary>How can I help?</summary>
+        <p>Report a book that came out wrong, fix a bug, or improve a translation on <a href="{{github}}">GitHub</a>. Or <a href="/donate">donate</a> to cover server costs.</p></details>
+    </div>
+  </main>
+{{footer}}
+</body>
+</html>

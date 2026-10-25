@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logo and type exploration — Audiobook Project</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <!-- Exploration only. Whichever font wins gets self-hosted, so the live site never calls Google. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap">
+  <style>
+    :root { --green: #1f5640; }
+    .top, main, .foot { max-width: 1080px; }
+    .ex h1 { margin-top: 40px; }
+    .ex h2 { font-size: 20px; font-weight: 650; letter-spacing: -.015em; color: var(--ink); margin: 56px 0 4px; }
+    .ex > p { color: var(--ink-2); max-width: 700px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-top: 16px; }
+    .card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: grid; align-content: start; background: #fff; color: #111; }
+    .card .stage { display: flex; align-items: flex-end; justify-content: center; gap: 24px; padding: 26px 16px 18px; }
+    .card .lockups { display: grid; gap: 10px; padding: 14px 18px; background: #fbfaf6; border-top: 1px solid var(--line); }
+    .card .lockups.ink { background: #14201b; color: #f3efe6; }
+    .lock { display: inline-flex; align-items: center; gap: 9px; font-family: 'Literata', serif; font-weight: 600; font-size: 19px; letter-spacing: -.01em; white-space: nowrap; }
+    .lock .soft { font-weight: 400; color: #7c7a72; }
+    .lockups.ink .lock .soft { color: #a6a294; }
+    .lock svg { color: var(--green); }
+    .lockups.ink .lock svg { color: #f3efe6; }
+    .card .meta { padding: 12px 18px 16px; border-top: 1px solid var(--line); }
+    .card .meta b { font-weight: 600; }
+    .card .meta p { margin: 4px 0 0; font-size: 13px; color: #555; }
+    .theme { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--green); font-weight: 600; }
+    .card svg { fill: currentColor; stroke: none; }
+    .tile { display: grid; place-items: center; border-radius: 22%; background: var(--green); color: #fff; }
+
+    .wordmarks { display: grid; gap: 14px; margin-top: 16px; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); }
+    .wm-card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; color: #111; }
+    .wm-card .stage { padding: 34px 28px; display: grid; place-items: center; min-height: 150px; }
+    .wm-card .stage.ink { background: #14201b; color: #f3efe6; min-height: 0; padding: 20px; }
+    .wm-card .meta { padding: 12px 18px 16px; border-top: 1px solid var(--line); }
+    .wm-card .meta p { margin: 4px 0 0; font-size: 13px; color: #555; }
+
+    /* The final mark, as a mask so it takes the text color. */
+    .m { display: block; flex: none; background: currentColor; -webkit-mask: url(/brand/mark.svg) center / contain no-repeat; mask: url(/brand/mark.svg) center / contain no-repeat; }
+
+    /* Typeface comparison: every card has the same parts in the same places. */
+    .faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 14px; margin-top: 16px; }
+    .face { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; color: #111; display: grid; align-content: start; }
+    .face.rec { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+    .face .hdr { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #e9e9e7; }
+    .face .hdr nav { display: flex; gap: 14px; font: 13px -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; color: #555; }
+    .face .big { display: grid; place-items: center; padding: 34px 18px 26px; }
+    .face .title { padding: 0 18px 22px; }
+    .face .title h3 { margin: 0 0 6px; font-size: 26px; line-height: 1.15; color: #111; }
+    .face .title p { margin: 0; font-size: 15px; color: #555; font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; }
+    .face .ink { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; background: #111; color: #f2f2f0; }
+    .face .meta { padding: 12px 18px 16px; border-top: 1px solid #e9e9e7; }
+    .face .meta b { font-weight: 600; }
+    .face .meta p { margin: 4px 0 0; font-size: 13px; color: #555; }
+    .face .meta .why { color: #111; }
+    .face .pick { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--green); font-weight: 650; }
+    .lk { display: inline-flex; align-items: center; gap: .45em; white-space: nowrap; }
+    .lk .m { width: 1.75em; height: 1.75em; color: var(--green); }
+    .ink .lk .m { color: #f2f2f0; }
+    .lk .soft { color: #8a8a8a; }
+    .ink .lk .soft { color: #8a8a85; }
+
+    /* Seals: text on a ring around the mark. */
+    .seal { position: relative; display: inline-block; flex: none; color: var(--green); }
+    .seal svg { width: 100%; height: 100%; stroke: none; }
+    .seal .m { position: absolute; left: 30%; top: 30%; width: 40%; height: 40%; }
+    .ink .seal, .seal.on-green { color: #f2f2f0; }
+    .seals { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-top: 16px; }
+    .seal-card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; color: #111; }
+    .seal-card .big { display: grid; place-items: center; padding: 26px 18px; }
+    .seal-card .row { display: flex; align-items: center; justify-content: center; gap: 22px; padding: 16px 18px; background: #f6f6f4; border-top: 1px solid #e9e9e7; }
+    .seal-card .badge { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 22%; background: var(--green); }
+    .seal-card .meta { padding: 12px 18px 16px; border-top: 1px solid #e9e9e7; }
+    .seal-card .meta b { font-weight: 600; }
+    .seal-card .meta p { margin: 4px 0 0; font-size: 13px; color: #555; }
+    .older { margin-top: 72px; padding-top: 8px; border-top: 1px solid var(--line); }
+    @media (max-width: 640px) { .faces, .wordmarks { grid-template-columns: 1fr; } .face .hdr nav { display: none; } }
+  </style>
+</head>
+<body>
+{{header}}
+  <main class="ex">
+    <h1>Exploration, round 6</h1>
+    <p class="lede">The humpback is settled. This round picked Public Sans for the wordmark and page titles (Literata was tried first, but the serif didn’t feel right), and the "Free to all" seal; both are now in the <a href="/brand">brand guide</a>. The other options stay here for comparison.</p>
+
+    <h2>Typeface</h2>
+    <p>Each card shows the same five things: the site header at real size, the full lockup, a page title over body text in the system font, the lockup on ink, and a seal. Only the wordmark and page titles change; buttons, labels and body copy stay in the system font, so the site stays fast and native. All six are free (SIL Open Font License) and can be self-hosted.</p>
+    <div class="faces" id="faces"></div>
+
+    <h2>Seals</h2>
+    <p>The seal is a badge, not a second logo: for stickers, the donate page, social avatars and printed things. The humpback sits in the middle and the name runs around the top. Set in Literata.</p>
+    <div class="seals" id="seals"></div>
+
+    <section class="older">
+    <h2>Earlier rounds</h2>
+    <p>Kept for reference. Round 5's symbols led to the humpback, and round 3's wordmarks led to the typefaces above.</p>
+
+    <h2>Symbols (round 5)</h2>
+    <p>Shown large, at 40px, at 16px (a browser tab), as an app icon, and with a Literata wordmark in Library green.</p>
+    <div class="grid" id="symbols"></div>
+
+    <h2>Wordmarks (round 3)</h2>
+    <p>No symbol, or a symbol only as a small accent. This is how Project Gutenberg and Wikipedia are recognized.</p>
+    <div class="wordmarks">
+      <div class="wm-card">
+        <div class="stage"><span style="font-family:'Literata',serif;font-size:44px;font-weight:600;letter-spacing:-.02em">Audiobook <i style="font-weight:400">Project</i></span></div>
+        <div class="stage ink"><span style="font-family:'Literata',serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Audiobook <i style="font-weight:400">Project</i></span></div>
+        <div class="meta"><b>W1 · Roman and italic</b><p>"Audiobook" upright, "Project" in italic: the italic feels like a voice, like a word spoken with emphasis. Simple and literary.</p></div>
+      </div>
+      <div class="wm-card">
+        <div class="stage"><span style="font-family:'Source Serif 4',serif;font-size:30px;font-weight:600;letter-spacing:.14em;text-transform:uppercase">Audiobook Project</span></div>
+        <div class="stage ink"><span style="font-family:'Source Serif 4',serif;font-size:17px;font-weight:600;letter-spacing:.14em;text-transform:uppercase">Audiobook Project</span></div>
+        <div class="meta"><b>W2 · Spaced capitals</b><p>Carved-in-stone capitals, like a library facade or a university press. The most institutional and serious.</p></div>
+      </div>
+      <div class="wm-card">
+        <div class="stage">
+          <span style="display:grid;justify-items:center;gap:6px;font-family:'Literata',serif">
+            <span style="font-size:46px;font-weight:600;letter-spacing:-.02em;line-height:1">Audiobook</span>
+            <span style="display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:#555"><span style="width:28px;height:1px;background:#999"></span>Project<span style="width:28px;height:1px;background:#999"></span></span>
+          </span>
+        </div>
+        <div class="stage ink"><span style="font-family:'Literata',serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Audiobook <span style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;font-weight:400;opacity:.7">Project</span></span></div>
+        <div class="meta"><b>W3 · Title page</b><p>Stacked like the title page of an old book: the name large, "Project" small and spaced between rules.</p></div>
+      </div>
+      <div class="wm-card">
+        <div class="stage"><span style="font-family:'Literata',serif;font-size:44px;font-weight:600;letter-spacing:-.02em">Audiob<span style="position:relative;display:inline-block">oo<span style="position:absolute;left:3px;right:3px;top:-6px;height:22px;border:3.2px solid #1f5640;border-bottom:0;border-radius:24px 24px 0 0"></span></span>k <i style="font-weight:400">Project</i></span></div>
+        <div class="stage ink"><span style="font-family:'Literata',serif;font-size:24px;font-weight:600">Audiob<span style="position:relative">oo<span style="position:absolute;left:1px;right:1px;top:-3px;height:10px;border:2px solid #9ccab2;border-bottom:0;border-radius:12px 12px 0 0"></span></span>k <i style="font-weight:400">Project</i></span></div>
+        <div class="meta"><b>W4 · The hidden detail</b><p>The two o's in "Audiobook" wear a small headband, so they become headphones. Invisible until you notice it, then you always see it.</p></div>
+      </div>
+    </div>
+    </section>
+  </main>
+{{footer}}
+
+<script type="module">
+const FACES = [
+  {
+    name: "Literata", pick: "Tried",
+    family: "'Literata', serif", weight: 600, track: "-.02em", soft: "font-style:italic;font-weight:400",
+    why: "Designed for reading books on screens (it's the face of Google Play Books), with a real italic and optical sizes. It looks like a book without looking old, and the italic \"Project\" reads like a voice.",
+    use: "Wordmark and page titles at 600, the italic for \"Project\". About 40 KB for two subset weights.",
+  },
+  {
+    name: "Source Serif 4", pick: "Runner-up",
+    family: "'Source Serif 4', serif", weight: 600, track: "-.015em", soft: "font-style:italic;font-weight:400",
+    why: "Sturdier and more institutional than Literata: a university press or a public library sign. Very legible small, but a little plain at title sizes.",
+    use: "Good if the seal and printed materials matter more than the screen.",
+  },
+  {
+    name: "Newsreader", pick: "Editorial",
+    family: "'Newsreader', serif", weight: 600, track: "-.02em", soft: "font-style:italic;font-weight:400",
+    why: "Warm and elegant at large sizes, with a lovely italic. It leans toward a magazine more than a library, and the header size is where it's weakest.",
+    use: "Best if titles get bigger and more expressive.",
+  },
+  {
+    name: "Public Sans", pick: "Chosen",
+    family: "'Public Sans', sans-serif", weight: 650, track: "-.02em", soft: "font-weight:500;color:#8a8a8a",
+    why: "Made for U.S. government websites: neutral, trustworthy, public. The closest to today's look while still having an identity of its own.",
+    use: "Choose this if a serif feels too bookish.",
+  },
+  {
+    name: "Atkinson Hyperlegible Next", pick: "Accessibility",
+    family: "'Atkinson Hyperlegible Next', sans-serif", weight: 650, track: "-.01em", soft: "font-weight:500;color:#8a8a8a",
+    why: "From the Braille Institute, drawn so letters can't be confused. It tells the accessibility story behind the dyslexia and low-vision pages, but its shapes are quirkier as a wordmark.",
+    use: "Strong as a body font for a reading mode, even if it isn't the wordmark.",
+  },
+  {
+    name: "System font (today)", pick: "Baseline",
+    family: "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif", weight: 650, track: "-.02em", soft: "font-weight:500;color:#8a8a8a",
+    why: "What the site uses now. Fast and native everywhere, but it looks different on every device, so the name has no shape of its own.",
+    use: "Keep if no option above beats it.",
+  },
+];
+
+// Ring text sized to the circle; the mark sits in the middle.
+let n = 0;
+const seal = ({ family, weight }, size, top = "AUDIOBOOK PROJECT", bottom = "FREE TO ALL · EST. 2026", cls = "") => {
+  const id = `seal${n++}`;
+  return `<span class="seal ${cls}" style="width:${size}px;height:${size}px" aria-hidden="true"><svg viewBox="0 0 200 200">
+    <defs><path id="${id}t" d="M100 100 m-75 0 a75 75 0 1 1 150 0"/><path id="${id}b" d="M100 100 m-85 0 a85 85 0 0 0 170 0"/></defs>
+    <circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="3"/>
+    <circle cx="100" cy="100" r="62" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <text fill="currentColor" style="font-family:${family};font-size:15px;font-weight:${weight};letter-spacing:2.6px"><textPath href="#${id}t" startOffset="50%" text-anchor="middle">${top}</textPath></text>
+    <text fill="currentColor" style="font-family:${family};font-size:12px;font-weight:400;letter-spacing:2.8px"><textPath href="#${id}b" startOffset="50%" text-anchor="middle">${bottom}</textPath></text>
+    <circle cx="20" cy="100" r="2.4" fill="currentColor"/><circle cx="180" cy="100" r="2.4" fill="currentColor"/>
+  </svg><span class="m"></span></span>`;
+};
+const lockup = (f, px) => `<span class="lk" style="font-family:${f.family};font-weight:${f.weight};letter-spacing:${f.track};font-size:${px}px"><span class="m"></span><span>Audiobook <span class="soft" style="${f.soft}">Project</span></span></span>`;
+
+document.getElementById("faces").innerHTML = FACES.map((f, i) => `
+  <div class="face${f.pick === "Chosen" ? " rec" : ""}">
+    <div class="hdr">${lockup(f, 16)}<nav><span>Converters</span><span>FAQ</span><span>About</span></nav></div>
+    <div class="big">${lockup(f, 34)}</div>
+    <div class="title">
+      <h3 style="font-family:${f.family};font-weight:${f.weight};letter-spacing:${f.track}">Turn any EPUB into an audiobook.</h3>
+      <p>Upload a book, choose a voice, and start listening. Narration keeps going if you close this page.</p>
+    </div>
+    <div class="ink">${lockup(f, 20)}${seal(f, 84)}</div>
+    <div class="meta"><span class="pick">${f.pick}</span><br><b>${f.name}</b><p class="why">${f.why}</p><p>${f.use}</p></div>
+  </div>`).join("");
+
+const SEALS = [
+  { name: "Seal · Free to all", note: "Reads like a library stamp. \"Free to all\" is the promise, and the year makes it feel like an institution.", bottom: "FREE TO ALL · EST. 2026", pick: "Recommended" },
+  { name: "Seal · Stories, read aloud", note: "Says what the Project does instead of what it costs. Warmer, less official.", bottom: "STORIES, READ ALOUD" },
+];
+document.getElementById("seals").innerHTML = SEALS.map((s) => `
+  <div class="seal-card">
+    <div class="big">${seal(FACES[0], 200, undefined, s.bottom)}</div>
+    <div class="row">${seal(FACES[0], 96, undefined, s.bottom)}${seal(FACES[0], 48, undefined, s.bottom)}<span class="badge">${seal(FACES[0], 56, undefined, s.bottom, "on-green")}</span></div>
+    <div class="meta">${s.pick ? `<span class="pick" style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--green);font-weight:650">${s.pick}</span><br>` : ""}<b>${s.name}</b><p>${s.note}</p></div>
+  </div>`).join("");
+
+// 48×48 sketches in currentColor. Secondary tones use opacity so they work in any color.
+const OPEN_BOOK = (y = 0) => `<path d="M4 ${38 + y}c6.4-3.4 13-3.6 19 0V${23 + y}c-6-3.6-12.6-3.4-19 0z"/><path d="M44 ${38 + y}c-6.4-3.4-13-3.6-19 0V${23 + y}c6-3.6 12.6-3.4 19 0z"/>`;
+
+// Shared parts. BOOK(top) draws an open book whose page tops sit at y=top.
+const BOOK = (t = 30) => `<path d="M4 ${t + 12}c6.4-3.4 13-3.6 19 0V${t}c-6-3.6-12.6-3.4-19 0zM44 ${t + 12}c-6.4-3.4-13-3.6-19 0V${t}c6-3.6 12.6-3.4 19 0z"/>`;
+const SWALLOW = `<path d="M43 13.2l-3.6-.6c-2.4-1.6-5.6-1.4-8 .2L20 20.2l-9.2.2 5 2.2-6.2 3.6 11.8-1.8c5.6.6 11.6-1.8 15-5.6 2-2.2 3.8-4.2 6.6-5.6z"/><path d="M31.8 14.6C29.4 9 25.2 4.6 18 2c3.2 4.6 4.6 9 4.8 15.6z"/>`;
+const SPARK = (x, y, r) => `<path d="M${x} ${y - r}C${x + r * .16} ${y - r * .2} ${x + r * .2} ${y - r * .16} ${x + r} ${y}C${x + r * .2} ${y + r * .16} ${x + r * .16} ${y + r * .2} ${x} ${y + r}C${x - r * .16} ${y + r * .2} ${x - r * .2} ${y + r * .16} ${x - r} ${y}C${x - r * .2} ${y - r * .16} ${x - r * .16} ${y - r * .2} ${x} ${y - r}z"/>`;
+
+const SYMBOLS = [
+  {
+    theme: "Book comes to life", name: "1 · The book is the bird",
+    note: "A hardcover in flight: its covers are the wings, its pages fan out underneath, with a small head and a forked tail. Straight-edged covers keep it reading as a book.",
+    svg: () => `<path d="M24 19.4 5.2 12.6l-1.6 13L24 33z" opacity=".38"/><path d="M24 19.4l18.8-6.8 1.6 13L24 33z" opacity=".38"/>
+      <path d="M24 17 6 9.6 4.4 22.2 24 30.4z"/><path d="M24 17l18-7.4 1.6 12.6L24 30.4z"/>
+      <circle cx="24" cy="13.4" r="3"/><path d="M26.8 12.6l3.2 1-3.2.9z"/>
+      <path d="M24 30 21 38l3-2.2 3 2.2z"/>`,
+  },
+  {
+    theme: "Book comes to life", name: "2 · Pages turning into birds",
+    note: "A page leaves the book, folds in mid-air, and is a swallow by the time it flies off. The transformation, told left to right.",
+    svg: () => `<path d="M2.5 45c3.8-2 7.6-2.1 11.2 0v-7.4c-3.6-2.1-7.4-2-11.2 0zM25 45c-3.8-2-7.6-2.1-11.2 0v-7.4c3.6-2.1 7.4-2 11.2 0z"/>
+      <rect x="17" y="24" width="7.6" height="10" rx=".8" transform="rotate(-22 20.8 29)" opacity=".45"/>
+      <path d="M26.4 22.4 30.6 15l4.4 6.6-4.3-2.1z" opacity=".7"/>
+      <g transform="translate(28.4 -1) scale(.44)">${SWALLOW}</g>`,
+  },
+  {
+    theme: "Book comes to life", name: "3 · The bookmark ribbon",
+    note: "The ribbon bookmark trails up out of the book and becomes the swallow's long tail: the bird is flying off with your place in the story.",
+    svg: () => `<path d="M24 31.6C22.4 26 25.6 22.6 28.6 19.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <g transform="translate(28.6 19.6) rotate(-26) scale(.62) translate(-10.6 -23.4)">${SWALLOW}</g>
+      ${BOOK(30)}`,
+  },
+  {
+    theme: "Book comes to life", name: "4 · The wing of pages, over its book",
+    note: "Last round's strongest silhouette, now with its book beneath it: a swallow whose wing is a fan of turning pages, just lifting off the book it came from.",
+    svg: () => `<g transform="translate(1.4 0) scale(.88)">
+      <path d="M43 13.2l-3.6-.6c-2.4-1.6-5.6-1.4-8 .2L20 20.2l-9.2.2 5 2.2-6.2 3.6 11.8-1.8c5.6.6 11.6-1.8 15-5.6 2-2.2 3.8-4.2 6.6-5.6z"/>
+      <path d="M31.8 14.6C29.4 9 25.2 4.6 18 2c3.2 4.6 4.6 9 4.8 15.6z" transform="rotate(-34 30 15.6)" opacity=".35"/>
+      <path d="M31.8 14.6C29.4 9 25.2 4.6 18 2c3.2 4.6 4.6 9 4.8 15.6z" transform="rotate(-17 30 15.6)" opacity=".6"/>
+      <path d="M31.8 14.6C29.4 9 25.2 4.6 18 2c3.2 4.6 4.6 9 4.8 15.6z"/></g>
+      ${BOOK(33)}`,
+  },
+  {
+    theme: "Whale", name: "5 · The whale breaching",
+    note: "A whale surfacing through the pages, with a spout. Side-on with a spout is how everyone draws a whale, so it can't be mistaken for anything else.",
+    svg: (id) => `<mask id="${id}"><rect width="48" height="48" fill="#fff"/><circle cx="35.4" cy="22.4" r="1.15" fill="#000"/><path d="M41.4 26.4c-2.6.8-5.2 1-8 .6" stroke="#000" stroke-width="1.1" fill="none" stroke-linecap="round"/></mask>
+      <path mask="url(#${id})" d="M9 31c-.4-7.8 6.6-14 17-14 8.6 0 15.4 4.2 16.6 10.2.3 1.6-.4 3-1.8 3.6L9 33z"/>
+      <path d="M9.6 29.6c-1.8-3.4-4-5.2-7-5.6 1.2 2.6 3 4.4 5.2 5.6-2 .6-3.4 1.8-4.2 3.6 2.4 0 4.4-.6 6-1.8z"/>
+      <path d="M34.6 16.4c0-3-1.4-5.4-3.8-6.8M34.6 16.4c.2-3 1.8-5.2 4.4-6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="30" cy="7.4" r="1.2"/><circle cx="40.4" cy="8" r="1.2"/>
+      ${BOOK(31)}`,
+  },
+  {
+    theme: "Whale", name: "6 · The tail, diving",
+    note: "The whale's tail, angled and dripping as it dives into pages whose edges are waves. Off-center and wet, so it reads as a whale, not a tree.",
+    svg: () => `<g transform="rotate(-16 24 30)"><path d="M22.6 31c.8-3.4 1-6.6.6-10h2.4c-.4 3.4-.2 6.6.6 10z"/>
+      <path d="M24.4 22.4c-4.2-4.4-10.6-6-18-5.4 3.2-4.4 9.4-6.8 15.2-5.2 1.3.4 2.2 1.2 2.8 2.4.6-1.2 1.5-2 2.8-2.4 5.8-1.6 12 .8 15.2 5.2-7.4-.6-13.8 1-18 5.4z"/></g>
+      <path d="M8.6 19.6c-.6 1.2-.6 2.2 0 2.8.6-.6.6-1.6 0-2.8zM37.4 9.4c-.7 1.3-.7 2.5 0 3.2.7-.7.7-1.9 0-3.2zM40.6 14.2c-.5 1-.5 1.8 0 2.3.5-.5.5-1.3 0-2.3z"/>
+      <path d="M4 42c6.4-3.4 13-3.6 19 0V31c-1.6-1.4-3.4-1.4-4.8 0s-3.2 1.4-4.8 0-3.2-1.4-4.8 0S5.6 32.4 4 31zM44 42c-6.4-3.4-13-3.6-19 0V31c1.6-1.4 3.4-1.4 4.8 0s3.2 1.4 4.8 0 3.2-1.4 4.8 0 3.2 1.4 4.8 0z"/>`,
+  },
+  {
+    theme: "Magic, not night", name: "7 · The sparkle",
+    note: "The bedtime story without the night: one bright sparkle rising out of the book, with two small ones. Magic, any time of day.",
+    svg: () => `${SPARK(24, 15, 10)}${SPARK(36.4, 7, 3.6)}${SPARK(12.4, 21, 2.8)}${BOOK(31)}`,
+  },
+  {
+    theme: "Magic, not night", name: "8 · Sunrise",
+    note: "A sun rising out of the open book like a horizon. Warm, optimistic, the start of a story.",
+    svg: (id) => `<path d="M14.4 30a9.6 9.6 0 0 1 19.2 0z"/>
+      <g stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M24 15.2V11M14.2 19.2l-2.8-2.8M33.8 19.2l2.8-2.8M10 25.6H6.4M38 25.6h3.6"/></g>
+      ${BOOK(31)}`,
+  },
+  {
+    theme: "Magic, not night", name: "9 · The glow",
+    note: "Light radiating out of the open pages, with a small spark at the center. The book is lit from inside, like something magical just opened.",
+    svg: () => `<path d="M10.4 27.6a13.6 13.6 0 0 1 27.2 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".4"/>
+      <path d="M4.8 26.8a19.2 19.2 0 0 1 38.4 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".2"/>
+      ${SPARK(24, 20, 6.4)}${BOOK(31)}`,
+  },
+  {
+    theme: "Magic, not night", name: "10 · The shooting star",
+    note: "A star arcing up out of the gutter, its tail still trailing from the pages. Magic with motion: the story just leapt off the page.",
+    svg: () => `<path d="M24 31.4c-.4-9.4 4.6-16.4 12.6-20.2-6.4 5.2-9.8 11.8-10 20.2z" opacity=".55"/>
+      ${SPARK(37.6, 10.4, 7)}${BOOK(31)}`,
+  },
+];
+
+let m = 0;
+const mark = (s, size) => `<svg viewBox="0 0 48 48" style="width:${size}px;height:${size}px" aria-hidden="true">${s.svg(`s${m++}`)}</svg>`;
+const lock = (s, size = 26) => `<span class="lock">${mark(s, size)}Audiobook <span class="soft">Project</span></span>`;
+document.getElementById("symbols").innerHTML = SYMBOLS.map((s) => `
+  <div class="card">
+    <div class="stage">${mark(s, 120)}${mark(s, 40)}${mark(s, 16)}<span class="tile" style="width:52px;height:52px">${mark(s, 36)}</span></div>
+    <div class="lockups">${lock(s)}</div>
+    <div class="lockups ink">${lock(s)}</div>
+    <div class="meta"><span class="theme">${s.theme}</span><br><b>${s.name}</b><p>${s.note}</p></div>
+  </div>`).join("");
+</script>
+</body>
+</html>

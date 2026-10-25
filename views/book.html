@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <link rel="canonical" href="{{canonical}}">
+  <meta property="og:type" content="music.album">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <meta property="og:url" content="{{canonical}}">
+  <meta property="og:image" content="{{ogimage}}">
+  <link rel="alternate" type="application/rss+xml" title="{{booktitle}} (podcast feed)" href="{{feed}}">
+  <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  {{jsonld}}
+</head>
+<body>
+{{header}}
+  <main class="prose library lib-book">
+    <nav class="lib-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a> › {{author}}</nav>
+    <div class="lib-book-head">
+      {{cover}}
+      <div>
+        <h1>{{booktitle}}</h1>
+        <p class="lib-byline">{{author}} · {{year}}</p>
+        <p class="lib-meta">{{meta}}</p>
+        <div class="lib-actions">
+          <button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Play chapter 1</span></button>
+          <a class="btn" href="{{m4b}}" download>M4B <span class="lib-size">{{m4bsize}}</span></a>
+          <a class="btn" href="{{mp3}}" download>MP3 <span class="lib-size">{{mp3size}}</span></a>
+          <button type="button" class="btn" id="lib-feed" data-feed="{{feed}}">Add to podcast app</button>
+        </div>
+      </div>
+    </div>
+    <p class="lib-about">{{bookdescription}}</p>
+
+    <h2 id="chapters">Chapters</h2>
+    <ol class="lib-chapters">
+        {{chapters}}
+    <audio id="lib-audio" preload="none"></audio>
+
+    <p class="lib-credit">Text from <a href="{{source}}" rel="noopener">Standard Ebooks</a> (public domain). Narrated with Kokoro, an open-source AI voice. Free to download and share.</p>
+    <div class="callout">
+      <p><strong>Have a different book?</strong> Turn any DRM-free EPUB or PDF into an audiobook like this one.</p>
+      <a class="btn" href="/">Make an audiobook</a>
+    </div>
+  </main>
+{{footer}}
+  <script src="/library.js" defer></script>
+</body>
+</html>

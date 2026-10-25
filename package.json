@@ -1,0 +1,24 @@
+{
+  "name": "audiobook-project",
+  "version": "1.0.0",
+  "description": "Audiobook Project: free, open-source audiobook maker. EPUB or PDF in, chaptered M4B/MP3 out.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "sample": "node scripts/make-sample-epub.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.3.0",
+    "fast-xml-parser": "^5.11.2",
+    "jszip": "^3.10.2",
+    "kokoro-js": "^1.2.1",
+    "multer": "^2.5.0",
+    "node-html-parser": "^9.0.5",
+    "pdfjs-dist": "^6.4.299"
+  }
+}

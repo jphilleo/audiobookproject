@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <link rel="canonical" href="{{canonical}}">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/brand/icon-512.png">
+  <meta property="og:site_name" content="Audiobook Project">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{canonical}}">
+  <meta property="og:image" content="{{origin}}/brand/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/style.css">
+  {{jsonld}}
+</head>
+<body data-format="{{format}}">
+{{header}}
+
+  <main>
+    <section id="home">
+      <h1>{{h1}}</h1>
+      <p class="lede">{{lede}}</p>
+
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="{{accept}}" hidden>
+        <span class="drop-idle">
+          <span class="btn primary" aria-hidden="true">{{button}}</span>
+          <span class="drop-hint">or drop it here</span>
+        </span>
+        <span class="drop-busy"><span class="spinner"></span> Reading your book…</span>
+      </label>
+      <p class="error" id="upload-error" hidden></p>
+
+      <ul class="facts">
+        {{facts}}
+      </ul>
+
+      <div id="library-wrap" hidden>
+        <h2>Your books</h2>
+        <ul id="library" class="rows"></ul>
+      </div>
+
+    {{seo}}
+    </section>
+
+    <section id="book" hidden></section>
+  </main>
+
+{{footer}}
+
+  <div class="player" id="player" hidden>
+    <div class="player-meta">
+      <div class="player-title" id="player-title"></div>
+      <div class="player-book" id="player-book"></div>
+    </div>
+    <div class="player-controls">
+      <button class="icon" id="back15" title="Back 15 seconds" aria-label="Back 15 seconds"></button>
+      <button class="icon play-main" id="playpause" title="Play" aria-label="Play"></button>
+      <button class="icon" id="fwd30" title="Forward 30 seconds" aria-label="Forward 30 seconds"></button>
+    </div>
+    <div class="player-seek">
+      <span id="cur">0:00</span>
+      <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek">
+      <span id="dur">0:00</span>
+    </div>
+    <button class="rate" id="rate" title="Playback speed">1×</button>
+    <button class="icon" id="close-player" title="Close player" aria-label="Close player"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <audio id="audio" preload="metadata"></audio>
+  </div>
+
+  <script src="/app.js" type="module"></script>
+  <script src="/samples.js" defer></script>
+</body>
+</html>

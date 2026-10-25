@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <link rel="canonical" href="{{canonical}}">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <meta property="og:url" content="{{canonical}}">
+  <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  {{jsonld}}
+</head>
+<body>
+{{header}}
+  <main class="prose library">
+    <h1>Free audiobooks</h1>
+    <p class="lede">Classic books, read aloud by our AI voices. Listen here, download them, or add them to your podcast app. They're all public domain, so they're yours to keep and share.</p>
+    {{grid}}
+    <div class="callout">
+      <p><strong>Have a book that isn't here?</strong> Make your own audiobook from any DRM-free EPUB or PDF. It takes about a minute to start listening.</p>
+      <a class="btn" href="/">Make an audiobook</a>
+    </div>
+    <p class="lib-credit">Texts from <a href="https://standardebooks.org" rel="noopener">Standard Ebooks</a>, which are public domain in the US. Narrated with Kokoro, an open-source AI voice model.</p>
+  </main>
+{{footer}}
+</body>
+</html>
