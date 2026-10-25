@@ -41,6 +41,36 @@ export const CATALOG = [
     source: "mary-shelley/frankenstein",
     description: "Victor Frankenstein builds a man, then runs from what he's made. It's sadder and stranger than the movies, and a big part of it is told by the creature in his own words.",
   },
+  {
+    slug: "pride-and-prejudice", authorSlug: "jane-austen",
+    title: "Pride and Prejudice", author: "Jane Austen", year: 1813,
+    source: "jane-austen/pride-and-prejudice",
+    description: "Elizabeth Bennet and Mr Darcy get each other wrong for most of a book. It's funny and sharp, and still the best first-impressions story there is.",
+  },
+  {
+    slug: "the-adventures-of-sherlock-holmes", authorSlug: "arthur-conan-doyle",
+    title: "The Adventures of Sherlock Holmes", shortTitle: "Sherlock Holmes", author: "Arthur Conan Doyle", year: 1892,
+    source: "arthur-conan-doyle/the-adventures-of-sherlock-holmes",
+    description: "Twelve Sherlock Holmes cases, told by Watson. Each one stands on its own, so it's a good book to dip in and out of.",
+  },
+  {
+    slug: "dracula", authorSlug: "bram-stoker",
+    title: "Dracula", author: "Bram Stoker", year: 1897,
+    source: "bram-stoker/dracula",
+    description: "Told in letters and diary entries, starting with a young lawyer's trip to a castle in Transylvania. It's slower and spookier than the movies.",
+  },
+  {
+    slug: "meditations", authorSlug: "marcus-aurelius",
+    title: "Meditations", author: "Marcus Aurelius", year: "c. 180",
+    source: "marcus-aurelius/meditations/george-long",
+    description: "A Roman emperor's private notes to himself about staying calm, doing his job and not worrying what people think. Short entries, easy to take a few at a time. Translated by George Long.",
+  },
+  {
+    slug: "moby-dick", authorSlug: "herman-melville",
+    title: "Moby-Dick", author: "Herman Melville", year: 1851,
+    source: "herman-melville/moby-dick",
+    description: "Ishmael signs on to a whaling ship and finds himself under Captain Ahab, who wants one thing: the white whale that took his leg. Long and strange, with whole chapters about whales between the chase.",
+  },
 ];
 
 export const bookDir = (slug) => path.join(LIBRARY_DIR, slug);
@@ -68,12 +98,25 @@ export function readyBooks() {
 }
 export const findBook = (authorSlug, slug) => readyBooks().find((b) => b.authorSlug === authorSlug && b.slug === slug);
 
-// A 360px-wide cover-sm.jpg next to the cover, for shelves and grids. Returns its name, or the
-// full cover if a thumbnail can't be made.
+// Every book in the catalog with where it stands: "ready", "narrating" (some chapters done) or
+// "soon", plus its cover if we have one yet. Used for placeholders while books are being made.
+export function libraryStatus() {
+  const ready = new Map(readyBooks().map((b) => [b.slug, b]));
+  return CATALOG.map((b) => {
+    if (ready.has(b.slug)) return { ...ready.get(b.slug), state: "ready" };
+    const dir = bookDir(b.slug);
+    const cover = ["cover.jpg", "cover.png", "cover.webp"].find((f) => fs.existsSync(path.join(dir, f))) || null;
+    const narrating = fs.existsSync(path.join(dir, "chapters")) && fs.readdirSync(path.join(dir, "chapters")).some((f) => f.endsWith(".m4a"));
+    return { ...b, cover, state: narrating ? "narrating" : "soon" };
+  });
+}
+
+// A small cover-sm.jpg (300px wide, about 15 KB) next to the cover, for shelves and grids.
+// Returns its name, or the full cover if a thumbnail can't be made.
 export function smallCover(b) {
   if (!b.cover || b.cover.endsWith(".svg")) return b.cover;
   const out = path.join(bookDir(b.slug), "cover-sm.jpg");
   if (fs.existsSync(out)) return "cover-sm.jpg";
-  const r = spawnSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", path.join(bookDir(b.slug), b.cover), "-vf", "scale=360:-2", "-q:v", "4", out]);
+  const r = spawnSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", path.join(bookDir(b.slug), b.cover), "-vf", "scale=300:-2", "-q:v", "6", out]);
   return r.status === 0 ? "cover-sm.jpg" : b.cover;
 }

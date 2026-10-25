@@ -190,7 +190,7 @@ export function appVars(route, origin) {
 
 const SHELVES = {
   "/": { heading: "No book handy? Start with a classic", intro: "Free audiobooks of public-domain books, made with the same voices." },
-  "/gutenberg-audiobooks": { heading: "Already in the library", intro: "These are done. Press play, or download them.", more: "All books", listen: true },
+  "/gutenberg-audiobooks": { heading: "In the library", intro: "Free to play or download, with more on the way.", more: "All books", listen: true },
 };
 
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

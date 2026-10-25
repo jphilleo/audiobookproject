@@ -2,7 +2,7 @@
 // each book's page and its podcast feed. Book data comes from src/catalog.js.
 import fs from "node:fs";
 import path from "node:path";
-import { readyBooks, bookUrl, sourceUrl, bookDir, smallCover, CATALOG } from "./catalog.js";
+import { readyBooks, libraryStatus, bookUrl, sourceUrl, bookDir, smallCover, CATALOG } from "./catalog.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const xmlEscape = (s) => String(s ?? "").replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]);
@@ -28,15 +28,26 @@ function cover(b, cls = "lib-cover") {
     : `<span class="${cls} gen" aria-hidden="true"><span>${esc(name(b))}</span><span>${esc(b.author)}</span></span>`;
 }
 
-// A row of covers, for landing pages. Empty until at least one book is finished.
+// What a placeholder says while its book isn't ready.
+const STATE = { narrating: "Narrating now", soon: "Coming soon" };
+// One cover with its caption: a link once the book is ready, a quiet placeholder until then.
+function card(b, { listen = false, lengthLine = false } = {}) {
+  const caption = `${cover(b)}<strong>${esc(name(b))}</strong><span>${esc(b.author)}</span>`;
+  if (b.state !== "ready") return `<li class="lib-pending"><div>${caption}<span class="lib-badge">${STATE[b.state]}</span></div></li>`;
+  const extra = listen ? '<span class="lib-listen">Listen now</span>' : lengthLine ? `<span>${length(b.durationMs)}</span>` : "";
+  return `<li><a href="${bookUrl(b)}">${caption}${extra}</a></li>`;
+}
+// Finished books first, then the ones on their way.
+const ordered = () => { const all = libraryStatus(); return [...all.filter((b) => b.state === "ready"), ...all.filter((b) => b.state === "narrating"), ...all.filter((b) => b.state === "soon")]; };
+
+// A row of covers, for landing pages.
 export function shelfHtml({ heading, intro, more = "Browse the library", listen = false }) {
-  const books = readyBooks();
+  const books = ordered().slice(0, 6);
   if (!books.length) return "";
-  const items = books.slice(0, 6).map((b) => `<li><a href="${bookUrl(b)}">${cover(b)}<strong>${esc(name(b))}</strong><span>${esc(b.author)}</span>${listen ? '<span class="lib-listen">Listen now</span>' : ""}</a></li>`).join("\n        ");
   return `<div class="lib-head"><h2 id="library">${esc(heading)}</h2><a href="/library">${esc(more)}</a></div>
-      <p>${intro}</p>
+      <p>${intro}${books.some((b) => b.state === "ready") ? "" : " The first ones are being narrated right now."}</p>
       <ul class="lib-shelf">
-        ${items}
+        ${books.map((b) => card(b, { listen })).join("\n        ")}
       </ul>`;
 }
 
@@ -44,13 +55,9 @@ export function shelfHtml({ heading, intro, more = "Browse the library", listen 
 
 export function libraryVars(origin) {
   const books = readyBooks();
-  const grid = books.length
-    ? `<ul class="lib-grid">
-      ${books.map((b) => `<li><a href="${bookUrl(b)}">${cover(b)}<strong>${esc(name(b))}</strong><span>${esc(b.author)}</span><span>${length(b.durationMs)}</span></a></li>`).join("\n      ")}
-    </ul>`
-    : `<p class="lib-empty">The first books are being narrated right now. Check back soon.</p>`;
-  const coming = CATALOG.filter((c) => !books.some((b) => b.slug === c.slug));
-  const soon = coming.length && books.length ? `<p class="lib-soon">Coming next: ${coming.map((c) => esc(name(c))).join(", ")}.</p>` : "";
+  const grid = `<ul class="lib-grid">
+      ${ordered().map((b) => card(b, { lengthLine: true })).join("\n      ")}
+    </ul>`;
   const ld = {
     "@context": "https://schema.org", "@type": "CollectionPage", name: "Free audiobooks of public-domain books", url: `${origin}/library`,
     hasPart: books.map((b) => ({ "@type": "Audiobook", name: b.title, url: `${origin}${bookUrl(b)}` })),
@@ -59,7 +66,7 @@ export function libraryVars(origin) {
     title: "Free Public-Domain Audiobooks — Audiobook Project",
     description: "Free audiobooks of classic books, with chapters. Listen online, download M4B or MP3, or add them to your podcast app. No account needed.",
     canonical: esc(`${origin}/library`),
-    grid: grid + soon,
+    grid,
     jsonld: jsonLdTag(ld),
   };
 }
