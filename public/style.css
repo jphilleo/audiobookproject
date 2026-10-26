@@ -352,10 +352,6 @@ body.at-sea .sea { opacity: 0; }
 .sample-downloads { display: flex; gap: 8px; flex-wrap: wrap; }
 .sample-downloads .btn { height: 36px; font-size: 13px; }
 @media (max-width: 640px) { .sampler-speed { margin-left: 0; } }
-.more { list-style: none; padding: 0 !important; display: flex; flex-wrap: wrap; gap: 8px; }
-.more li { margin: 0; }
-.more a { display: inline-flex; height: 34px; align-items: center; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; text-decoration: none; font-size: 14px; }
-.more a:hover { background: var(--soft); }
 .foot-meta { margin-top: -4px; }
 .foot-meta a { color: var(--ink-3); font-size: 12px; }
 .foot p { margin: 0; }

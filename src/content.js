@@ -60,12 +60,19 @@ const FORMATS = {
     <div class="table-wrap"><table>
       <thead><tr><th></th><th>Best for</th><th>Plays in</th></tr></thead>
       <tbody>
-        <tr><td>M4B</td><td>Audiobook apps. Chapters, cover art, remembers your place.</td><td>Apple Books, BookPlayer, Audiobookshelf, VLC</td></tr>
-        <tr><td>MP3</td><td>Playing on anything, including car stereos.</td><td>Every phone, computer and player</td></tr>
-        <tr><td>Podcast feed</td><td>Listening on your phone. Each chapter is an episode.</td><td>Apple Podcasts, Overcast, Pocket Casts</td></tr>
+        <tr><td>M4B</td><td>Audiobook apps. Chapters, cover art, remembers your place.</td><td>Apple Books, BookPlayer, Smart AudioBook Player, Audiobookshelf, VLC</td></tr>
+        <tr><td>MP3</td><td>Playing on anything, including car stereos.</td><td>Every phone, computer and player, or a USB stick in the car</td></tr>
+        <tr><td>Podcast feed</td><td>Listening on your phone. Each chapter is an episode.</td><td>Apple Podcasts, Overcast, Pocket Casts, any podcast app</td></tr>
       </tbody>
     </table></div>
-    <p>All three are 64 kbps mono, which works out to about 29 MB per hour.</p>`,
+    <p>On a phone, the podcast feed is the easiest: paste one link into your podcast app and every chapter shows up as an episode. All three are 64 kbps mono, about 29 MB per hour.</p>`,
+};
+
+// The short version, for pages where the format isn't the question.
+const FORMATS_BRIEF = {
+  h2: "What you get",
+  html: `
+    <p>An <a href="/epub-to-m4b">M4B</a> for audiobook apps, one <a href="/epub-to-mp3">MP3</a> that plays anywhere, or a private podcast feed where each chapter is an episode. On a phone, the podcast feed is the easiest.</p>`,
 };
 
 const BOOKS = {
@@ -73,21 +80,6 @@ const BOOKS = {
   html: `
     <p>DRM-free EPUBs, and PDFs with real text in them, up to 50 MB. <a href="https://www.gutenberg.org" rel="noopener">Project Gutenberg</a> and <a href="https://standardebooks.org" rel="noopener">Standard Ebooks</a> have tens of thousands of free classics. Books from indie authors who sell DRM-free work too, and so does your own writing.</p>
     <p>Books bought from Kindle, Apple Books, Kobo or Google Play usually won't work, because DRM locks them to that store's app. Scanned PDFs (photos of pages) don't work yet.</p>`,
-};
-
-const LISTEN = {
-  h2: "Where to listen",
-  html: `
-    <div class="table-wrap"><table>
-      <thead><tr><th></th><th>Apps that work well</th><th>Format</th></tr></thead>
-      <tbody>
-        <tr><td>iPhone</td><td>BookPlayer, Apple Podcasts</td><td>M4B or podcast feed</td></tr>
-        <tr><td>Android</td><td>Smart AudioBook Player, Voice, any podcast app</td><td>Any</td></tr>
-        <tr><td>Computer</td><td>Apple Books on a Mac, VLC anywhere</td><td>M4B or MP3</td></tr>
-        <tr><td>Car</td><td>From a USB stick, or your phone over CarPlay</td><td>MP3</td></tr>
-      </tbody>
-    </table></div>
-    <p>On a phone, the podcast feed is the easiest. Paste one link into your podcast app and every chapter shows up as an episode.</p>`,
 };
 
 // Questions used on several pages.
@@ -108,7 +100,7 @@ export const CONTENT = {
       items: [
         ["Upload a book", "A DRM-free EPUB, or a PDF with selectable text."],
         ["Pick a voice", "Hit Sample to hear it read your book first."],
-        ["Start listening", "The first chapter is ready in about a minute. The rest keeps going even if you close the tab."],
+        ["Start listening", "The first chapter is ready in about a minute, and a whole novel in a few hours. It keeps going even if you close the tab."],
         ["Take it with you", "Download an M4B or MP3, or add it to your podcast app."],
       ],
     },
@@ -116,23 +108,8 @@ export const CONTENT = {
       VOICES,
       FORMATS,
       BOOKS,
-      LISTEN,
-      {
-        h2: "How it compares",
-        html: `
-    <div class="table-wrap"><table>
-      <thead><tr><th></th><th>Audiobook Project</th><th>Read-aloud in an app</th><th>Human-narrated audiobook</th></tr></thead>
-      <tbody>
-        <tr><td>Cost</td><td>Free</td><td>Free</td><td>Usually paid</td></tr>
-        <tr><td>Works for</td><td>Any DRM-free EPUB or PDF</td><td>Books in that app</td><td>Books someone recorded</td></tr>
-        <tr><td>Voice</td><td>Natural AI voices</td><td>Usually robotic</td><td>A real narrator</td></tr>
-        <tr><td>A file you keep</td><td>Yes</td><td>No</td><td>Often locked to one app</td></tr>
-      </tbody>
-    </table></div>
-    <p>A good human narrator is still better. This is for all the books that don't have one.</p>`,
-      },
     ],
-    faqs: [Q.free, Q.account, Q.howLong, Q.kindle, Q.language],
+    faqs: [Q.free, Q.account, Q.language],
   },
 
   "/epub-to-audiobook": {
@@ -156,14 +133,12 @@ export const CONTENT = {
     </ul>`,
       },
       VOICES,
-      FORMATS,
+      FORMATS_BRIEF,
       BOOKS,
     ],
     faqs: [
       Q.free,
-      Q.chapters,
       ["What about MOBI, AZW3 or KFX files?", "Not directly. If the book is DRM-free, convert it to EPUB with Calibre first. Books from the Kindle store won't work."],
-      Q.howLong,
       ["Does it read images and tables?", "It reads the text. Images are skipped and tables are read as plain text, so books full of charts don't make great audio."],
     ],
   },
@@ -191,9 +166,7 @@ export const CONTENT = {
     ],
     faqs: [
       Q.free,
-      ["Do I get one MP3 or one per chapter?", "One MP3 with chapter markers. If you want separate chapters on your phone, use the podcast feed instead."],
       ["Will my car show the chapters?", "Most car stereos ignore chapter markers and just play the file, but many remember where you stopped."],
-      ["How good is the audio?", "64 kbps mono, which is normal for spoken word and keeps the files small."],
       Q.howLong,
     ],
   },
@@ -221,6 +194,7 @@ export const CONTENT = {
       <li><strong>Mac:</strong> double-click it to open it in Apple Books. It syncs to your iPhone through Finder.</li>
       <li><strong>iPhone on its own:</strong> save it to Files and open it in BookPlayer.</li>
       <li><strong>Android:</strong> Smart AudioBook Player or Voice.</li>
+      <li><strong>Windows:</strong> VLC plays it with chapters.</li>
       <li><strong>Audiobookshelf, Plex or Jellyfin:</strong> drop it in your audiobooks folder as Author / Title / file.m4b.</li>
     </ul>`,
       },
@@ -230,9 +204,6 @@ export const CONTENT = {
     ],
     faqs: [
       Q.free,
-      ["What's the difference between M4B and M4A?", "Same audio. The .m4b ending just tells apps to treat it as an audiobook, with chapters and your place saved."],
-      ["Does it include chapters and a cover?", "Yes, both, plus the title and author."],
-      ["Can I play M4B on Android or Windows?", "Yes. Smart AudioBook Player or Voice on Android, VLC on Windows."],
       Q.howLong,
     ],
   },
@@ -264,14 +235,11 @@ export const CONTENT = {
     <p>If the book also comes as an EPUB, use that. It keeps cleaner text. Two-column layouts and heavy footnotes can come out a little jumbled.</p>`,
       },
       VOICES,
-      FORMATS,
+      FORMATS_BRIEF,
     ],
     faqs: [
       Q.free,
-      ["Can it read scanned PDFs?", "Not yet. Scanned pages are images, so there's no text to read."],
       ["Does it work for textbooks and papers?", "Yes, if the text is selectable. Untick the references and appendices. Equations and charts don't work well as audio."],
-      ["Will it read page numbers and headers?", "No, those are removed first."],
-      Q.howLong,
     ],
   },
 
@@ -300,10 +268,9 @@ export const CONTENT = {
     </table></div>`,
       },
       VOICES,
-      FORMATS,
-      LISTEN,
+      FORMATS_BRIEF,
     ],
-    faqs: [Q.free, Q.chapters, Q.howLong, Q.kindle, Q.language],
+    faqs: [Q.free, Q.chapters, Q.language],
   },
 
   "/epub-text-to-speech": {
@@ -324,15 +291,13 @@ export const CONTENT = {
     <p>Phones and ebook apps can read a page aloud, but usually in a robotic voice, only while the app is open, and with nothing to keep. Turning the book into audio once means you can listen with the screen off, offline, in the car, or on another device.</p>
     <p>For a quick paragraph, read-aloud is fine. For a whole book, this is easier.</p>`,
       },
-      FORMATS,
+      FORMATS_BRIEF,
       BOOKS,
     ],
     faqs: [
       Q.free,
       ["Can I change the speed?", "Yes, from 0.8× to 2× in the player. Your podcast or audiobook app has its own speed control too."],
       ["Does it work offline?", "Making the audiobook needs a connection. Once you've downloaded it, it plays offline."],
-      Q.howLong,
-      Q.kindle,
     ],
   },
 
@@ -391,13 +356,10 @@ export const CONTENT = {
     <p><a href="https://librivox.org" rel="noopener">LibriVox</a> has free recordings by volunteers, and if they've done your book and you like the reader, go listen there. This is for the books they haven't recorded, or when you want one voice all the way through.</p>`,
       },
       VOICES,
-      FORMATS,
+      FORMATS_BRIEF,
     ],
     faqs: [
       ["Are these audiobooks free?", "Yes. The books are free from Project Gutenberg and narration with the standard voices is free here."],
-      ["Can I share the audiobook?", "Yes, if the book is public domain where you live. Gutenberg's books are public domain in the US."],
-      ["Is the Gutenberg license read aloud?", "No. It's skipped, though you can tick it back on."],
-      ["Which download should I pick?", "The EPUB, ideally EPUB3. Plain text and HTML downloads don't work."],
       Q.howLong,
     ],
   },
@@ -420,13 +382,12 @@ export const CONTENT = {
     <p>Most class readings are PDFs, and those work if you can highlight the text. Headers and page numbers are removed, and the PDF's bookmarks become chapters, so you can jump to the one you were assigned. Untick references and appendices to skip them.</p>
     <p>If you have a documented print disability, <a href="https://www.bookshare.org" rel="noopener">Bookshare</a> and <a href="https://learningally.org" rel="noopener">Learning Ally</a> also offer free accessible textbooks.</p>`,
       },
-      LISTEN,
+      FORMATS_BRIEF,
     ],
     faqs: [
       ["Is it free for students?", "It's free for everyone. No account, no trial."],
       ["Can it read my textbook?", "If it's a DRM-free EPUB or a PDF with selectable text, yes. Textbooks from online stores are often DRM-protected."],
       ["Does it highlight words as it reads?", "No. It makes audio, not a read-along view. A lot of people play it while following along in their usual reader."],
-      Q.howLong,
       Q.language,
     ],
   },

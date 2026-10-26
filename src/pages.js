@@ -210,11 +210,7 @@ function seoHtml(route) {
       <div class="qa">
         ${c.faqs.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("\n        ")}
       </div>`;
-  const more = `<h2 id="more">More ways to use it</h2>
-      <ul class="more">
-        ${[["/", "Audiobook maker"], ...NAV, ...USES].filter(([href]) => href !== route).map(([href, label]) => `<li><a href="${href}">${label}</a></li>`).join("\n        ")}
-      </ul>`;
-  const html = `<div class="seo">\n      ${steps}${shelf}\n${sections}\n      ${faqs}\n      ${more}\n    </div>`;
+  const html = `<div class="seo">\n      ${steps}${shelf}\n${sections}\n      ${faqs}\n    </div>`;
   return html.replace("<!--sample-book-->", () => sampleBookHtml() ?? SAMPLE_BOOK);
 }
 
