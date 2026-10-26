@@ -205,10 +205,16 @@ function seoHtml(route) {
       </ol>`;
   // The library shelf sits right after the steps on the pages where people most often have no book handy.
   const shelf = SHELVES[route] ? `\n      ${shelfHtml(SHELVES[route])}` : "";
-  const sections = c.sections.map((s) => `      <h2 id="${slug(s.h2)}">${esc(s.h2)}</h2>${s.html}`).join("\n");
-  const faqs = `<h2 id="questions">Questions</h2>
+  // What helps someone decide stays open; reference material and questions fold into one list,
+  // still in the page for search engines.
+  const sections = c.sections.filter((s) => s.visible).map((s) => `      <h2 id="${slug(s.h2)}">${esc(s.h2)}</h2>${s.html}`).join("\n");
+  const folded = [
+    ...c.sections.filter((s) => !s.visible).map((s) => `<details id="${slug(s.h2)}"><summary><h3>${esc(s.h2)}</h3></summary><div class="qa-body">${s.html}</div></details>`),
+    ...c.faqs.map(([q, a]) => `<details><summary>${esc(q)}</summary><div class="qa-body"><p>${esc(a)}</p></div></details>`),
+  ];
+  const faqs = `<h2 id="questions">Good to know</h2>
       <div class="qa">
-        ${c.faqs.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("\n        ")}
+        ${folded.join("\n        ")}
       </div>`;
   const html = `<div class="seo">\n      ${steps}${shelf}\n${sections}\n      ${faqs}\n    </div>`;
   return html.replace("<!--sample-book-->", () => sampleBookHtml() ?? SAMPLE_BOOK);

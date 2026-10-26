@@ -97,3 +97,11 @@ for (const el of document.querySelectorAll("[data-sample-book]")) {
   audio.addEventListener("ended", () => { if (files && index + 1 < chapters.length) go(index + 1); });
   ["timeupdate", "pause", "play"].forEach((e) => audio.addEventListener(e, mark));
 }
+
+// A link straight to a folded section (#what-gets-cleaned-up) opens it.
+const openFromHash = () => {
+  const el = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  if (el?.matches("details")) el.open = true;
+};
+openFromHash();
+addEventListener("hashchange", openFromHash);

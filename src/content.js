@@ -1,5 +1,6 @@
 // Content shown below the converter on each landing page. It has to earn its place: short, plain,
 // and useful to someone deciding whether to use the tool, with real samples where they help.
+// Only the steps and sections marked `visible` show in full; the rest folds into "Good to know".
 // It doubles as the page's search content and FAQ structured data, so keep every claim true to
 // what the app actually does (limits, formats, bitrates, how chapters are found).
 
@@ -48,6 +49,7 @@ export const SAMPLE_BOOK = `
 
 // Sections shared between pages.
 const VOICES = {
+  visible: true,
   h2: "Hear the voices",
   html: `
     <p>Six of the free voices, reading a classic opening line. Try a few speeds too. Once you upload a book, you can hear any voice read your own first page.</p>${SAMPLER}`,
@@ -188,7 +190,7 @@ export const CONTENT = {
     <p>It's the standard audiobook file. The audio inside is the same as an M4A, but the .m4b ending tells your app it's a book, so it shows the chapters and remembers where you stopped. The whole book is one file, which makes it easy to keep and move around.</p>`,
       },
       {
-        h2: "Opening it",
+        h2: "Opening an M4B",
         html: `
     <ul>
       <li><strong>Mac:</strong> double-click it to open it in Apple Books. It syncs to your iPhone through Finder.</li>
@@ -342,7 +344,7 @@ export const CONTENT = {
     },
     sections: [
       {
-        h2: "More to make yourself",
+        h2: "More classics to make yourself",
         html: `
     <ul class="cols">
       <li>Pride and Prejudice</li><li>Moby-Dick</li><li>The Adventures of Sherlock Holmes</li><li>Dracula</li><li>Jane Eyre</li>
