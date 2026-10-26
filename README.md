@@ -21,6 +21,7 @@ Requires Node 20+ and `ffmpeg` on your PATH.
 ```bash
 npm install
 npm start            # http://localhost:4800
+npm run dev          # same, but restarts on code changes and reloads open tabs
 npm run sample       # writes samples/pride-and-prejudice-sample.epub to test with
 ```
 

@@ -10,6 +10,7 @@ import * as lib from "./src/library.js";
 import { PAGES, INFO_PAGES, render, appVars, infoVars } from "./src/pages.js";
 import { LIBRARY_DIR, readyBooks, findBook, bookUrl } from "./src/catalog.js";
 import { libraryVars, bookVars, feedXml } from "./src/library-pages.js";
+import { DEV, RELOAD_SCRIPT, devReload } from "./src/dev-reload.js";
 
 const PORT = Number(process.env.PORT || 4800);
 const MAX_UPLOAD_MB = 50;
@@ -17,11 +18,12 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 app.use(express.json());
+if (DEV) devReload(app, root);
 // Pages: converter landing pages share views/app.html; info pages have their own views. All share the header/footer partials.
 const origin = (req) => process.env.PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
 const view = (name) => fs.promises.readFile(path.join(root, "views", `${name}.html`), "utf8");
 const layout = async (name) => ({ template: await view(name), header: await view("_header"), footer: await view("_footer") });
-const sendHtml = (res, html) => res.set("Cache-Control", "no-cache").type("html").send(html);
+const sendHtml = (res, html) => res.set("Cache-Control", "no-cache").type("html").send(DEV ? html.replace("</body>", `${RELOAD_SCRIPT}</body>`) : html);
 for (const route of Object.keys(PAGES)) {
   app.get(route, async (req, res) => sendHtml(res, render(await layout("app"), route, appVars(route, origin(req)))));
 }
