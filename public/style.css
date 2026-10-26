@@ -156,6 +156,7 @@ select {
 select:hover { border-color: #cfcfcb; }
 .field-label { font-size: 13px; font-weight: 550; color: var(--ink-2); }
 .note { color: var(--ink-3); font-size: 13px; margin: 0; text-align: center; }
+.lang-note { margin: 0; font-size: 13px; color: var(--ink-2); padding: 10px 12px; border-radius: 9px; background: var(--soft); }
 
 .progress-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; }
 .progress-head b { font-weight: 550; }
@@ -171,8 +172,11 @@ select:hover { border-color: #cfcfcb; }
 .ch { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
 .ch.off .ch-title { color: var(--ink-3); }
 .ch input { width: 16px; height: 16px; margin: 0; accent-color: var(--ink); flex: none; cursor: pointer; }
-.ch-main { flex: 1; min-width: 0; }
-.ch-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.ch-text { min-width: 0; display: grid; }
+/* Long titles wrap to a second line instead of being cut off on phones. */
+.ch-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.ch-error { font-size: 12px; color: var(--red); }
 .ch-state { font-size: 13px; color: var(--ink-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .ch-state.working { color: var(--blue); }
 .ch-state.error { color: var(--red); }

@@ -29,6 +29,7 @@ const state = {
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const fmtInt = (n) => n.toLocaleString();
 const duration = (seconds) => {
+  if (seconds < 45) return "<1 min"; // a 4-word title page isn't "1 min"
   const mins = Math.max(1, Math.round(seconds / 60));
   return mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)} h ${mins % 60} min`;
 };
@@ -64,6 +65,7 @@ function thumb(b, cls = "thumb") {
 function route() {
   const m = location.hash.match(/^#\/book\/(\w+)/);
   clearTimeout(state.pollTimer);
+  previewAudio?.pause();
   if (m) openBook(m[1]);
   else showHome();
   // Section links (#questions) keep their place; switching between home and a book starts at the top.
@@ -126,6 +128,8 @@ async function uploadFile(file) {
 async function openBook(id) {
   $("#home").hidden = true;
   $("#book").hidden = false;
+  // Don't leave another book's page showing while this one loads.
+  if (state.book?.id !== id) $("#book").innerHTML = "";
   try {
     const book = await api(`/api/books/${id}`);
     const fresh = state.book?.id !== id;
@@ -139,7 +143,13 @@ async function openBook(id) {
     }
     schedulePoll();
   } catch (e) {
-    $("#book").innerHTML = `<a href="#" class="link back">${icon.chevronLeft}Your books</a><p class="error">${esc(e.message)}</p>`;
+    // Books belong to the browser that uploaded them, so a link opened elsewhere lands here.
+    $("#book").innerHTML = e.message === "Book not found"
+      ? `<a href="#" class="link back">${icon.chevronLeft}Your books</a>
+        <h1>This book isn't here</h1>
+        <p class="lede">Books are private to the browser that uploaded them, and they're deleted after 30 days. If you uploaded it in another browser or on another device, open it there, or upload the file again.</p>
+        <a href="#" class="btn primary">Upload a book</a>`
+      : `<a href="#" class="link back">${icon.chevronLeft}Your books</a><p class="error">${esc(e.message)}</p>`;
   }
 }
 
@@ -169,6 +179,14 @@ function voiceOptions() {
   ).join("");
 }
 
+// The free voices only speak English; say so before someone narrates a French or German book.
+function languageNote(code) {
+  if (!code || /^en\b/i.test(code)) return "";
+  let name = code;
+  try { name = new Intl.DisplayNames(["en"], { type: "language" }).of(code.split("-")[0]) || code; } catch {}
+  return `<p class="lang-note">This book is in ${esc(name)}. The free voices only speak English, so it will be read with English pronunciation and won't sound right.</p>`;
+}
+
 function renderBook() {
   const b = state.book;
   $("#book").innerHTML = `
@@ -188,6 +206,7 @@ function renderBook() {
         <div class="select-wrap"><select id="voice">${voiceOptions()}</select>${icon.chevronDown}</div>
         <button class="btn" id="preview" aria-label="Play a sample">${icon.speaker}<span class="wide-only">Sample</span></button>
       </div>
+      ${languageNote(b.language)}
       <div id="action"></div>
       <p class="error" id="book-error" hidden></p>
     </div>
@@ -200,8 +219,9 @@ function renderBook() {
 
     <p class="tail"><button class="link danger" id="delete">Delete this book</button></p>`;
 
-  $("#voice").addEventListener("change", (e) => { state.voice = e.target.value; store.set("voice", state.voice); update(); });
+  $("#voice").addEventListener("change", (e) => { state.voice = e.target.value; store.set("voice", state.voice); previewAudio?.pause(); update(); });
   $("#preview").addEventListener("click", previewVoice);
+  setPreview("idle");
   $("#sel-all").addEventListener("click", () => { b.chapters.forEach((c) => state.selected.add(c.index)); update(); });
   $("#sel-none").addEventListener("click", () => { state.selected.clear(); update(); });
   $("#delete").addEventListener("click", async () => {
@@ -218,7 +238,7 @@ function renderBook() {
   });
   $("#chapters").addEventListener("click", (e) => {
     const btn = e.target.closest(".ch-play");
-    if (btn && !btn.disabled) playChapter(b.id, Number(btn.dataset.index));
+    if (btn && !btn.disabled) playChapter(state.book, Number(btn.dataset.index));
   });
   $("#action").addEventListener("click", (e) => {
     const id = e.target.closest("button")?.id;
@@ -227,7 +247,7 @@ function renderBook() {
     if (id === "copy-feed") copyFeed(e.target.closest("button"));
     if (id === "listen") {
       const first = selectedChapters().find((c) => c.status === "done");
-      if (first) playChapter(b.id, first.index);
+      if (first) playChapter(state.book, first.index);
     }
   });
   update();
@@ -236,7 +256,7 @@ function renderBook() {
 function chapterState(c) {
   if (c.status === "working") return `<span class="ch-state working">${Math.round(c.progress * 100)}%</span>`;
   if (c.status === "queued") return `<span class="ch-state">Waiting</span>`;
-  if (c.status === "error") return `<span class="ch-state error" title="${esc(c.error)}">Failed</span>`;
+  if (c.status === "error") return `<span class="ch-state error">Failed</span>`;
   if (c.status === "done") return `<span class="ch-state">${clock(c.durationMs / 1000)}</span>`;
   return `<span class="ch-state">${listenTime(c.words)}</span>`;
 }
@@ -264,7 +284,7 @@ function renderAction() {
     const n = active.findIndex((c) => c.status === "working") + 1;
     const eta = etaSeconds(active);
     el.innerHTML = `
-      <div class="progress-head"><b>${n ? `Narrating chapter ${n} of ${active.length}` : "Starting…"}</b><span class="sub">${eta ? `About ${duration(eta)} left` : ""}</span></div>
+      <div class="progress-head"><b>${n ? `Narrating chapter ${n} of ${active.length}` : "Starting…"}</b><span class="sub">${eta ? (eta < 60 ? "Less than a minute left" : `About ${duration(eta)} left`) : ""}</span></div>
       <div class="bar"><i style="width:${(progress * 100).toFixed(1)}%"></i></div>
       <div class="actions">
         ${done.length ? `<button class="btn primary" id="listen">${icon.play}Start listening</button>` : ""}
@@ -289,26 +309,33 @@ function renderAction() {
   }
 
   const current = sel.filter(isCurrent).length;
+  const todoWords = todo.reduce((n, c) => n + c.words, 0);
   const label = current ? `Narrate ${todo.length} more chapter${todo.length === 1 ? "" : "s"}` : done.length ? "Recreate with this voice" : "Create audiobook";
   el.innerHTML = `
     <button class="btn primary block" id="create" ${sel.length ? "" : "disabled"}>${label} — free</button>
-    <p class="note">${sel.length ? `About ${listenTime(todo.reduce((n, c) => n + c.words, 0))} of audio · ${fmtInt(words)} words` : "Select at least one chapter"}</p>`;
+    <p class="note">${sel.length ? `${todo.length} chapter${todo.length === 1 ? "" : "s"} · about ${listenTime(todoWords)} of audio · ${fmtInt(todoWords)} words` : "Select at least one chapter"}</p>`;
 }
 
 function update() {
   const b = state.book;
   if (!b || !$("#chapters")) return;
   const keptUntil = new Date(b.expiresAt).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  $("#book-meta").textContent = `${b.chapters.length} chapters · ${fmtInt(b.totalWords)} words · about ${listenTime(b.totalWords)} · deleted ${keptUntil}`;
+  $("#book-meta").textContent = `${b.chapters.length} chapters · ${fmtInt(b.totalWords)} words · about ${listenTime(b.totalWords)} · kept until ${keptUntil}`;
   const playing = state.playing?.bookId === b.id ? state.playing.index : -1;
   const paused = $("#audio").paused;
+  // The list is rebuilt on every change and poll; put keyboard focus back where it was.
+  const focused = document.activeElement?.closest?.("#chapters [data-index]");
+  const refocus = focused && `#chapters ${focused.matches("input") ? "input" : ".ch-play"}[data-index="${focused.dataset.index}"]`;
   $("#chapters").innerHTML = b.chapters.map((c) => `
     <li class="ch ${state.selected.has(c.index) ? "" : "off"} ${c.index === playing ? "playing" : ""}">
-      <input type="checkbox" data-index="${c.index}" ${state.selected.has(c.index) ? "checked" : ""} aria-label="Include ${esc(c.title)}">
-      <div class="ch-main"><div class="ch-title">${esc(c.title)}</div></div>
+      <label class="ch-main">
+        <input type="checkbox" data-index="${c.index}" ${state.selected.has(c.index) ? "checked" : ""}>
+        <span class="ch-text"><span class="ch-title">${esc(c.title)}</span>${c.status === "error" ? `<span class="ch-error">${esc(c.error || "Narration failed")}</span>` : ""}</span>
+      </label>
       ${chapterState(c)}
       <button class="ch-play" data-index="${c.index}" ${c.status === "done" ? "" : "disabled"} aria-label="Play ${esc(c.title)}">${c.index === playing && !paused ? icon.pause : icon.play}</button>
     </li>`).join("");
+  if (refocus) $(refocus)?.focus();
   renderAction();
 }
 
@@ -324,21 +351,34 @@ async function copyFeed(btn) {
 }
 
 let previewAudio;
-async function previewVoice() {
+function setPreview(mode) {
   const btn = $("#preview");
-  btn.disabled = true;
+  if (!btn) return;
+  const [html, label] = {
+    idle: [`${icon.speaker}<span class="wide-only">Sample</span>`, "Play a sample"],
+    loading: [`<span class="spinner"></span><span class="wide-only">Loading</span>`, "Loading a sample"],
+    playing: [`${icon.pause}<span class="wide-only">Stop</span>`, "Stop the sample"],
+  }[mode];
+  btn.innerHTML = html;
+  btn.setAttribute("aria-label", label);
+  btn.disabled = mode === "loading";
+}
+async function previewVoice() {
+  if (previewAudio && !previewAudio.paused) return previewAudio.pause();
+  setPreview("loading");
   try {
     // Sample the book's own opening lines so it's representative.
     const first = selectedChapters()[0] || state.book.chapters[0];
     const text = (await api(`/api/books/${state.book.id}/text/${first.index}`)).replace(/\s+/g, " ").slice(0, 220).replace(/\s\S*$/, "");
     previewAudio?.pause();
     $("#audio").pause();
-    previewAudio = new Audio(`/api/preview?voice=${encodeURIComponent(state.voice)}&text=${encodeURIComponent(text)}`);
-    await previewAudio.play();
+    const sample = (previewAudio = new Audio(`/api/preview?voice=${encodeURIComponent(state.voice)}&text=${encodeURIComponent(text)}`));
+    ["pause", "ended"].forEach((ev) => sample.addEventListener(ev, () => previewAudio === sample && setPreview("idle")));
+    await sample.play();
+    if (!sample.paused) setPreview("playing");
   } catch (e) {
+    setPreview("idle");
     showBookError(e.message);
-  } finally {
-    btn.disabled = false;
   }
 }
 
@@ -375,15 +415,15 @@ $("#back15").innerHTML = icon.back;
 $("#fwd30").innerHTML = icon.fwd;
 $("#playpause").innerHTML = icon.play;
 
-function playChapter(bookId, index, startAt) {
-  const book = state.book;
+function playChapter(book, index, startAt) {
+  const bookId = book.id;
   if (state.playing?.bookId === bookId && state.playing.index === index) {
     audio.paused ? audio.play() : audio.pause();
     return;
   }
   previewAudio?.pause();
   const ch = book.chapters[index];
-  state.playing = { bookId, index, title: book.title };
+  state.playing = { bookId, index, book };
   audio.src = `/api/books/${bookId}/audio/${index}.m4a?v=${encodeURIComponent(ch.voice)}-${ch.durationMs}`;
   audio.playbackRate = Number($("#rate").dataset.rate || 1);
   const saved = store.get(`pos:${bookId}`);
@@ -400,12 +440,14 @@ function playChapter(bookId, index, startAt) {
   update();
 }
 
+// Next or previous narrated chapter, even if the book page isn't open any more.
 function step(dir) {
-  if (!state.playing || state.book?.id !== state.playing.bookId) return;
-  const list = state.book.chapters.filter((c) => c.status === "done" && c.selected);
+  if (!state.playing) return;
+  const book = state.book?.id === state.playing.bookId ? state.book : state.playing.book;
+  const list = book.chapters.filter((c) => c.status === "done");
   const i = list.findIndex((c) => c.index === state.playing.index);
   const next = list[i + dir];
-  if (next) playChapter(state.book.id, next.index, 0);
+  if (next) playChapter(book, next.index, 0);
 }
 
 function stopPlayer() {
@@ -425,13 +467,21 @@ $("#close-player").addEventListener("click", () => {
 });
 $("#back15").addEventListener("click", () => (audio.currentTime = Math.max(0, audio.currentTime - 15)));
 $("#fwd30").addEventListener("click", () => (audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 30)));
-$("#rate").addEventListener("click", (e) => {
-  const cur = Number(e.target.dataset.rate || 1);
-  const next = RATES[(RATES.indexOf(cur) + 1) % RATES.length];
-  e.target.dataset.rate = next;
-  e.target.textContent = `${next}×`;
-  audio.playbackRate = next;
+const setRate = (rate) => {
+  $("#rate").dataset.rate = rate;
+  $("#rate").textContent = `${rate}×`;
+  audio.playbackRate = rate;
+};
+if (RATES.includes(store.get("rate"))) setRate(store.get("rate"));
+$("#rate").addEventListener("click", () => {
+  const next = RATES[(RATES.indexOf(Number($("#rate").dataset.rate || 1)) + 1) % RATES.length];
+  setRate(next);
+  store.set("rate", next);
 });
+// While the thumb is being dragged, playback updates mustn't pull it back.
+let seeking = false;
+$("#seek").addEventListener("pointerdown", () => (seeking = true));
+addEventListener("pointerup", () => (seeking = false));
 $("#seek").addEventListener("input", (e) => { if (audio.duration) audio.currentTime = (e.target.value / 1000) * audio.duration; });
 
 const syncPlayButton = () => {
@@ -446,7 +496,7 @@ let lastSave = 0;
 audio.addEventListener("timeupdate", () => {
   $("#cur").textContent = clock(audio.currentTime);
   $("#dur").textContent = clock(audio.duration);
-  if (audio.duration) $("#seek").value = Math.round((audio.currentTime / audio.duration) * 1000);
+  if (audio.duration && !seeking) $("#seek").value = Math.round((audio.currentTime / audio.duration) * 1000);
   if (state.playing && Date.now() - lastSave > 3000) {
     lastSave = Date.now();
     store.set(`pos:${state.playing.bookId}`, { index: state.playing.index, time: audio.currentTime });

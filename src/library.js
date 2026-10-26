@@ -21,6 +21,10 @@ const queue = []; // { bookId, index }
 let working = false;
 
 const bookDir = (id) => path.join(DATA_DIR, id);
+// Books parsed before the EPUB parser decoded HTML entities have titles like "Authors&#8217; Note".
+const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—", hellip: "…" };
+const decodeEntities = (s) => s?.replace(/&(#x[\da-f]+|#\d+|[a-z]+);/gi, (m, e) =>
+  e[0] !== "#" ? ENTITIES[e.toLowerCase()] ?? m : String.fromCodePoint(/x/i.test(e[1]) ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10)));
 const save = (book) => fs.writeFile(path.join(bookDir(book.id), "book.json"), JSON.stringify(book, null, 2));
 
 export async function loadLibrary() {
@@ -30,6 +34,9 @@ export async function loadLibrary() {
       const book = JSON.parse(await fs.readFile(path.join(bookDir(id), "book.json"), "utf8"));
       // Anything interrupted by a restart goes back to idle.
       for (const ch of book.chapters) if (ch.status !== "done") Object.assign(ch, { status: "idle", progress: 0 });
+      book.title = decodeEntities(book.title);
+      book.author = decodeEntities(book.author);
+      for (const ch of book.chapters) ch.title = decodeEntities(ch.title);
       books.set(id, book);
     } catch {}
   }
