@@ -25,13 +25,11 @@ curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt install -y node
 adduser --disabled-password --gecos "" audiobook
 ```
 
-Get the code onto it. The poetry reader repo is private, so either add a read-only
-[deploy key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys),
-or publish `audiobook-project/` as its own public repo (it's AGPL, so it should be public anyway):
+Get the code onto it:
 
 ```bash
-sudo -u audiobook git clone <repo url> /home/audiobook/app
-cd /home/audiobook/app/audiobook-project && sudo -u audiobook npm ci --omit=dev
+sudo -u audiobook git clone https://github.com/jphilleo/audiobookproject /home/audiobook/app
+cd /home/audiobook/app && sudo -u audiobook npm ci --omit=dev
 ```
 
 The voice model (Kokoro) downloads itself on first start.
@@ -44,7 +42,7 @@ The voice model (Kokoro) downloads itself on first start.
 PUBLIC_URL=https://audiobookproject.org
 TRUST_PROXY=1
 LIBRARY_AUDIO_URL=https://audio.audiobookproject.org
-GITHUB_URL=https://github.com/<you>/<public repo>
+GITHUB_URL=https://github.com/jphilleo/audiobookproject
 # Optional limits (these are the defaults)
 MAX_ACTIVE_BOOKS=2
 MIN_FREE_GB=5
@@ -59,7 +57,7 @@ After=network-online.target
 
 [Service]
 User=audiobook
-WorkingDirectory=/home/audiobook/app/audiobook-project
+WorkingDirectory=/home/audiobook/app
 EnvironmentFile=/etc/audiobook.env
 ExecStart=/usr/bin/node server.js
 Restart=always
@@ -107,7 +105,6 @@ Create an R2 bucket (`audiobookproject-library`), connect the custom domain
 `audio.audiobookproject.org` to it, and upload from your Mac with [rclone](https://rclone.org/s3/#cloudflare-r2):
 
 ```bash
-cd audiobook-project
 rclone sync library r2:audiobookproject-library --include "*/chapters/*.m4a" --include "*/*.m4b" --include "*/*.mp3"
 # Make the whole-book files download instead of playing in the browser:
 rclone copy library r2:audiobookproject-library --include "*/*.m4b" --include "*/*.mp3" \
@@ -119,7 +116,7 @@ cover thumbnails itself). Copy those over:
 
 ```bash
 rsync -av --include "*/" --include "manifest.json" --include "cover*" --exclude "*" \
-  library/ audiobook@<server>:/home/audiobook/app/audiobook-project/library/
+  library/ audiobook@<server>:/home/audiobook/app/library/
 ```
 
 Narrate new library books on your Mac (`node scripts/narrate-library.js`, much faster than the
@@ -144,8 +141,7 @@ server), then repeat the two commands above.
 ## Updating
 
 ```bash
-cd /home/audiobook/app && sudo -u audiobook git pull
-cd audiobook-project && sudo -u audiobook npm ci --omit=dev && systemctl restart audiobook
+cd /home/audiobook/app && sudo -u audiobook git pull && sudo -u audiobook npm ci --omit=dev && systemctl restart audiobook
 ```
 
 A restart puts uploaded books that are mid-narration back to idle, so update when it's quiet.

@@ -42,9 +42,16 @@ download that narrates about 1.6x slower. On an M4 Mac, fp32 narrates at ~5x rea
 
 ## Not done yet
 
-Payments (donations are a placeholder until Open Collective is set up), a GitHub repository at the linked URL, accounts, premium voices, translation, multiple workers,
+Payments (donations are a placeholder until Open Collective is set up), accounts, premium voices, translation, multiple workers,
 and public hosting (the podcast feed only works from devices that can reach the server).
 
 ## License
 
-AGPL-3.0. Only use it with books you own the rights to or that are in the public domain.
+The code is free software under the [GNU AGPL-3.0](LICENSE). You can use, change and share it,
+including commercially, but if you run a modified version for other people (for example as a
+website), you have to make your full source code available to them under the same license.
+
+The Audiobook Project name and logo aren't covered by the license. Please don't use them for your
+own version.
+
+Only use it with books you own the rights to or that are in the public domain.

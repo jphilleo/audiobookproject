@@ -119,9 +119,8 @@ export const INFO_PAGES = {
   "/brand": { view: "brand", title: "Brand guide — Audiobook Project", description: "How Audiobook Project looks, sounds and fits together: logo, color, type, layout and voice." },
 };
 
-// The public source repository, linked from the nav, footer, About and FAQ. Set GITHUB_URL once the
-// public repo exists; the default is the name it's meant to have.
-export const GITHUB_URL = process.env.GITHUB_URL || "https://github.com/audiobookproject/audiobookproject";
+// The public source repository, linked from the nav, footer, About and FAQ.
+export const GITHUB_URL = process.env.GITHUB_URL || "https://github.com/jphilleo/audiobookproject";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
