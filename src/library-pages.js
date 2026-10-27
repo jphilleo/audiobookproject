@@ -6,7 +6,14 @@ import { readyBooks, libraryStatus, bookUrl, sourceUrl, bookDir, smallCover, CAT
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const xmlEscape = (s) => String(s ?? "").replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]);
-export const audioUrl = (b, file) => `/library-audio/${b.slug}/${file}`;
+// Covers are served by this server. Audio can live elsewhere (Cloudflare R2): set LIBRARY_AUDIO_URL
+// to the bucket's public address and audio links point there instead.
+const AUDIO_BASE = (process.env.LIBRARY_AUDIO_URL || "").replace(/\/+$/, "");
+export const fileUrl = (b, file) => `/library-audio/${b.slug}/${file}`;
+export const audioUrl = (b, file) => (AUDIO_BASE ? `${AUDIO_BASE}/${b.slug}/${file}` : fileUrl(b, file));
+const abs = (origin, url) => (/^https?:/.test(url) ? url : `${origin}${url}`);
+// Feeds give each episode's size; the file may only exist in remote storage, so this can be missing.
+const fileSize = (b, file) => { try { return fs.statSync(path.join(bookDir(b.slug), file)).size; } catch { return null; } };
 
 // "3 h 12 min", "47 min", or "12:05" for a chapter.
 export function length(ms) {
@@ -24,7 +31,7 @@ const name = (b) => b.shortTitle || b.title;
 function cover(b, cls = "lib-cover") {
   const file = cls.includes("lg") ? b.cover : smallCover(b);
   return b.cover
-    ? `<img class="${cls}" src="${audioUrl(b, file)}" alt="" loading="lazy">`
+    ? `<img class="${cls}" src="${fileUrl(b, file)}" alt="" loading="lazy">`
     : `<span class="${cls} gen" aria-hidden="true"><span>${esc(name(b))}</span><span>${esc(b.author)}</span></span>`;
 }
 
@@ -90,9 +97,9 @@ export function bookVars(b, origin) {
     author: { "@type": "Person", name: b.author }, datePublished: String(b.year),
     readBy: { "@type": "Person", name: `${b.voice.name} (AI voice)` },
     duration: `PT${Math.round(b.durationMs / 60000)}M`,
-    image: b.cover ? `${origin}${audioUrl(b, b.cover)}` : undefined,
+    image: b.cover ? `${origin}${fileUrl(b, b.cover)}` : undefined,
     isAccessibleForFree: true, inLanguage: "en", description: b.description,
-    encoding: ["m4b", "mp3"].map((f) => ({ "@type": "AudioObject", contentUrl: `${origin}${audioUrl(b, b[f].file)}`, encodingFormat: f === "mp3" ? "audio/mpeg" : "audio/mp4", contentSize: megabytes(b[f].bytes) })),
+    encoding: ["m4b", "mp3"].map((f) => ({ "@type": "AudioObject", contentUrl: abs(origin, audioUrl(b, b[f].file)), encodingFormat: f === "mp3" ? "audio/mpeg" : "audio/mp4", contentSize: megabytes(b[f].bytes) })),
   };
   const crumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Library", item: `${origin}/library` },
@@ -102,7 +109,7 @@ export function bookVars(b, origin) {
     title: esc(`${b.title} Audiobook (Free) by ${b.author} — Audiobook Project`),
     description: esc(`Listen to ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Play it here, download M4B or MP3, or add it to your podcast app.`),
     canonical: esc(url),
-    ogimage: b.cover ? esc(`${origin}${audioUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
+    ogimage: b.cover ? esc(`${origin}${fileUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
     booktitle: esc(b.title),
     author: esc(b.author),
     year: esc(b.year),
@@ -123,14 +130,14 @@ export function feedXml(b, origin) {
   const built = new Date(b.builtAt || Date.now()).getTime();
   const items = b.chapters.map((c, i) => {
     const pub = new Date(built - (b.chapters.length - i) * 60000).toUTCString();
-    return `<item><title>${xmlEscape(c.title)}</title><guid isPermaLink="false">${b.slug}-${i + 1}</guid><pubDate>${pub}</pubDate><itunes:episode>${i + 1}</itunes:episode><itunes:duration>${Math.round(c.durationMs / 1000)}</itunes:duration><enclosure url="${origin}${audioUrl(b, c.file)}" length="${fs.statSync(path.join(bookDir(b.slug), c.file)).size}" type="audio/mp4"/></item>`;
+    return `<item><title>${xmlEscape(c.title)}</title><guid isPermaLink="false">${b.slug}-${i + 1}</guid><pubDate>${pub}</pubDate><itunes:episode>${i + 1}</itunes:episode><itunes:duration>${Math.round(c.durationMs / 1000)}</itunes:duration><enclosure url="${abs(origin, audioUrl(b, c.file))}"${fileSize(b, c.file) ? ` length="${fileSize(b, c.file)}"` : ""} type="audio/mp4"/></item>`;
   });
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"><channel>
 <title>${xmlEscape(b.title)}</title><link>${origin}${bookUrl(b)}</link><language>en</language>
 <description>${xmlEscape(`${b.title} by ${b.author}, read aloud by an AI voice. ${b.description}`)}</description>
 <itunes:author>${xmlEscape(b.author)}</itunes:author><itunes:type>serial</itunes:type>
-${b.cover ? `<itunes:image href="${origin}${audioUrl(b, b.cover)}"/>` : ""}
+${b.cover ? `<itunes:image href="${origin}${fileUrl(b, b.cover)}"/>` : ""}
 ${items.join("\n")}
 </channel></rss>`;
 }

@@ -17,6 +17,8 @@ const MAX_UPLOAD_MB = 50;
 const root = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+// Behind Cloudflare (or any proxy), trust X-Forwarded-Proto so HTTPS is detected and cookies are marked secure.
+if (process.env.TRUST_PROXY) app.set("trust proxy", true);
 app.use(express.json());
 if (DEV) devReload(app, root);
 // Pages: converter landing pages share views/app.html; info pages have their own views. All share the header/footer partials.
@@ -148,7 +150,7 @@ app.get("/api/books/:id/audiobook.:format", wrap(async (req, res) => {
 const xmlEscape = (s) => String(s ?? "").replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]);
 app.get("/api/books/:id/feed.xml", wrap(async (req, res) => {
   const book = byId(req);
-  const base = `${req.protocol}://${req.get("host")}/api/books/${book.id}`;
+  const base = `${origin(req)}/api/books/${book.id}`;
   const created = new Date(book.createdAt).getTime();
   const items = book.chapters.filter((c) => c.status === "done").map((c) => {
     const size = fs.statSync(lib.audioPath(book.id, c.index)).size;

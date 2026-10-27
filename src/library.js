@@ -20,6 +20,24 @@ const books = new Map(); // id -> book (metadata + chapter status; text lives on
 const queue = []; // { bookId, index }
 let working = false;
 
+// Limits for a shared server. One visitor can have this many books narrating at once.
+export const MAX_ACTIVE_BOOKS = Number(process.env.MAX_ACTIVE_BOOKS || 2);
+// New uploads and narration stop while the disk has less free space than this.
+const MIN_FREE_GB = Number(process.env.MIN_FREE_GB || 5);
+// Whole-book M4B/MP3 files are rebuilt from the chapters when needed, so they're only kept this long.
+const BUILT_FILE_HOURS = 24;
+// Turns in the queue go to whichever visitor was served longest ago, so one long book can't hold up everyone else.
+const lastServed = new Map(); // ownerId -> time their last chapter started
+
+async function checkSpace() {
+  try {
+    const { bavail, bsize } = await fs.statfs(DATA_DIR);
+    if ((bavail * bsize) / 1e9 < MIN_FREE_GB) throw Object.assign(new Error("The server is full right now. Please try again later."), { code: "FULL" });
+  } catch (err) {
+    if (err.code === "FULL") throw err;
+  }
+}
+
 const bookDir = (id) => path.join(DATA_DIR, id);
 // Books parsed before the EPUB parser decoded HTML entities have titles like "Authors&#8217; Note".
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—", hellip: "…" };
@@ -47,6 +65,7 @@ export function estimate(words) {
 }
 
 export async function addBook(buffer, filename, ownerId) {
+  await checkSpace();
   const isPdf = buffer.subarray(0, 5).toString("latin1") === "%PDF-";
   const parsed = isPdf ? await parsePdf(buffer, filename) : await parseEpub(buffer);
   const id = crypto.randomBytes(8).toString("hex");
@@ -92,11 +111,43 @@ export const expiresAt = (book) => new Date(new Date(book.createdAt).getTime() +
 export async function deleteExpired() {
   const now = new Date().toISOString();
   for (const book of [...books.values()]) if (expiresAt(book) < now) await deleteBook(book.id);
+  // Built whole-book files are copies of the chapters; drop old ones to save space.
+  const cutoff = Date.now() - BUILT_FILE_HOURS * 3600000;
+  for (const book of books.values()) {
+    for (const format of ["m4b", "mp3"]) {
+      const file = path.join(bookDir(book.id), `audiobook.${format}`);
+      const stat = await fs.stat(file).catch(() => null);
+      if (stat && stat.mtimeMs < cutoff) {
+        await fs.rm(file, { force: true });
+        if (book.built) delete book.built[format];
+        await save(book);
+      }
+    }
+  }
+}
+
+// The queue position of the next chapter: the first one belonging to the visitor served longest ago.
+function nextTurn() {
+  let best = 0, bestTime = Infinity;
+  const seen = new Set();
+  for (const [i, item] of queue.entries()) {
+    const owner = books.get(item.bookId)?.ownerId;
+    if (seen.has(owner)) continue;
+    seen.add(owner);
+    const t = lastServed.get(owner) ?? 0;
+    if (t < bestTime) { best = i; bestTime = t; }
+  }
+  return best;
 }
 
 export async function startNarration(id, { voice, speed = 1, chapters }) {
   const book = books.get(id);
   if (!book) throw new Error("Book not found");
+  await checkSpace();
+  const busy = [...books.values()].filter((b) => b.ownerId === book.ownerId && b.id !== id && b.chapters.some((c) => c.status === "queued" || c.status === "working"));
+  if (busy.length >= MAX_ACTIVE_BOOKS) {
+    throw new Error(`You already have ${busy.length} books narrating. Wait for one to finish, or stop one, and then start this one.`);
+  }
   const wanted = new Set(chapters);
   book.voice = voice;
   book.speed = speed;
@@ -128,8 +179,9 @@ async function runQueue() {
   working = true;
   try {
     while (queue.length) {
-      const { bookId, index } = queue.shift();
+      const { bookId, index } = queue.splice(nextTurn(), 1)[0];
       const book = books.get(bookId);
+      if (book) lastServed.set(book.ownerId, Date.now());
       const ch = book?.chapters[index];
       if (!ch || ch.status !== "queued") continue;
       book.cancelRequested = false;
