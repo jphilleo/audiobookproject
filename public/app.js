@@ -109,13 +109,25 @@ drop.addEventListener("click", (e) => {
 drop.addEventListener("drop", (e) => e.dataTransfer.files[0] && uploadFile(e.dataTransfer.files[0]));
 fileInput.addEventListener("change", () => fileInput.files[0] && uploadFile(fileInput.files[0]));
 
-async function uploadFile(file) {
+$("#try-sample")?.addEventListener("click", (event) => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  const link = event.currentTarget;
+  uploadFile(null, link.href);
+});
+
+async function uploadFile(file, sampleUrl) {
   if (drop.classList.contains("busy")) return;
   const err = $("#upload-error");
   err.hidden = true;
-  if (!/\.(epub|pdf)$/i.test(file.name)) { err.textContent = "Only EPUB and PDF files work. Kindle formats (AZW, KFX, MOBI) aren't supported."; err.hidden = false; return; }
   drop.classList.add("busy");
   try {
+    if (sampleUrl) {
+      const response = await fetch(sampleUrl);
+      if (!response.ok) throw new Error("Could not load the sample EPUB. Please try again.");
+      file = new File([await response.blob()], "pride-and-prejudice-sample.epub", { type: "application/epub+zip" });
+    }
+    if (!/\.(epub|pdf)$/i.test(file.name)) throw new Error("Only EPUB and PDF files work. Kindle formats (AZW, KFX, MOBI) aren't supported.");
     const fd = new FormData();
     fd.append("epub", file);
     const book = await api("/api/books", { method: "POST", body: fd });

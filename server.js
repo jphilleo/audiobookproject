@@ -56,6 +56,8 @@ app.get("/sitemap.xml", (req, res) => {
 });
 
 // Always revalidate the UI files so browsers never show a stale version after an update.
+app.get("/samples/pride-and-prejudice-sample.epub", (_req, res) =>
+  res.type("application/epub+zip").sendFile(path.join(root, "samples", "pride-and-prejudice-sample.epub")));
 app.use(express.static(path.join(root, "public"), { index: false, extensions: ["html"], setHeaders: (res) => res.setHeader("Cache-Control", "no-cache") }));
 
 // Anonymous owner cookie: lets a browser see its own books without an account. Not used for tracking.

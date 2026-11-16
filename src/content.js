@@ -201,7 +201,7 @@ export const CONTENT = {
     </ul>`,
       },
       VOICES,
-      FORMATS,
+      { ...FORMATS, visible: true },
       BOOKS,
     ],
     faqs: [

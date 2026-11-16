@@ -92,6 +92,8 @@ h2 { font-size: 13px; font-weight: 600; color: var(--ink-2); margin: 48px 0 6px;
 .drop:hover, .drop.over { border-color: var(--ink-2); }
 .drop-idle { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .drop-hint { color: var(--ink-3); font-size: 13px; }
+.converter-demo { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 12px 0 0; font-size: 14px; }
+.converter-demo a { color: inherit; }
 .drop-busy { display: none; align-items: center; gap: 10px; color: var(--ink-2); }
 .drop.busy .drop-idle { display: none; }
 .drop.busy .drop-busy { display: flex; }

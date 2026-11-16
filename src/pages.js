@@ -181,6 +181,7 @@ export function appVars(route, origin) {
     button: esc(p.button),
     accept: esc(p.accept),
     format: esc(p.format || ""),
+    demo: route === "/epub-to-m4b" ? '<p class="converter-demo"><a id="try-sample" href="/samples/pride-and-prejudice-sample.epub" download>Try a sample EPUB</a><a href="#try-the-formats">Hear a finished audiobook</a></p>' : "",
     facts: p.facts.map((f) => `<li>${CHECK}${esc(f)}</li>`).join("\n        "),
     origin: esc(origin),
     seo: seoHtml(route),
