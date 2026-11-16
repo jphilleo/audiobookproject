@@ -429,8 +429,8 @@ body.at-sea .sea { opacity: 0; }
 .lib-player input:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .lib-book .lib-position { margin: 0; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .lib-player [role="alert"] { grid-column: 1 / -1; margin: 0; }
-.lib-downloads { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
-.lib-downloads .link { min-height: 40px; padding: 0; }
+.lib-downloads { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.lib-downloads .btn { min-height: 40px; padding-inline: 10px; font-size: 13px; }
 .lib-chapters { list-style: none; padding: 0 !important; margin: 10px 0 0 !important; border-top: 1px solid var(--line); }
 .lib-chapters li { margin: 0 !important; border-bottom: 1px solid var(--line); }
 .lib-chapters button { width: 100%; display: flex; justify-content: space-between; gap: 16px; padding: 10px 2px; background: none; border: 0; cursor: pointer; text-align: left; font-size: 14px; color: var(--ink-2); }

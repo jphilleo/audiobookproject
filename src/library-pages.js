@@ -144,7 +144,7 @@ export function bookVars(b, origin) {
     downloads: b.ready ? `<div class="lib-downloads">
         <a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>Download M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
         <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>Download MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
-        <button type="button" class="link" id="lib-feed" data-feed="${feed}">Add to podcast player</button>
+        <button type="button" class="btn" id="lib-feed" data-feed="${feed}">Add to podcast player</button>
       </div>` : "",
     previewIntro: b.ready ? "" : `<audio id="lib-audio" preload="none"></audio>${error}${description}`,
     about: b.ready ? `<h2 class="lib-about-heading">About the audiobook</h2>${description}` : "",
