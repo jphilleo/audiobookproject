@@ -4,6 +4,8 @@ const audio = document.getElementById("lib-audio");
 const playBtn = document.getElementById("lib-play");
 const label = playBtn.querySelector("span");
 const initialLabel = label.textContent;
+const previousChapter = document.getElementById("lib-previous");
+const nextChapter = document.getElementById("lib-next");
 const nowPlaying = document.getElementById("lib-now-playing");
 const chapterNumber = document.getElementById("lib-chapter-number");
 const seek = document.getElementById("lib-seek");
@@ -47,6 +49,8 @@ function sync() {
   if (seek) {
     const title = rows[current].querySelector(".lib-ch-title").textContent;
     if (nowPlaying.textContent !== title) nowPlaying.textContent = title;
+    previousChapter.disabled = current === 0;
+    nextChapter.disabled = current === rows.length - 1;
     chapterNumber.textContent = `· ${current + 1} / ${rows.length}`;
     syncPosition();
   }
@@ -91,6 +95,12 @@ function play(i) {
 playBtn.addEventListener("click", () => {
   if (!audio.paused) return audio.pause();
   play(finished ? 0 : current);
+});
+previousChapter?.addEventListener("click", () => {
+  if (current > 0) play(current - 1);
+});
+nextChapter?.addEventListener("click", () => {
+  if (current + 1 < rows.length) play(current + 1);
 });
 rows.forEach((r, i) => r.addEventListener("click", () => (i === current && !audio.paused ? audio.pause() : play(i))));
 audio.addEventListener("ended", () => {

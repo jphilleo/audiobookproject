@@ -146,9 +146,11 @@ export function bookVars(b, origin) {
           </div>
         </div>
         <div class="lib-transport">
+          <button type="button" class="btn lib-chapter-step" id="lib-previous" aria-label="Previous chapter" title="Previous chapter" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h3v14H5zM19 5v14L9 12z"/></svg></button>
           ${skip(15)}
           ${play}
           ${skip(30, true)}
+          <button type="button" class="btn lib-chapter-step" id="lib-next" aria-label="Next chapter" title="Next chapter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h3v14h-3zM5 5l10 7-10 7z"/></svg></button>
         </div>
           <select id="lib-speed" aria-label="Playback speed">
             ${[0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}"${rate === 1 ? " selected" : ""}>${rate}×</option>`).join("")}
