@@ -3,6 +3,10 @@
 const audio = document.getElementById("lib-audio");
 const playBtn = document.getElementById("lib-play");
 const label = playBtn.querySelector("span");
+const initialLabel = label.textContent;
+const player = document.getElementById("lib-player");
+const nowPlaying = document.getElementById("lib-now-playing");
+const playbackError = document.getElementById("lib-playback-error");
 const rows = [...document.querySelectorAll(".lib-chapters button[data-src]")];
 const key = `lib:${location.pathname}`;
 const store = {
@@ -16,7 +20,7 @@ const PLAY = '<path d="M8 5.5v13l10.5-6.5z"/>', PAUSE = '<path d="M7 5h3.5v14H7z
 function sync() {
   const playing = !audio.paused && !audio.ended;
   playBtn.querySelector("svg").innerHTML = playing ? PAUSE : PLAY;
-  label.textContent = playing ? "Pause" : current > 0 || audio.currentTime > 1 ? "Resume" : "Play chapter 1";
+  label.textContent = playing ? "Pause" : audio.ended ? "Play again" : current > 0 || audio.currentTime > 1 ? "Resume" : initialLabel;
   rows.forEach((r, i) => r.toggleAttribute("aria-current", i === current));
   rows.forEach((r, i) => r.classList.toggle("playing", i === current && playing));
 }
@@ -26,19 +30,30 @@ function load(i, at = 0) {
   audio.src = rows[i].dataset.src;
   if (at) audio.addEventListener("loadedmetadata", () => { audio.currentTime = at; }, { once: true });
   rows[i].closest("details")?.setAttribute("open", "");
+  if (player) {
+    player.hidden = false;
+    nowPlaying.textContent = rows[i].querySelector(".lib-ch-title").textContent;
+  }
 }
 
 function play(i, at = 0) {
+  playbackError.hidden = true;
   if (i !== current) load(i, at);
-  audio.play();
+  audio.play().catch((error) => {
+    if (error.name !== "AbortError") playbackError.hidden = false;
+    sync();
+  });
 }
 
 playBtn.addEventListener("click", () => {
   if (!audio.paused) return audio.pause();
-  play(Math.max(current, 0));
+  play(audio.ended ? 0 : Math.max(current, 0));
 });
 rows.forEach((r, i) => r.addEventListener("click", () => (i === current && !audio.paused ? audio.pause() : play(i))));
-audio.addEventListener("ended", () => (current + 1 < rows.length ? play(current + 1) : sync()));
+audio.addEventListener("ended", () => {
+  if (current + 1 < rows.length) play(current + 1);
+  else { store.set(null); sync(); }
+});
 ["play", "pause", "loadedmetadata"].forEach((e) => audio.addEventListener(e, sync));
 audio.addEventListener("timeupdate", () => {
   if (Math.floor(audio.currentTime) % 5 === 0) store.set({ chapter: current, at: audio.currentTime });

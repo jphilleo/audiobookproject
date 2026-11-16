@@ -95,7 +95,7 @@ export function bookVars(b, origin) {
   const url = `${origin}${bookUrl(b)}`;
   const feed = esc(`${url}/feed.xml`);
   const bookTitle = esc(b.title);
-  const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${audioUrl(b, c.file)}" data-index="${i}"><span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
+  const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${esc(audioUrl(b, c.file))}" data-index="${i}"><span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
   const SHOWN = 10;
   const list = chapters.length > SHOWN + 2
     ? `${chapters.slice(0, SHOWN).join("\n        ")}
@@ -107,9 +107,9 @@ export function bookVars(b, origin) {
       </ol>`;
   const ld = {
     "@context": "https://schema.org", "@type": "Audiobook", name: b.title, url,
-    author: { "@type": "Person", name: b.author }, datePublished: b.year ? String(b.year) : undefined,
+    author: { "@type": "Person", name: b.author },
     readBy: { "@type": "Person", name: `${b.voice.name} (AI voice)` },
-    duration: `PT${Math.round(b.durationMs / 60000)}M`,
+    duration: `PT${Math.round(b.durationMs / 1000)}S`,
     image: b.cover ? `${origin}${fileUrl(b, b.cover)}` : undefined,
     isAccessibleForFree: true, inLanguage: "en", description: b.description,
     encoding: b.ready ? ["m4b", "mp3"].map((f) => ({ "@type": "AudioObject", contentUrl: abs(origin, audioUrl(b, b[f].file)), encodingFormat: f === "mp3" ? "audio/mpeg" : "audio/mp4", contentSize: megabytes(b[f].bytes) })) : undefined,
@@ -119,20 +119,23 @@ export function bookVars(b, origin) {
     { "@type": "ListItem", position: 2, name: b.title, item: url },
   ] };
   return {
-    title: esc(`${b.title} ${b.ready ? "Audiobook (Free)" : "First Chapter"} by ${b.author} — Audiobook Project`),
-    description: esc(b.ready ? `Listen to ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Play it here, download M4B or MP3, or add it to your podcast app.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
+    title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : `${b.title} First Chapter by ${b.author} — Audiobook Project`),
+    description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
     canonical: esc(url),
     ogimage: b.cover ? esc(`${origin}${fileUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
     booktitle: bookTitle,
     author: esc(b.author),
     year: b.year ? ` · ${esc(b.year)}` : "",
     cover: cover(b, "lib-cover lg"),
-    meta: esc(`${b.ready ? `${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
+    meta: esc(`${b.ready ? `Complete audiobook · ${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
+    playLabel: b.ready ? "Play audiobook" : "Play chapter 1",
+    player: b.ready ? '<section class="lib-player" id="lib-player" aria-label="Audiobook player" hidden><p id="lib-now-playing" class="lib-now-playing"></p><audio id="lib-audio" preload="none" controls></audio></section>' : '<audio id="lib-audio" preload="none"></audio>',
+    aboutHeading: b.ready ? '<h2 class="lib-about-heading">About the audiobook</h2>' : "",
     chaptersHeading: b.ready ? "Chapters" : "First chapter",
     bookdescription: esc(b.description),
     feedLink: b.ready ? `<link rel="alternate" type="application/rss+xml" title="${bookTitle} (podcast feed)" href="${feed}">` : "",
-    downloads: b.ready ? `<a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
-          <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
+    downloads: b.ready ? `<a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>Download M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
+          <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>Download MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
           <button type="button" class="btn" id="lib-feed" data-feed="${feed}">Add to podcast app</button>` : "",
     chapters: list,
     source: esc(sourceUrl(b)),

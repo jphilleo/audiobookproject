@@ -27,17 +27,19 @@
         <p class="lib-byline">{{author}}{{year}}</p>
         <p class="lib-meta">{{meta}}</p>
         <div class="lib-actions">
-          <button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Play chapter 1</span></button>
+          <button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>{{playLabel}}</span></button>
           {{downloads}}
         </div>
       </div>
     </div>
+    {{player}}
+    <p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>
+    {{aboutHeading}}
     <p class="lib-about">{{bookdescription}}</p>
 
     <h2 id="chapters">{{chaptersHeading}}</h2>
     <ol class="lib-chapters">
         {{chapters}}
-    <audio id="lib-audio" preload="none"></audio>
 
     <p class="lib-credit">Text from <a href="{{source}}" rel="noopener">Standard Ebooks</a> (public domain). Narrated with Kokoro, an open-source AI voice. Free to download and share.</p>
     <div class="callout">
