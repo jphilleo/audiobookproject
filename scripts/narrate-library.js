@@ -8,7 +8,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { CATALOG, LIBRARY_VOICE, bookDir, epubUrl } from "../src/catalog.js";
 import { parseEpub, countWords } from "../src/epub.js";
-import { synthesize, chunkText, SAMPLE_RATE } from "../src/tts.js";
+import { synthesize, chunkText, listVoices, SAMPLE_RATE } from "../src/tts.js";
+import { recommendVoice } from "../src/voice-recommendation.js";
 import { floatToPcm16, silence, encodeChapter, buildAudiobook } from "../src/audio.js";
 
 const exists = (p) => fs.access(p).then(() => true, () => false);
@@ -27,8 +28,9 @@ async function source(book) {
 async function narrate(book, preview) {
   const dir = bookDir(book.slug);
   const manifestPath = path.join(dir, "manifest.json");
+  let old;
   if (await exists(manifestPath)) {
-    const old = JSON.parse(await fs.readFile(manifestPath, "utf8"));
+    old = JSON.parse(await fs.readFile(manifestPath, "utf8"));
     if (preview && old.ready) throw new Error("Use a separate directory for first-chapter previews");
     if (!preview && old.preview) throw new Error("Use a separate directory for complete audiobooks");
   }
@@ -46,8 +48,16 @@ async function narrate(book, preview) {
     await fs.writeFile(path.join(dir, cover), parsed.cover.data);
   }
 
-  const manifest = { ready: false, voice: LIBRARY_VOICE, cover, words: chapters.reduce((n, c) => n + c.words, 0), chapters: [] };
+  let voice = old?.voice;
+  if (!voice) {
+    const existingAudio = (await fs.readdir(path.join(dir, "chapters"))).some((name) => name.endsWith(".m4a"));
+    const recommendation = existingAudio ? null : await recommendVoice({ ...book, language: parsed.language }, await listVoices());
+    voice = recommendation ? { id: recommendation.voice.id, name: recommendation.voice.name } : LIBRARY_VOICE;
+  }
+  const manifest = { ready: false, voice, cover, words: chapters.reduce((n, c) => n + c.words, 0), chapters: [] };
+  if (preview) manifest.preview = true;
   const save = () => fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+  if (!old) await save();
   log(book.slug, `${chapters.length} chapters, ${manifest.words} words`);
 
   for (const [i, ch] of chapters.entries()) {
@@ -58,7 +68,7 @@ async function narrate(book, preview) {
       // The parser strips chapter headings from the text, so the title is announced first, as in the app.
       const parts = [];
       for (const c of [{ text: ch.title, paragraphEnd: true }, ...chunkText(ch.text)]) {
-        parts.push(floatToPcm16(await synthesize(c.text, LIBRARY_VOICE.id)), silence(c.paragraphEnd ? 0.45 : 0.12));
+        parts.push(floatToPcm16(await synthesize(c.text, voice.id)), silence(c.paragraphEnd ? 0.45 : 0.12));
       }
       const pcm = Buffer.concat(parts);
       await fs.writeFile(pcmPath, pcm);
@@ -74,7 +84,6 @@ async function narrate(book, preview) {
 
   manifest.durationMs = manifest.chapters.reduce((n, c) => n + c.durationMs, 0);
   if (preview) {
-    manifest.preview = true;
     await save();
     log(book.slug, "first chapter ready", chapters[0].title);
     return;

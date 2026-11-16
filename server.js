@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
 import { listVoices, loadTts, synthesize } from "./src/tts.js";
+import { recommendVoice } from "./src/voice-recommendation.js";
 import { floatToPcm16, wavHeader } from "./src/audio.js";
 import * as lib from "./src/library.js";
 import { PAGES, INFO_PAGES, render, appVars, infoVars } from "./src/pages.js";
@@ -77,7 +78,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX
 const publicBook = (b) => {
   const selectedWords = b.chapters.filter((c) => c.selected).reduce((n, c) => n + c.words, 0);
   const totalWords = b.chapters.reduce((n, c) => n + c.words, 0);
-  return { ...b, ownerId: undefined, cancelRequested: undefined, totalWords, selectedWords, expiresAt: lib.expiresAt(b), estimate: lib.estimate(selectedWords) };
+  return { ...b, ownerId: undefined, cancelRequested: undefined, description: undefined, totalWords, selectedWords, expiresAt: lib.expiresAt(b), estimate: lib.estimate(selectedWords) };
 };
 const wrap = (fn) => (req, res) => fn(req, res).catch((err) => res.status(400).json({ error: String(err.message || err) }));
 // Private routes: only the browser that uploaded a book can see or change it.
@@ -112,6 +113,11 @@ app.post("/api/books", upload.single("epub"), wrap(async (req, res) => {
 }));
 
 app.get("/api/books/:id", wrap(async (req, res) => res.json(publicBook(need(req)))));
+
+app.post("/api/books/:id/voice-recommendation", wrap(async (req, res) => {
+  const book = need(req);
+  res.set("Cache-Control", "private, no-store").json({ recommendation: await recommendVoice(book, await listVoices()) });
+}));
 
 app.get("/api/books/:id/text/:index", wrap(async (req, res) => {
   need(req);

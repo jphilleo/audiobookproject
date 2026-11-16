@@ -58,6 +58,7 @@ export async function parseEpub(buffer) {
   const title = squash(textOf(asArray(meta.title)[0])) || "Untitled";
   const author = asArray(meta.creator).map(textOf).filter(Boolean).join(", ");
   const language = textOf(asArray(meta.language)[0]) || "en";
+  const description = squash(textOf(asArray(meta.description)[0]).replace(/<[^>]*>/g, " ")).slice(0, 600);
 
   const manifest = new Map();
   for (const item of asArray(opf.manifest?.item)) manifest.set(item.id, item);
@@ -107,7 +108,7 @@ export async function parseEpub(buffer) {
   }
   if (!sections.length) throw new Error("No readable text found in this EPUB.");
 
-  return { title, author, language, cover, sections: finalizeSections(sections, title) };
+  return { title, author, language, description, cover, sections: finalizeSections(sections, title) };
 }
 
 // Headings inside a TOC section (inner parts) become chapters only when the section is clearly

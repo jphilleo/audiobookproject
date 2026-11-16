@@ -87,6 +87,7 @@ export async function addBook(buffer, filename, ownerId) {
     title: parsed.title,
     author: parsed.author,
     language: parsed.language,
+    description: parsed.description,
     cover,
     ownerId,
     createdAt: new Date().toISOString(),

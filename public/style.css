@@ -149,6 +149,8 @@ h2 { font-size: 13px; font-weight: 600; color: var(--ink-2); margin: 48px 0 6px;
 
 .create { display: grid; gap: 12px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; margin-bottom: 36px; }
 .voice-row { display: flex; gap: 8px; }
+.voice-recommendation { display: grid; justify-items: start; gap: 8px; }
+.voice-recommendation p { margin: 0; }
 .select-wrap { position: relative; flex: 1; }
 .select-wrap svg { position: absolute; right: 12px; top: 11px; color: var(--ink-3); pointer-events: none; }
 select {

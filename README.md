@@ -28,6 +28,11 @@ npm run sample       # writes samples/pride-and-prejudice-sample.epub to test wi
 The first start downloads the Kokoro model (~330MB fp32) from Hugging Face. Set `KOKORO_DTYPE=q8` for a ~90MB
 download that narrates about 1.6x slower. On an M4 Mac, fp32 narrates at ~5x real time (a 120k-word novel takes about 2.7 hours).
 
+Voice recommendations run locally by default. To enable model-based suggestions, set
+`VOICE_RECOMMENDATION_MODEL` to a model that supports structured outputs and provide
+`OPENAI_API_KEY` in the server environment. Requests include title, author, language and
+the embedded description when available. Chapter text stays on the server.
+
 ## Layout
 
 - `src/epub.js`: EPUB → metadata + plain-text chapters (split by TOC anchors, captions/page numbers removed, DRM detection)

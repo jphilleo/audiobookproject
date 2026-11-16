@@ -153,7 +153,7 @@ async function openBook(id) {
     state.book = book;
     if (fresh) {
       state.selected = new Set(book.chapters.filter((c) => c.selected).map((c) => c.index));
-      state.voice = book.voice || store.get("voice") || "af_heart";
+      state.voice = store.get(`voice:${id}`) || book.voice || store.get("voice") || "af_heart";
       renderBook();
     } else {
       update();
@@ -224,6 +224,14 @@ function renderBook() {
         <button class="btn" id="preview" aria-label="Play a sample">${icon.speaker}<span class="wide-only">Sample</span></button>
       </div>
       ${languageNote(b.language)}
+      <div class="voice-recommendation">
+        <button type="button" class="btn" id="recommend-voice">Recommend a voice</button>
+        <p id="voice-recommendation" class="sub" role="status" hidden></p>
+        <div id="recommendation-actions" class="actions" hidden>
+          <button type="button" class="btn" id="preview-recommendation">Preview suggestion</button>
+          <button type="button" class="btn" id="use-recommendation">Use this voice</button>
+        </div>
+      </div>
       <div id="action"></div>
       <p class="error" id="book-error" hidden></p>
     </div>
@@ -236,8 +244,15 @@ function renderBook() {
 
     <p class="tail"><button class="link danger" id="delete">Delete this book</button></p>`;
 
-  $("#voice").addEventListener("change", (e) => { state.voice = e.target.value; store.set("voice", state.voice); previewAudio?.pause(); update(); });
-  $("#preview").addEventListener("click", previewVoice);
+  $("#voice").addEventListener("change", (e) => {
+    state.voice = e.target.value;
+    store.set("voice", state.voice);
+    store.set(`voice:${b.id}`, state.voice);
+    previewAudio?.pause();
+    update();
+  });
+  $("#preview").addEventListener("click", (e) => previewVoice(state.voice, e.currentTarget));
+  $("#recommend-voice").addEventListener("click", showVoiceRecommendation);
   setPreview("idle");
   $("#sel-all").addEventListener("click", () => { b.chapters.forEach((c) => state.selected.add(c.index)); update(); });
   $("#sel-none").addEventListener("click", () => { state.selected.clear(); update(); });
@@ -368,9 +383,53 @@ async function copyFeed(btn) {
 }
 
 let previewAudio;
-function setPreview(mode) {
-  const btn = $("#preview");
+let activePreviewButton;
+let loadingPreview = false;
+async function showVoiceRecommendation(event) {
+  const button = event.currentTarget;
+  const status = $("#voice-recommendation");
+  const actions = $("#recommendation-actions");
+  const bookId = state.book.id;
+  button.disabled = true;
+  status.hidden = false;
+  status.textContent = "Finding a voice…";
+  try {
+    const { recommendation } = await api(`/api/books/${bookId}/voice-recommendation`, { method: "POST" });
+    if (!button.isConnected) return;
+    const comparison = !state.book.language || /^en(?:[-_]|$)/i.test(state.book.language)
+      ? state.voices.find((voice) => voice.id === (state.voice.startsWith("b") ? "af_heart" : "bf_emma"))
+      : null;
+    const voice = recommendation?.voice || comparison;
+    status.textContent = recommendation
+      ? `${voice.name} · ${recommendation.reason}`
+      : voice ? `No clear match. Compare your current voice with ${voice.name} on the same passage.`
+        : "No matching voice is available for this book.";
+    button.hidden = true;
+    if (!voice) return;
+    actions.hidden = false;
+    $("#preview-recommendation").onclick = (e) => previewVoice(voice.id, e.currentTarget);
+    $("#use-recommendation").onclick = () => {
+      state.voice = voice.id;
+      store.set(`voice:${bookId}`, voice.id);
+      $("#voice").value = voice.id;
+      previewAudio?.pause();
+      update();
+      $("#voice").focus();
+    };
+  } catch (e) {
+    status.textContent = e.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function setPreview(mode, btn = $("#preview")) {
   if (!btn) return;
+  if (btn.id === "preview-recommendation") {
+    btn.textContent = { idle: "Preview suggestion", loading: "Loading sample…", playing: "Stop sample" }[mode];
+    btn.disabled = mode === "loading";
+    return;
+  }
   const [html, label] = {
     idle: [`${icon.speaker}<span class="wide-only">Sample</span>`, "Play a sample"],
     loading: [`<span class="spinner"></span><span class="wide-only">Loading</span>`, "Loading a sample"],
@@ -380,22 +439,29 @@ function setPreview(mode) {
   btn.setAttribute("aria-label", label);
   btn.disabled = mode === "loading";
 }
-async function previewVoice() {
-  if (previewAudio && !previewAudio.paused) return previewAudio.pause();
-  setPreview("loading");
+async function previewVoice(voice, button) {
+  if (loadingPreview) return;
+  if (previewAudio && !previewAudio.paused && activePreviewButton === button) return previewAudio.pause();
+  previewAudio?.pause();
+  const book = state.book;
+  loadingPreview = true;
+  setPreview("loading", button);
   try {
     // Sample the book's own opening lines so it's representative.
-    const first = selectedChapters()[0] || state.book.chapters[0];
-    const text = (await api(`/api/books/${state.book.id}/text/${first.index}`)).replace(/\s+/g, " ").slice(0, 220).replace(/\s\S*$/, "");
-    previewAudio?.pause();
+    const first = selectedChapters()[0] || book.chapters[0];
+    const text = (await api(`/api/books/${book.id}/text/${first.index}`)).replace(/\s+/g, " ").slice(0, 220).replace(/\s\S*$/, "");
+    if (!button.isConnected || $("#book").hidden || state.book?.id !== book.id) return;
     $("#audio").pause();
-    const sample = (previewAudio = new Audio(`/api/preview?voice=${encodeURIComponent(state.voice)}&text=${encodeURIComponent(text)}`));
-    ["pause", "ended"].forEach((ev) => sample.addEventListener(ev, () => previewAudio === sample && setPreview("idle")));
+    activePreviewButton = button;
+    const sample = (previewAudio = new Audio(`/api/preview?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(text)}`));
+    ["pause", "ended"].forEach((ev) => sample.addEventListener(ev, () => setPreview("idle", button)));
     await sample.play();
-    if (!sample.paused) setPreview("playing");
+    if (!sample.paused) setPreview("playing", button);
   } catch (e) {
-    setPreview("idle");
-    showBookError(e.message);
+    if (button.isConnected) showBookError(e.message);
+  } finally {
+    loadingPreview = false;
+    if (activePreviewButton !== button || !previewAudio || previewAudio.paused) setPreview("idle", button);
   }
 }
 
