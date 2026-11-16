@@ -1,4 +1,4 @@
-import { prepareNarration } from "../src/narration-text.js";
+import { prepareNarration, chapterNarrationBody } from "../src/narration-text.js";
 // Narrates the public-domain library (src/catalog.js) into LIBRARY_DIR/<slug>/:
 //   source.epub, cover.*, chapters/NNN.m4a, <slug>.m4b, <slug>.mp3, manifest.json
 // Resumable: finished chapters are kept, so it can be stopped and run again.
@@ -86,7 +86,7 @@ async function narrate(book, preview) {
       const started = Date.now();
       // The parser strips chapter headings from the text, so the title is announced first, as in the app.
       const parts = [];
-      for (const c of [{ text: prepareNarration(ch.title, { heading: true }), paragraphEnd: true }, ...chunkText(ch.text)]) {
+      for (const c of [{ text: prepareNarration(ch.title, { heading: true }), paragraphEnd: true }, ...chunkText(chapterNarrationBody(ch.text, ch.title))]) {
         parts.push(floatToPcm16(await synthesize(c.text, voice.id)), silence(c.paragraphEnd ? 0.45 : 0.12));
       }
       const pcm = Buffer.concat(parts);

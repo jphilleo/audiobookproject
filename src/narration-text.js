@@ -16,7 +16,10 @@ const ordinals = ["","first","second","third","fourth","fifth","sixth","seventh"
 
 export function prepareNarration(text, { heading = false } = {}) {
   let spoken = String(text).replace(/\b(Chapter|Stave|Book|Part|Volume|Act|Scene|Section|Canto|Letter|Appendix)\s+([MDCLXVI]+)\b/gi, (match, label, token) => {
-    const number = romanNumber(token.toUpperCase());
+    // Lowercase prose such as “mix” is not a Roman numeral. In body text,
+    // a lone I can be the pronoun (“the chapter I read”).
+    if (token !== token.toUpperCase() || (!heading && token === "I")) return match;
+    const number = romanNumber(token);
     return number ? label + " " + cardinal(number) : match;
   });
   spoken = spoken.replace(/\b(Henry|Edward|George|William|Louis|Charles|Elizabeth|Richard|James|Philip|Frederick|Napoleon|Pope [A-Z][a-z]+)\s+([MDCLXVI]+)\b/g, (match, name, token) => {
@@ -27,5 +30,21 @@ export function prepareNarration(text, { heading = false } = {}) {
     const number = romanNumber(token);
     return number ? cardinal(number) : token;
   });
+  // Expand only unambiguous personal titles before a capitalized name.
+  // This also prevents sentence splitting between the title and the name.
+  const titles = { Mr: "Mister", Mrs: "Missus", Dr: "Doctor" };
+  spoken = spoken.replace(/\b(Mr|Mrs|Dr)\.(?=\s+[A-Z])/g, (_, title) => titles[title]);
   return spoken;
+}
+
+// Some EPUBs retain the subtitle as the first standalone paragraph.
+// Remove only an exact title/subtitle match when we announce that title separately.
+export function chapterNarrationBody(text, title) {
+  const paragraphs = String(text).split(/\n{2,}/);
+  const first = paragraphs[0].trim();
+  const subtitle = String(title).split(/:\s*/).slice(1).join(": ");
+  if (paragraphs.length > 1 && (first === String(title).trim() || (subtitle && first === subtitle))) {
+    return paragraphs.slice(1).join("\n\n");
+  }
+  return String(text);
 }
