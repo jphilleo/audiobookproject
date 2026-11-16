@@ -11,7 +11,7 @@ const xmlEscape = (s) => String(s ?? "").replace(/[<>&'"]/g, (c) => ({ "<": "&lt
 const AUDIO_BASE = (process.env.LIBRARY_AUDIO_URL || "").replace(/\/+$/, "");
 export const fileUrl = (b, file) => `/library-audio/${b.slug}/${file}`;
 export const audioUrl = (b, file) => {
-  if (!AUDIO_BASE) return fileUrl(b, file);
+  if (!AUDIO_BASE || b.audioStorage === "origin") return fileUrl(b, file);
   if (!b.ready && b.preview) return `${AUDIO_BASE}/previews/${b.slug}.m4a`;
   return `${AUDIO_BASE}/${b.slug}/${file}`;
 };
@@ -104,7 +104,7 @@ export function bookVars(b, origin) {
       </ol>`;
   const ld = {
     "@context": "https://schema.org", "@type": "Audiobook", name: b.title, url,
-    author: { "@type": "Person", name: b.author }, datePublished: String(b.year),
+    author: { "@type": "Person", name: b.author }, datePublished: b.year ? String(b.year) : undefined,
     readBy: { "@type": "Person", name: `${b.voice.name} (AI voice)` },
     duration: `PT${Math.round(b.durationMs / 60000)}M`,
     image: b.cover ? `${origin}${fileUrl(b, b.cover)}` : undefined,
@@ -122,7 +122,7 @@ export function bookVars(b, origin) {
     ogimage: b.cover ? esc(`${origin}${fileUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
     booktitle: bookTitle,
     author: esc(b.author),
-    year: esc(b.year),
+    year: b.year ? ` · ${esc(b.year)}` : "",
     cover: cover(b, "lib-cover lg"),
     meta: esc(`${b.ready ? `${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
     chaptersHeading: b.ready ? "Chapters" : "First chapter",

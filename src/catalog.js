@@ -5,6 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import expansion from "./library-expansion.json" with { type: "json" };
 
 export const LIBRARY_DIR = path.resolve(process.env.LIBRARY_DIR || path.join(import.meta.dirname, "..", "library"));
 export const LIBRARY_VOICE = { id: "af_heart", name: "Heart" };
@@ -71,6 +72,7 @@ export const CATALOG = [
     source: "herman-melville/moby-dick",
     description: "Ishmael signs on to a whaling ship and finds himself under Captain Ahab, who wants one thing: the white whale that took his leg. Long and strange, with whole chapters about whales between the chase.",
   },
+  ...expansion,
 ];
 
 export const bookDir = (slug) => path.join(LIBRARY_DIR, slug);
@@ -104,9 +106,11 @@ export const findBook = (authorSlug, slug) => publishedBooks().find((b) => b.aut
 // "soon", plus its cover if we have one yet. Used for placeholders while books are being made.
 export function libraryStatus() {
   const published = new Map(publishedBooks().map((b) => [b.slug, b]));
-  return CATALOG.map((b) => {
+  const staged = new Set(expansion.map((b) => b.slug));
+  return CATALOG.flatMap((b) => {
     const book = published.get(b.slug);
     if (book) return { ...book, state: book.ready ? "ready" : "preview" };
+    if (staged.has(b.slug)) return [];
     const dir = bookDir(b.slug);
     const cover = ["cover.jpg", "cover.png", "cover.webp"].find((f) => fs.existsSync(path.join(dir, f))) || null;
     const narrating = fs.existsSync(path.join(dir, "chapters")) && fs.readdirSync(path.join(dir, "chapters")).some((f) => f.endsWith(".m4a"));

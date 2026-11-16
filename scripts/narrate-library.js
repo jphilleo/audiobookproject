@@ -37,7 +37,10 @@ async function narrate(book, preview) {
   await fs.mkdir(path.join(dir, "chapters"), { recursive: true });
   const parsed = await source(book);
   const selected = parsed.sections.filter((s) => s.selected);
-  const opening = selected.find((s) => /^(?:(?:chapter|book)[\s.:]+(?:0*1|i|one)\b|(?:0*1|i):)/i.test(s.title.trim()));
+  const opening = book.openingIndex === undefined
+    ? selected.find((s) => /^(?:(?:chapter|book)[\s.:]+(?:0*1|i|one)\b|(?:0*1|i):)/i.test(s.title.trim()))
+    : selected.find((s) => s.index === book.openingIndex);
+  if (preview && book.openingIndex !== undefined && !opening) throw new Error("Configured first chapter is missing");
   const chapters = preview ? [opening || selected[0]].filter(Boolean) : selected;
   if (!chapters.length) throw new Error("No narratable chapters found");
 
@@ -51,8 +54,14 @@ async function narrate(book, preview) {
   let voice = old?.voice;
   if (!voice) {
     const existingAudio = (await fs.readdir(path.join(dir, "chapters"))).some((name) => name.endsWith(".m4a"));
-    const recommendation = existingAudio ? null : await recommendVoice({ ...book, language: parsed.language }, await listVoices());
-    voice = recommendation ? { id: recommendation.voice.id, name: recommendation.voice.name } : LIBRARY_VOICE;
+    if (existingAudio) voice = LIBRARY_VOICE;
+    else {
+      const voices = await listVoices();
+      const picked = book.voiceId ? voices.find((v) => v.id === book.voiceId)
+        : (await recommendVoice({ ...book, language: parsed.language }, voices))?.voice;
+      if (book.voiceId && !picked) throw new Error(`Unknown catalog voice: ${book.voiceId}`);
+      voice = picked ? { id: picked.id, name: picked.name } : LIBRARY_VOICE;
+    }
   }
   const manifest = { ready: false, voice, cover, words: chapters.reduce((n, c) => n + c.words, 0), chapters: [] };
   if (preview) manifest.preview = true;
