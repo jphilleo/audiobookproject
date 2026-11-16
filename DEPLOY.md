@@ -1,147 +1,95 @@
 # Deploying Audiobook Project
 
-The cheap setup: one small server runs the app, Cloudflare (free plan) sits in front for DNS and
-HTTPS, and the library audio lives in Cloudflare R2. About $5–8 a month plus the domains.
+The public converter runs on an Ubuntu VPS at Contabo. Cloudflare manages both domains and sends
+`audiobookproject.com` and `www.audiobookproject.com` to `https://audiobookproject.org` with a
+301 that preserves the path and query. Caddy terminates HTTPS on the VPS. Cloudflare R2 serves
+public-domain library audio at `audio.audiobookproject.org`. User uploads and conversions live on
+the VPS, outside the public library bucket.
 
-```
-visitor → Cloudflare (DNS, HTTPS, cache) → Cloudflare Tunnel → server: node server.js on :4800
-                                         → R2 bucket (library audio) at audio.audiobookproject.org
-```
+## Server
 
-## 1. Domains
+Install Node.js 24, ffmpeg, Git, and Caddy. Create an unprivileged system user named `audiobook`
+and give it ownership of `/opt/audiobook` and `/var/lib/audiobook`. Clone this repository into
+`/opt/audiobook/app` as that user and run `npm ci --omit=dev`. The Kokoro model downloads on
+first startup.
 
-Register `audiobookproject.org` (and `audiobookproject.com`) with Cloudflare Registrar. Both end up
-on Cloudflare's DNS automatically. Redirect the .com with a Cloudflare redirect rule:
-`audiobookproject.com/*` → `https://audiobookproject.org/$1` (301).
-
-## 2. The server
-
-A Hetzner Cloud server with 4 vCPUs and 8 GB of RAM is plenty to start (the ARM "CAX21" is the
-cheapest). Pick Ubuntu 24.04. Then, as root:
-
-```bash
-apt update && apt install -y ffmpeg git curl
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt install -y nodejs
-adduser --disabled-password --gecos "" audiobook
-```
-
-Get the code onto it:
-
-```bash
-sudo -u audiobook git clone https://github.com/jphilleo/audiobookproject /home/audiobook/app
-cd /home/audiobook/app && sudo -u audiobook npm ci --omit=dev
-```
-
-The voice model (Kokoro) downloads itself on first start.
-
-### Run it as a service
-
-`/etc/audiobook.env`:
-
-```bash
-PUBLIC_URL=https://audiobookproject.org
-TRUST_PROXY=1
-LIBRARY_AUDIO_URL=https://audio.audiobookproject.org
-GITHUB_URL=https://github.com/jphilleo/audiobookproject
-# Optional limits (these are the defaults)
-MAX_ACTIVE_BOOKS=2
-MIN_FREE_GB=5
-```
-
-`/etc/systemd/system/audiobook.service`:
+The `audiobook.service` systemd service runs as the `audiobook` user, with
+`WorkingDirectory=/opt/audiobook/app` and `ExecStart=/usr/bin/node server.js`. Use these environment
+variables in the unit or a systemd drop-in:
 
 ```ini
-[Unit]
-Description=Audiobook Project
-After=network-online.target
-
 [Service]
-User=audiobook
-WorkingDirectory=/home/audiobook/app
-EnvironmentFile=/etc/audiobook.env
-ExecStart=/usr/bin/node server.js
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
+Environment=PORT=4800
+Environment=PUBLIC_URL=https://audiobookproject.org
+Environment=TRUST_PROXY=1
+Environment=DATA_DIR=/var/lib/audiobook/books
+Environment=LIBRARY_DIR=/var/lib/audiobook/library
+Environment=LIBRARY_AUDIO_URL=https://audio.audiobookproject.org
 ```
 
-```bash
-systemctl daemon-reload && systemctl enable --now audiobook
-journalctl -u audiobook -f     # watch it start; "Kokoro voice model loaded" means it's ready
+Point the DNS-only apex record for `audiobookproject.org` to the VPS. Allow inbound HTTP and HTTPS
+for Caddy and keep port 4800 private. Caddy obtains and renews the public certificate:
+
+```caddyfile
+audiobookproject.org {
+    reverse_proxy 127.0.0.1:4800
+}
 ```
 
-## 3. HTTPS with Cloudflare Tunnel
+Deploy source updates from GitHub:
 
-The tunnel connects out to Cloudflare, so the server needs no open ports and no certificates.
-Install `cloudflared` (see Cloudflare's docs for the current package), then:
-
-```bash
-cloudflared tunnel login
-cloudflared tunnel create audiobookproject
-cloudflared tunnel route dns audiobookproject audiobookproject.org
+```sh
+sudo -u audiobook git -C /opt/audiobook/app pull --ff-only
+cd /opt/audiobook/app && sudo -u audiobook npm ci --omit=dev
+sudo systemctl daemon-reload
+sudo systemctl restart audiobook
+sudo journalctl -u audiobook -n 30 --no-pager
 ```
 
-`/etc/cloudflared/config.yml`:
+Restart when the conversion queue is idle. Verify the HTTPS homepage, the `.com` redirect, and
+an upload, preview, narration, and M4B download using the sample EPUB in `samples/`.
 
-```yaml
-tunnel: audiobookproject
-credentials-file: /root/.cloudflared/<tunnel id>.json
-ingress:
-  - hostname: audiobookproject.org
-    service: http://localhost:4800
-  - service: http_status:404
+## Public audiobook library
+
+The book catalog is in `src/catalog.js`. Generate audio locally with Node.js and ffmpeg:
+
+```sh
+LIBRARY_DIR="$PWD/library" node scripts/narrate-library.js a-christmas-carol
+LIBRARY_DIR="$PWD/library-previews" node scripts/narrate-library.js --preview moby-dick
 ```
 
-```bash
-cloudflared service install && systemctl enable --now cloudflared
-```
+Use separate directories for full books and previews. Copy only public-domain library audio to
+the Standard-storage R2 bucket `audiobookproject-library`:
 
-In Cloudflare, set SSL/TLS to "Full", and turn off any firewall rules on the server except SSH.
+- Complete books use `<slug>/chapters/<number>.m4a`, `<slug>/<slug>.m4b`, and `<slug>/<slug>.mp3`.
+- First chapters use `previews/<slug>.m4a`.
 
-## 4. Library audio on R2
+The R2 custom domain is `audio.audiobookproject.org`. Chapter files and M4B use `audio/mp4`, and
+MP3 uses `audio/mpeg`. Full-book files need `Content-Disposition: attachment` for cross-origin
+downloads. The Cloudflare response header rules apply these headers to the audio hostname.
 
-Create an R2 bucket (`audiobookproject-library`), connect the custom domain
-`audio.audiobookproject.org` to it, and upload from your Mac with [rclone](https://rclone.org/s3/#cloudflare-r2):
+Verify that the files respond over HTTPS before publishing. Copy each finished manifest and
+cover into `/var/lib/audiobook/library/<slug>/` on the VPS. For complete books, also keep chapter
+files there so podcast RSS enclosures include the byte lengths. A preview manifest creates a
+playable book page, and a complete manifest also enables downloads and podcast feeds. Generated
+audio, ebook inputs, uploads, credentials, and production-only data belong outside Git.
 
-```bash
-rclone sync library r2:audiobookproject-library --include "*/chapters/*.m4a" --include "*/*.m4b" --include "*/*.mp3"
-# Make the whole-book files download instead of playing in the browser:
-rclone copy library r2:audiobookproject-library --include "*/*.m4b" --include "*/*.mp3" \
-  --header-upload "Content-Disposition: attachment"
-```
+## Donations
 
-The server only needs each book's `manifest.json` and cover files in `library/` (it makes the small
-cover thumbnails itself). Copy those over:
+The Donate page shows a checkout link when `DONATION_URL` is set to the verified HTTPS
+contribution URL for Audiobook Project. Add it to a systemd drop-in, then reload and
+restart the service when the converter queue is idle. The public URL is sufficient. The site does
+not need payment credentials or payment processing code.
 
-```bash
-rsync -av --include "*/" --include "manifest.json" --include "cover*" --exclude "*" \
-  library/ audiobook@<server>:/home/audiobook/app/library/
-```
+Open `https://audiobookproject.org/donate`, verify that the link goes to the project's checkout,
+and confirm the intended recipient and available contribution options.
 
-Narrate new library books on your Mac (`node scripts/narrate-library.js`, much faster than the
-server), then repeat the two commands above.
+## Search
 
-## 5. Search
+Verify the `audiobookproject.org` Domain property in Google Search Console with a Cloudflare DNS
+TXT record and submit `https://audiobookproject.org/sitemap.xml`. The sitemap includes the
+converter pages, the library, and all playable book pages. Check individual URLs with URL
+Inspection and check the Page indexing report after it finishes processing.
 
-1. [Google Search Console](https://search.google.com/search-console): add `audiobookproject.org` as a
-   Domain property, verify it with the TXT record Cloudflare's DNS makes easy, and submit
-   `https://audiobookproject.org/sitemap.xml`.
-2. [Bing Webmaster Tools](https://www.bing.com/webmasters): import the site from Search Console.
-3. Turn on Cloudflare Web Analytics (free, no cookies).
-4. After a week, check Search Console's Pages report and fix anything it flags.
-
-## 6. Before you announce it
-
-- Register a DMCA agent with the [US Copyright Office](https://www.copyright.gov/dmca-directory/) ($6).
-- Check the GitHub links in the footer and About page go to the public repo.
-- Upload a book end to end on the live site: upload, sample a voice, narrate a chapter, download
-  the M4B, add the podcast feed to your phone.
-
-## Updating
-
-```bash
-cd /home/audiobook/app && sudo -u audiobook git pull && sudo -u audiobook npm ci --omit=dev && systemctl restart audiobook
-```
-
-A restart puts uploaded books that are mid-narration back to idle, so update when it's quiet.
+The site can also be added to Bing Webmaster Tools. Cloudflare Web Analytics is available if
+enabled for the project.

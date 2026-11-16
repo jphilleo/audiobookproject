@@ -40,10 +40,13 @@ download that narrates about 1.6x slower. On an M4 Mac, fp32 narrates at ~5x rea
 - `views/`: page templates (`app.html` for the converter pages; About, FAQ, Privacy, Donate, Brand) and the shared `_header`/`_footer`
 - `public/`: the web UI script, styles and logo files (no build step)
 
-## Not done yet
+## Public site
 
-Payments (donations are a placeholder until Open Collective is set up), accounts, premium voices, translation, multiple workers,
-and public hosting (the podcast feed only works from devices that can reach the server).
+The converter and public-domain library are live at [audiobookproject.org](https://audiobookproject.org).
+See [DEPLOY.md](DEPLOY.md) for hosting, library publishing, and the `DONATION_URL` setting.
+Donations open once the project's hosted checkout is active.
+
+Accounts, premium voices, translation, and multiple workers are future work.
 
 ## License
 

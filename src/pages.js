@@ -246,5 +246,23 @@ function jsonLd(route, origin) {
 
 export function infoVars(route, origin) {
   const p = INFO_PAGES[route];
-  return { title: esc(p.title), description: esc(p.description), canonical: esc(`${origin}${route}`) };
+  const vars = { title: esc(p.title), description: esc(p.description), canonical: esc(`${origin}${route}`) };
+  if (route !== "/donate") return vars;
+
+  let checkout;
+  try {
+    const url = new URL(process.env.DONATION_URL || "");
+    if (url.protocol === "https:" && !url.username && !url.password) {
+      checkout = url.href;
+    }
+  } catch {
+    // Donations stay closed until a valid checkout URL is configured.
+  }
+  return {
+    ...vars,
+    donationCallout: checkout
+      ? `<p>Help cover the cost of keeping Audiobook Project free.</p>
+      <a class="btn primary" href="${esc(checkout)}">Donate</a>`
+      : "<p><strong>Donations aren’t open yet.</strong> We’re setting up a contribution page.</p>",
+  };
 }
