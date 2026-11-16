@@ -120,7 +120,7 @@ export function bookVars(b, origin) {
   ] };
   const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play" : "Play chapter 1"}</span></button>`;
   const skip = (seconds, forward = false) => `<button type="button" class="btn lib-skip" data-skip="${forward ? seconds : -seconds}" aria-label="${forward ? "Forward" : "Back"} ${seconds} seconds">
-          <svg viewBox="0 0 24 24" aria-hidden="true"${forward ? ' class="lib-skip-forward"' : ""}><path d="M4 11a8 8 0 1 1 4 9M4 5v6h6"/></svg><span aria-hidden="true">${seconds}</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"${forward ? ' class="lib-skip-forward"' : ""}><path d="M6 5a9 9 0 1 1-3 10M6 1v5H1"/></svg><span aria-hidden="true">${seconds}</span>
         </button>`;
   const error = '<p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>';
   const description = `<p class="lib-about">${esc(b.description)}</p>`;

@@ -522,3 +522,9 @@ body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bo
 .lib-pending span { font-size: 12px; color: var(--ink-3); margin-top: -3px; }
 .lib-pending .lib-badge { font-weight: 600; color: var(--ink-3); }
 .lib-pending .lib-badge::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 5px; vertical-align: 1px; }
+
+.lib-skip svg { width: 30px; height: 30px; }
+.lib-skip span { font-size: 10px; top: 50%; left: 50%; transform: translate(-50%, -42%); }
+.lib-site-frame { position: fixed; inset: 0; width: 100%; height: calc(100dvh - var(--dock-height, 100px)); border: 0; background: var(--bg); z-index: 9; }
+html.lib-embedded body { padding-bottom: 0; }
+html.lib-embedded .lib-player-dock { display: none; }

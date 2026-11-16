@@ -1,19 +1,20 @@
+window.initLibraryPlayer = function (scope = document, bookPath = location.pathname) {
 // The library book page: play chapter by chapter, carry on to the next one, and remember where
 // you stopped (in this browser only).
-const audio = document.getElementById("lib-audio");
-const playBtn = document.getElementById("lib-play");
+const audio = scope.getElementById("lib-audio");
+const playBtn = scope.getElementById("lib-play");
 const label = playBtn.querySelector("span");
 const initialLabel = label.textContent;
-const previousChapter = document.getElementById("lib-previous");
-const nextChapter = document.getElementById("lib-next");
-const nowPlaying = document.getElementById("lib-now-playing");
-const chapterNumber = document.getElementById("lib-chapter-number");
-const seek = document.getElementById("lib-seek");
-const position = document.getElementById("lib-position");
-const speed = document.getElementById("lib-speed");
-const playbackError = document.getElementById("lib-playback-error");
-const rows = [...document.querySelectorAll(".lib-chapters button[data-src]")];
-const key = `lib:${location.pathname}`;
+const previousChapter = scope.getElementById("lib-previous");
+const nextChapter = scope.getElementById("lib-next");
+const nowPlaying = scope.getElementById("lib-now-playing");
+const chapterNumber = scope.getElementById("lib-chapter-number");
+const seek = scope.getElementById("lib-seek");
+const position = scope.getElementById("lib-position");
+const speed = scope.getElementById("lib-speed");
+const playbackError = scope.getElementById("lib-playback-error");
+const rows = [...scope.querySelectorAll(".lib-chapters button[data-src]")];
+const key = `lib:${bookPath}`;
 const store = {
   get: () => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
   set: (v) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} },
@@ -86,6 +87,7 @@ function play(i) {
     pending = null;
   }
   sync();
+  if (window.parent === window && seek) window.audiobookPlayer = controller;
   audio.play().catch((error) => {
     if (error.name !== "AbortError") playbackError.hidden = false;
     sync();
@@ -102,7 +104,12 @@ previousChapter?.addEventListener("click", () => {
 nextChapter?.addEventListener("click", () => {
   if (current + 1 < rows.length) play(current + 1);
 });
-rows.forEach((r, i) => r.addEventListener("click", () => (i === current && !audio.paused ? audio.pause() : play(i))));
+const toggleChapter = i => (i === current && !audio.paused ? audio.pause() : play(i));
+rows.forEach((r, i) => r.addEventListener("click", () => {
+  if (seek && window.parent !== window && window.parent.audiobookPlayer) {
+    window.parent.openAudiobook(document, location.pathname, i);
+  } else toggleChapter(i);
+}));
 audio.addEventListener("ended", () => {
   if (current + 1 < rows.length) play(current + 1);
   else { finished = true; store.set(null); sync(); }
@@ -135,7 +142,7 @@ function seekTo(seconds) {
   sync();
 }
 seek?.addEventListener("input", () => seekTo(Number(seek.value)));
-document.querySelectorAll(".lib-transport [data-skip]").forEach(button => {
+scope.querySelectorAll(".lib-transport [data-skip]").forEach(button => {
   button.addEventListener("click", () => seekTo(at() + Number(button.dataset.skip)));
 });
 speed?.addEventListener("change", () => {
@@ -143,6 +150,10 @@ speed?.addEventListener("change", () => {
   audio.playbackRate = audio.defaultPlaybackRate;
 });
 
+const controller = {
+  audio, path: bookPath, dock: scope.querySelector(".lib-player-dock"),
+  play, toggleChapter, sync,
+};
 // Pick up where this browser left off.
 const saved = store.get();
 if (Number.isInteger(saved?.chapter) && rows[saved.chapter] && Number.isFinite(saved.at)) {
@@ -151,9 +162,9 @@ if (Number.isInteger(saved?.chapter) && rows[saved.chapter] && Number.isFinite(s
 sync();
 
 // The feed link goes to the clipboard for pasting into a podcast app.
-const feedBtn = document.getElementById("lib-feed");
+const feedBtn = scope.getElementById("lib-feed");
 const podcastMenu = feedBtn?.closest("details");
-const feedStatus = document.getElementById("lib-feed-status");
+const feedStatus = scope.getElementById("lib-feed-status");
 let feedReset;
 podcastMenu?.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && podcastMenu.open) {
@@ -173,3 +184,7 @@ feedBtn?.addEventListener("click", async () => {
     prompt("Paste this link into your podcast app:", url);
   }
 });
+
+return controller;
+};
+window.libraryPlayer = window.initLibraryPlayer();
