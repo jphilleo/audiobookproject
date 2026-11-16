@@ -11,6 +11,9 @@ const xmlEscape = (s) => String(s ?? "").replace(/[<>&'"]/g, (c) => ({ "<": "&lt
 const AUDIO_BASE = (process.env.LIBRARY_AUDIO_URL || "").replace(/\/+$/, "");
 export const fileUrl = (b, file) => `/library-audio/${b.slug}/${file}`;
 export const audioUrl = (b, file) => {
+  if (b.audioStorage === "origin" && /^[a-f0-9]{64}$/.test(b.audioSha256)) {
+    return `${fileUrl(b, file)}?v=${b.audioSha256.slice(0, 12)}`;
+  }
   if (!AUDIO_BASE || b.audioStorage === "origin") return fileUrl(b, file);
   if (!b.ready && b.preview) return `${AUDIO_BASE}/previews/${b.slug}.m4a`;
   return `${AUDIO_BASE}/${b.slug}/${file}`;
