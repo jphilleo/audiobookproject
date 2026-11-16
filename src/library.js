@@ -1,3 +1,4 @@
+import { prepareNarration } from "./narration-text.js";
 // Book storage on disk and the single background worker that narrates chapters.
 import fs from "node:fs/promises";
 import { createWriteStream } from "node:fs";
@@ -203,7 +204,7 @@ async function narrateChapter(book, ch) {
   const dir = bookDir(book.id);
   const text = await fs.readFile(path.join(dir, "text", `${ch.index}.txt`), "utf8");
   // The parser strips chapter headings from the text, so the title is always announced first.
-  const chunks = [{ text: ch.title, paragraphEnd: true }, ...chunkText(text)];
+  const chunks = [{ text: prepareNarration(ch.title, { heading: true }), paragraphEnd: true }, ...chunkText(text)];
 
   const pcmPath = path.join(dir, "audio", `${ch.index}.pcm`);
   const out = createWriteStream(pcmPath);

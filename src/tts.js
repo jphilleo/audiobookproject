@@ -1,5 +1,6 @@
 // Free tier TTS: Kokoro-82M running locally via ONNX. No API keys, no per-book cost.
 // Inference runs in a worker thread (tts-worker.js); this module is the main-thread client.
+import { prepareNarration } from "./narration-text.js";
 import { Worker } from "node:worker_threads";
 
 export const SAMPLE_RATE = 24000;
@@ -46,13 +47,13 @@ export async function listVoices() {
 }
 
 // Returns a Float32Array @ 24kHz mono.
-export const synthesize = (text, voice, speed = 1) => call({ type: "generate", text, voice, speed });
+export const synthesize = (text, voice, speed = 1) => call({ type: "generate", text: prepareNarration(text), voice, speed });
 
 // Split a chapter into speakable chunks. Each chunk records whether it ends a paragraph
 // so we can insert a slightly longer pause there.
 export function chunkText(text) {
   const chunks = [];
-  for (const para of text.split(/\n{2,}/)) {
+  for (const para of prepareNarration(text).split(/\n{2,}/)) {
     const sentences = para.match(/[^.!?…]+(?:[.!?…]+["'”’)\]]*|$)/g)?.map((s) => s.trim()).filter(Boolean) || [para];
     let buf = "";
     const flush = () => {
