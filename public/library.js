@@ -34,7 +34,7 @@ const duration = () => Number(rows[current].dataset.duration);
 function sync() {
   const playing = !audio.paused && !audio.ended;
   playBtn.querySelector("svg").innerHTML = playing ? PAUSE : PLAY;
-  label.textContent = playing ? "Pause" : finished ? "Play again" : current > 0 || at() > 0 ? "Resume" : initialLabel;
+  label.textContent = playing ? "Pause" : seek ? "Play" : finished ? "Play again" : current > 0 || at() > 0 ? "Resume" : initialLabel;
   rows.forEach((r, i) => {
     const title = r.querySelector(".lib-ch-title").textContent;
     if (i === current) r.setAttribute("aria-current", "true");

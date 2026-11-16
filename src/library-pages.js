@@ -118,7 +118,7 @@ export function bookVars(b, origin) {
     { "@type": "ListItem", position: 1, name: "Library", item: `${origin}/library` },
     { "@type": "ListItem", position: 2, name: b.title, item: url },
   ] };
-  const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play audiobook" : "Play chapter 1"}</span></button>`;
+  const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play" : "Play chapter 1"}</span></button>`;
   const error = '<p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>';
   const description = `<p class="lib-about">${esc(b.description)}</p>`;
   return {
@@ -133,14 +133,14 @@ export function bookVars(b, origin) {
     meta: esc(`${b.ready ? `Complete audiobook · ${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
     bookClass: b.ready ? "lib-full" : "",
     previewPlay: b.ready ? "" : `<div class="lib-actions">${play}</div>`,
-    player: b.ready ? `<section class="lib-player" aria-label="Audiobook player">
+    player: b.ready ? `<section class="lib-player-dock" aria-label="Audiobook player"><div class="lib-player">
         <p id="lib-now-playing" class="lib-now-playing" aria-live="polite">${esc(b.chapters[0].title)}</p>
         ${play}
         <input id="lib-seek" type="range" min="0" max="${b.chapters[0].durationMs / 1000}" step="1" value="0" aria-label="Chapter position" aria-valuetext="0:00 of ${clock(b.chapters[0].durationMs)}">
         <p id="lib-position" class="lib-position">0:00 / ${clock(b.chapters[0].durationMs)}</p>
         <audio id="lib-audio" preload="none"></audio>
         ${error}
-      </section>` : "",
+      </div></section>` : "",
     downloads: b.ready ? `<div class="lib-downloads">
         <a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>Download M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
         <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>Download MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
