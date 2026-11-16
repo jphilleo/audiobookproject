@@ -119,6 +119,9 @@ export function bookVars(b, origin) {
     { "@type": "ListItem", position: 2, name: b.title, item: url },
   ] };
   const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play" : "Play chapter 1"}</span></button>`;
+  const skip = (seconds, forward = false) => `<button type="button" class="btn lib-skip" data-skip="${forward ? seconds : -seconds}" aria-label="${forward ? "Forward" : "Back"} ${seconds} seconds">
+          <svg viewBox="0 0 24 24" aria-hidden="true"${forward ? ' class="lib-skip-forward"' : ""}><path d="M4 11a8 8 0 1 1 4 9M4 5v6h6"/></svg><span aria-hidden="true">${seconds}</span>
+        </button>`;
   const error = '<p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>';
   const description = `<p class="lib-about">${esc(b.description)}</p>`;
   const downloadIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>';
@@ -135,8 +138,21 @@ export function bookVars(b, origin) {
     bookClass: b.ready ? "lib-full" : "",
     previewPlay: b.ready ? "" : `<div class="lib-actions">${play}</div>`,
     player: b.ready ? `<section class="lib-player-dock" aria-label="Audiobook player"><div class="lib-player">
-        <p id="lib-now-playing" class="lib-now-playing" aria-live="polite">${esc(b.chapters[0].title)}</p>
-        ${play}
+        <div class="lib-track">
+          ${b.cover ? cover(b, "lib-cover lib-player-cover") : ""}
+          <div class="lib-track-text">
+            <p class="lib-track-book"><span>${bookTitle}</span> <span id="lib-chapter-number">· 1 / ${b.chapters.length}</span></p>
+            <p id="lib-now-playing" class="lib-now-playing" aria-live="polite">${esc(b.chapters[0].title)}</p>
+          </div>
+        </div>
+        <div class="lib-transport">
+          ${skip(15)}
+          ${play}
+          ${skip(30, true)}
+          <select id="lib-speed" aria-label="Playback speed">
+            ${[0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}"${rate === 1 ? " selected" : ""}>${rate}×</option>`).join("")}
+          </select>
+        </div>
         <input id="lib-seek" type="range" min="0" max="${b.chapters[0].durationMs / 1000}" step="1" value="0" aria-label="Chapter position" aria-valuetext="0:00 of ${clock(b.chapters[0].durationMs)}">
         <p id="lib-position" class="lib-position">0:00 / ${clock(b.chapters[0].durationMs)}</p>
         <audio id="lib-audio" preload="none"></audio>

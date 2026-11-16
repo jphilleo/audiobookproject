@@ -5,8 +5,10 @@ const playBtn = document.getElementById("lib-play");
 const label = playBtn.querySelector("span");
 const initialLabel = label.textContent;
 const nowPlaying = document.getElementById("lib-now-playing");
+const chapterNumber = document.getElementById("lib-chapter-number");
 const seek = document.getElementById("lib-seek");
 const position = document.getElementById("lib-position");
+const speed = document.getElementById("lib-speed");
 const playbackError = document.getElementById("lib-playback-error");
 const rows = [...document.querySelectorAll(".lib-chapters button[data-src]")];
 const key = `lib:${location.pathname}`;
@@ -45,6 +47,7 @@ function sync() {
   if (seek) {
     const title = rows[current].querySelector(".lib-ch-title").textContent;
     if (nowPlaying.textContent !== title) nowPlaying.textContent = title;
+    chapterNumber.textContent = `· ${current + 1} / ${rows.length}`;
     syncPosition();
   }
 }
@@ -55,6 +58,7 @@ function syncPosition() {
     const total = rows[current].querySelector(".lib-ch-time").textContent;
     seek.max = Math.floor(duration());
     seek.value = Math.floor(at());
+    seek.style.setProperty("--progress", `${duration() > 0 ? Math.min(at() / duration(), 1) * 100 : 0}%`);
     seek.setAttribute("aria-valuetext", `${elapsed} of ${total}`);
     position.textContent = `${elapsed} / ${total}`;
   }
@@ -112,13 +116,21 @@ audio.addEventListener("timeupdate", () => {
   if (pending === null && audio.readyState && Math.floor(audio.currentTime) % 5 === 0) save();
   syncPosition();
 });
-seek?.addEventListener("input", () => {
-  const target = Math.min(Number(seek.value), Math.max(0, duration() - 0.1));
+function seekTo(seconds) {
+  const target = Math.max(0, Math.min(seconds, Math.max(0, duration() - 0.1)));
   if (loaded === current && audio.readyState) audio.currentTime = Math.min(target, Math.max(0, audio.duration - 0.1));
   else pending = target;
   finished = false;
   save();
   sync();
+}
+seek?.addEventListener("input", () => seekTo(Number(seek.value)));
+document.querySelectorAll(".lib-transport [data-skip]").forEach(button => {
+  button.addEventListener("click", () => seekTo(at() + Number(button.dataset.skip)));
+});
+speed?.addEventListener("change", () => {
+  audio.defaultPlaybackRate = Number(speed.value);
+  audio.playbackRate = audio.defaultPlaybackRate;
 });
 
 // Pick up where this browser left off.
