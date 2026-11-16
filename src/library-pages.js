@@ -121,6 +121,7 @@ export function bookVars(b, origin) {
   const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play" : "Play chapter 1"}</span></button>`;
   const error = '<p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>';
   const description = `<p class="lib-about">${esc(b.description)}</p>`;
+  const downloadIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>';
   return {
     title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : `${b.title} First Chapter by ${b.author} — Audiobook Project`),
     description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
@@ -142,9 +143,9 @@ export function bookVars(b, origin) {
         ${error}
       </div></section>` : "",
     downloads: b.ready ? `<div class="lib-downloads">
-        <a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>Download M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
-        <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>Download MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
-        <button type="button" class="btn" id="lib-feed" data-feed="${feed}">Add to podcast player</button>
+        <a class="btn lib-download" href="${esc(audioUrl(b, b.m4b.file))}" download aria-label="Download M4B, ${megabytes(b.m4b.bytes)}">${downloadIcon}M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
+        <a class="btn lib-download" href="${esc(audioUrl(b, b.mp3.file))}" download aria-label="Download MP3, ${megabytes(b.mp3.bytes)}">${downloadIcon}MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
+        <button type="button" class="btn" id="lib-feed" data-feed="${feed}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span aria-live="polite">Copy podcast link</span></button>
       </div>` : "",
     previewIntro: b.ready ? "" : `<audio id="lib-audio" preload="none"></audio>${error}${description}`,
     about: b.ready ? `<h2 class="lib-about-heading">About the audiobook</h2>${description}` : "",
