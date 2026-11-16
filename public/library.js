@@ -132,7 +132,7 @@ sync();
 const feedBtn = document.getElementById("lib-feed");
 feedBtn?.addEventListener("click", async () => {
   const url = feedBtn.dataset.feed;
-  const originalLabel = "Copy podcast link";
+  const originalLabel = "Add to podcast player";
   try {
     await navigator.clipboard.writeText(url);
     feedBtn.textContent = "Link copied. Paste it into your podcast app.";

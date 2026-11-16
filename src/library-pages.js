@@ -133,22 +133,19 @@ export function bookVars(b, origin) {
     meta: esc(`${b.ready ? `Complete audiobook · ${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
     bookClass: b.ready ? "lib-full" : "",
     previewPlay: b.ready ? "" : `<div class="lib-actions">${play}</div>`,
-    player: b.ready ? `<div class="lib-full-controls">
-      <section class="lib-player" aria-label="Audiobook player">
+    player: b.ready ? `<section class="lib-player" aria-label="Audiobook player">
         <p id="lib-now-playing" class="lib-now-playing" aria-live="polite">${esc(b.chapters[0].title)}</p>
         ${play}
         <input id="lib-seek" type="range" min="0" max="${b.chapters[0].durationMs / 1000}" step="1" value="0" aria-label="Chapter position" aria-valuetext="0:00 of ${clock(b.chapters[0].durationMs)}">
         <p id="lib-position" class="lib-position">0:00 / ${clock(b.chapters[0].durationMs)}</p>
         <audio id="lib-audio" preload="none"></audio>
         ${error}
-      </section>
-      <div class="lib-downloads">
-        <a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
-        <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
-        <button type="button" class="link" id="lib-feed" data-feed="${feed}">Copy podcast link</button>
-      </div>
-      <p class="lib-format-hint">M4B for audiobook apps · MP3 for any audio player</p>
-    </div>` : "",
+      </section>` : "",
+    downloads: b.ready ? `<div class="lib-downloads">
+        <a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>Download M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
+        <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>Download MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
+        <button type="button" class="link" id="lib-feed" data-feed="${feed}">Add to podcast player</button>
+      </div>` : "",
     previewIntro: b.ready ? "" : `<audio id="lib-audio" preload="none"></audio>${error}${description}`,
     about: b.ready ? `<h2 class="lib-about-heading">About the audiobook</h2>${description}` : "",
     chaptersHeading: b.ready ? "Chapters" : "First chapter",
