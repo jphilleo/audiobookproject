@@ -18,7 +18,7 @@
 </head>
 <body>
 {{header}}
-  <main class="prose library lib-book">
+  <main class="prose library lib-book {{bookClass}}">
     <nav class="lib-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a> › {{author}}</nav>
     <div class="lib-book-head">
       {{cover}}
@@ -26,20 +26,16 @@
         <h1>{{booktitle}}</h1>
         <p class="lib-byline">{{author}}{{year}}</p>
         <p class="lib-meta">{{meta}}</p>
-        <div class="lib-actions">
-          <button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>{{playLabel}}</span></button>
-          {{downloads}}
-        </div>
+        {{previewPlay}}
       </div>
+      {{player}}
     </div>
-    {{player}}
-    <p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>
-    {{aboutHeading}}
-    <p class="lib-about">{{bookdescription}}</p>
+    {{previewIntro}}
 
     <h2 id="chapters">{{chaptersHeading}}</h2>
     <ol class="lib-chapters">
         {{chapters}}
+    {{about}}
 
     <p class="lib-credit">Text from <a href="{{source}}" rel="noopener">Standard Ebooks</a> (public domain). Narrated with Kokoro, an open-source AI voice. Free to download and share.</p>
     <div class="callout">

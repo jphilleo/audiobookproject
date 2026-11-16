@@ -4,8 +4,9 @@ const audio = document.getElementById("lib-audio");
 const playBtn = document.getElementById("lib-play");
 const label = playBtn.querySelector("span");
 const initialLabel = label.textContent;
-const player = document.getElementById("lib-player");
 const nowPlaying = document.getElementById("lib-now-playing");
+const seek = document.getElementById("lib-seek");
+const position = document.getElementById("lib-position");
 const playbackError = document.getElementById("lib-playback-error");
 const rows = [...document.querySelectorAll(".lib-chapters button[data-src]")];
 const key = `lib:${location.pathname}`;
@@ -13,32 +14,70 @@ const store = {
   get: () => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
   set: (v) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} },
 };
-let current = -1;
+let current = 0;
+let loaded = -1;
+let pending = 0;
+let finished = false;
 
 const PLAY = '<path d="M8 5.5v13l10.5-6.5z"/>', PAUSE = '<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>';
+
+function clock(seconds) {
+  const n = Math.floor(seconds);
+  const minutes = Math.floor(n / 60);
+  const remainder = String(n % 60).padStart(2, "0");
+  return minutes >= 60 ? `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}:${remainder}` : `${minutes}:${remainder}`;
+}
+
+const at = () => pending ?? audio.currentTime;
+const duration = () => Number(rows[current].dataset.duration);
 
 function sync() {
   const playing = !audio.paused && !audio.ended;
   playBtn.querySelector("svg").innerHTML = playing ? PAUSE : PLAY;
-  label.textContent = playing ? "Pause" : audio.ended ? "Play again" : current > 0 || audio.currentTime > 1 ? "Resume" : initialLabel;
-  rows.forEach((r, i) => r.toggleAttribute("aria-current", i === current));
-  rows.forEach((r, i) => r.classList.toggle("playing", i === current && playing));
-}
-
-function load(i, at = 0) {
-  current = i;
-  audio.src = rows[i].dataset.src;
-  if (at) audio.addEventListener("loadedmetadata", () => { audio.currentTime = at; }, { once: true });
-  rows[i].closest("details")?.setAttribute("open", "");
-  if (player) {
-    player.hidden = false;
-    nowPlaying.textContent = rows[i].querySelector(".lib-ch-title").textContent;
+  label.textContent = playing ? "Pause" : finished ? "Play again" : current > 0 || at() > 0 ? "Resume" : initialLabel;
+  rows.forEach((r, i) => {
+    const title = r.querySelector(".lib-ch-title").textContent;
+    if (i === current) r.setAttribute("aria-current", "true");
+    else r.removeAttribute("aria-current");
+    r.classList.toggle("playing", i === current && playing);
+    if (seek) r.setAttribute("aria-label", `${i === current && playing ? "Pause" : "Play"} ${title}, ${r.querySelector(".lib-ch-time").textContent}`);
+  });
+  if (seek) {
+    const title = rows[current].querySelector(".lib-ch-title").textContent;
+    if (nowPlaying.textContent !== title) nowPlaying.textContent = title;
+    syncPosition();
   }
 }
 
-function play(i, at = 0) {
+function syncPosition() {
+  if (seek) {
+    const elapsed = clock(Math.min(at(), duration()));
+    const total = rows[current].querySelector(".lib-ch-time").textContent;
+    seek.max = Math.floor(duration());
+    seek.value = Math.floor(at());
+    seek.setAttribute("aria-valuetext", `${elapsed} of ${total}`);
+    position.textContent = `${elapsed} / ${total}`;
+  }
+}
+
+function select(i, start = 0) {
+  current = i;
+  pending = start;
+  finished = false;
+  rows[i].closest("details")?.setAttribute("open", "");
+}
+
+function play(i) {
   playbackError.hidden = true;
-  if (i !== current) load(i, at);
+  if (i !== current || finished) select(i);
+  if (loaded !== current || audio.error) {
+    loaded = current;
+    audio.src = rows[current].dataset.src;
+  } else if (audio.ended) {
+    audio.currentTime = 0;
+    pending = null;
+  }
+  sync();
   audio.play().catch((error) => {
     if (error.name !== "AbortError") playbackError.hidden = false;
     sync();
@@ -47,30 +86,57 @@ function play(i, at = 0) {
 
 playBtn.addEventListener("click", () => {
   if (!audio.paused) return audio.pause();
-  play(audio.ended ? 0 : Math.max(current, 0));
+  play(finished ? 0 : current);
 });
 rows.forEach((r, i) => r.addEventListener("click", () => (i === current && !audio.paused ? audio.pause() : play(i))));
 audio.addEventListener("ended", () => {
   if (current + 1 < rows.length) play(current + 1);
-  else { store.set(null); sync(); }
+  else { finished = true; store.set(null); sync(); }
 });
-["play", "pause", "loadedmetadata"].forEach((e) => audio.addEventListener(e, sync));
+audio.addEventListener("loadedmetadata", () => {
+  if (pending !== null) {
+    audio.currentTime = Math.min(pending, Math.max(0, audio.duration - 0.1));
+    pending = null;
+  }
+  sync();
+});
+const save = () => {
+  if (!finished) store.set({ chapter: current, at: at() });
+};
+audio.addEventListener("play", sync);
+audio.addEventListener("pause", () => {
+  if (loaded === current) save();
+  sync();
+});
 audio.addEventListener("timeupdate", () => {
-  if (Math.floor(audio.currentTime) % 5 === 0) store.set({ chapter: current, at: audio.currentTime });
+  if (pending === null && audio.readyState && Math.floor(audio.currentTime) % 5 === 0) save();
+  syncPosition();
+});
+seek?.addEventListener("input", () => {
+  const target = Math.min(Number(seek.value), Math.max(0, duration() - 0.1));
+  if (loaded === current && audio.readyState) audio.currentTime = Math.min(target, Math.max(0, audio.duration - 0.1));
+  else pending = target;
+  finished = false;
+  save();
+  sync();
 });
 
 // Pick up where this browser left off.
 const saved = store.get();
-if (saved && rows[saved.chapter] && (saved.chapter > 0 || saved.at > 1)) { load(saved.chapter, saved.at); sync(); label.textContent = "Resume"; }
+if (Number.isInteger(saved?.chapter) && rows[saved.chapter] && Number.isFinite(saved.at)) {
+  select(saved.chapter, Math.max(0, Math.min(saved.at, Number(rows[saved.chapter].dataset.duration) - 0.1)));
+}
+sync();
 
 // The feed link goes to the clipboard for pasting into a podcast app.
 const feedBtn = document.getElementById("lib-feed");
 feedBtn?.addEventListener("click", async () => {
   const url = feedBtn.dataset.feed;
+  const originalLabel = "Copy podcast link";
   try {
     await navigator.clipboard.writeText(url);
     feedBtn.textContent = "Link copied. Paste it into your podcast app.";
-    setTimeout(() => { feedBtn.textContent = "Add to podcast app"; }, 3500);
+    setTimeout(() => { feedBtn.textContent = originalLabel; }, 3500);
   } catch {
     prompt("Paste this link into your podcast app:", url);
   }

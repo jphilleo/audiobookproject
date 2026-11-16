@@ -95,7 +95,7 @@ export function bookVars(b, origin) {
   const url = `${origin}${bookUrl(b)}`;
   const feed = esc(`${url}/feed.xml`);
   const bookTitle = esc(b.title);
-  const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${esc(audioUrl(b, c.file))}" data-index="${i}"><span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
+  const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${esc(audioUrl(b, c.file))}" data-index="${i}" data-duration="${c.durationMs / 1000}">${b.ready ? '<span class="lib-ch-icon" aria-hidden="true"></span>' : ""}<span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
   const SHOWN = 10;
   const list = chapters.length > SHOWN + 2
     ? `${chapters.slice(0, SHOWN).join("\n        ")}
@@ -118,6 +118,9 @@ export function bookVars(b, origin) {
     { "@type": "ListItem", position: 1, name: "Library", item: `${origin}/library` },
     { "@type": "ListItem", position: 2, name: b.title, item: url },
   ] };
+  const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play audiobook" : "Play chapter 1"}</span></button>`;
+  const error = '<p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>';
+  const description = `<p class="lib-about">${esc(b.description)}</p>`;
   return {
     title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : `${b.title} First Chapter by ${b.author} — Audiobook Project`),
     description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
@@ -128,15 +131,28 @@ export function bookVars(b, origin) {
     year: b.year ? ` · ${esc(b.year)}` : "",
     cover: cover(b, "lib-cover lg"),
     meta: esc(`${b.ready ? `Complete audiobook · ${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
-    playLabel: b.ready ? "Play audiobook" : "Play chapter 1",
-    player: b.ready ? '<section class="lib-player" id="lib-player" aria-label="Audiobook player" hidden><p id="lib-now-playing" class="lib-now-playing"></p><audio id="lib-audio" preload="none" controls></audio></section>' : '<audio id="lib-audio" preload="none"></audio>',
-    aboutHeading: b.ready ? '<h2 class="lib-about-heading">About the audiobook</h2>' : "",
+    bookClass: b.ready ? "lib-full" : "",
+    previewPlay: b.ready ? "" : `<div class="lib-actions">${play}</div>`,
+    player: b.ready ? `<div class="lib-full-controls">
+      <section class="lib-player" aria-label="Audiobook player">
+        <p id="lib-now-playing" class="lib-now-playing" aria-live="polite">${esc(b.chapters[0].title)}</p>
+        ${play}
+        <input id="lib-seek" type="range" min="0" max="${b.chapters[0].durationMs / 1000}" step="1" value="0" aria-label="Chapter position" aria-valuetext="0:00 of ${clock(b.chapters[0].durationMs)}">
+        <p id="lib-position" class="lib-position">0:00 / ${clock(b.chapters[0].durationMs)}</p>
+        <audio id="lib-audio" preload="none"></audio>
+        ${error}
+      </section>
+      <div class="lib-downloads">
+        <a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
+        <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
+        <button type="button" class="link" id="lib-feed" data-feed="${feed}">Copy podcast link</button>
+      </div>
+      <p class="lib-format-hint">M4B for audiobook apps · MP3 for any audio player</p>
+    </div>` : "",
+    previewIntro: b.ready ? "" : `<audio id="lib-audio" preload="none"></audio>${error}${description}`,
+    about: b.ready ? `<h2 class="lib-about-heading">About the audiobook</h2>${description}` : "",
     chaptersHeading: b.ready ? "Chapters" : "First chapter",
-    bookdescription: esc(b.description),
     feedLink: b.ready ? `<link rel="alternate" type="application/rss+xml" title="${bookTitle} (podcast feed)" href="${feed}">` : "",
-    downloads: b.ready ? `<a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>Download M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
-          <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>Download MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
-          <button type="button" class="btn" id="lib-feed" data-feed="${feed}">Add to podcast app</button>` : "",
     chapters: list,
     source: esc(sourceUrl(b)),
     jsonld: (b.ready ? jsonLdTag(ld) : "") + jsonLdTag(crumbs),
