@@ -114,7 +114,7 @@ export const INFO_PAGES = {
   "/about": { view: "about", title: "About — Audiobook Project", description: "Audiobook Project is a free, open-source tool that turns ebooks into audiobooks. Who runs it, why it exists, and how it's funded." },
   "/faq": { view: "faq", title: "FAQ — Audiobook Project", description: "Answers about Audiobook Project: what it costs, which files work, how long it takes, privacy, DRM and listening on your phone." },
   "/privacy": { view: "privacy", title: "Privacy — Audiobook Project", description: "What Audiobook Project stores, for how long, and what it never does with your books." },
-  "/donate": { view: "donate", title: "Support Audiobook Project", description: "Audiobook Project is free and open source. Donations pay for the servers that narrate every free audiobook." },
+  "/donate": { view: "donate", title: "Support Audiobook Project", description: "Leave an optional tip to help cover the cost of running the free audiobook converter and library." },
   "/brand/explore": { view: "explore", title: "Logo and type exploration — Audiobook Project", description: "Typeface and seal options, round 6.", hidden: true },
   "/brand": { view: "brand", title: "Brand guide — Audiobook Project", description: "How Audiobook Project looks, sounds and fits together: logo, color, type, layout and voice." },
 };
@@ -144,11 +144,11 @@ const TOP_NAV = [
   ["/faq", "FAQ", "wide-only"],
   ["/about", "About", "wide-only"],
   [GITHUB_URL, "GitHub", "wide-only"],
-  ["/donate", "Donate", "btn small"],
+  ["/donate", "Support", "btn small"],
 ];
 // On phones the menu also carries the links that don't fit in the bar.
 const MENU_EXTRA = [["/faq", "FAQ"], ["/about", "About"], [GITHUB_URL, "GitHub"]];
-const META_NAV = [["/library", "Library"], ["/about", "About"], ["/faq", "FAQ"], ["/privacy", "Privacy"], ["/donate", "Donate"], ["/brand", "Brand"], [GITHUB_URL, "GitHub"]];
+const META_NAV = [["/library", "Library"], ["/about", "About"], ["/faq", "FAQ"], ["/privacy", "Privacy"], ["/donate", "Support"], ["/brand", "Brand"], [GITHUB_URL, "GitHub"]];
 
 const links = (items, route) => items.map(([href, label, cls]) =>
   `<a href="${href}"${cls ? ` class="${cls}"` : ""}${href === route ? ' aria-current="page"' : ""}>${label}</a>`).join("\n      ");
@@ -261,8 +261,8 @@ export function infoVars(route, origin) {
   return {
     ...vars,
     donationCallout: checkout
-      ? `<p>Help cover the cost of keeping Audiobook Project free.</p>
-      <a class="btn primary" href="${esc(checkout)}">Donate</a>`
-      : "<p><strong>Donations aren’t open yet.</strong> We’re setting up a contribution page.</p>",
+      ? `<p>Leave a one-time tip. Choose your amount at Stripe checkout.</p>
+      <a class="btn primary" href="${esc(checkout)}">Leave a tip</a>`
+      : "<p><strong>Tipping isn’t open yet.</strong> We’re setting up Stripe checkout.</p>",
   };
 }

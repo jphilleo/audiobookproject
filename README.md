@@ -44,7 +44,7 @@ download that narrates about 1.6x slower. On an M4 Mac, fp32 narrates at ~5x rea
 
 The converter and public-domain library are live at [audiobookproject.org](https://audiobookproject.org).
 See [DEPLOY.md](DEPLOY.md) for hosting, library publishing, and the `DONATION_URL` setting.
-Donations open once the project's hosted checkout is active.
+Optional tips use a Stripe Payment Link once the project's checkout is active.
 
 Accounts, premium voices, translation, and multiple workers are future work.
 

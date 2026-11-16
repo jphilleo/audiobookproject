@@ -74,15 +74,19 @@ files there so podcast RSS enclosures include the byte lengths. A preview manife
 playable book page, and a complete manifest also enables downloads and podcast feeds. Generated
 audio, ebook inputs, uploads, credentials, and production-only data belong outside Git.
 
-## Donations
+## Tips
 
-The Donate page shows a checkout link when `DONATION_URL` is set to the verified HTTPS
-contribution URL for Audiobook Project. Add it to a systemd drop-in, then reload and
+Create a live Stripe Payment Link with **Customers choose what to pay**, USD, a suggested
+amount of $5, and a minimum of $1. Title it **Support Audiobook Project** and describe it
+as an optional one-time tip for the free converter and library.
+
+The Support page shows a checkout link when `DONATION_URL` is set to the verified HTTPS
+Stripe Payment Link. Add it to a systemd drop-in, then reload and
 restart the service when the converter queue is idle. The public URL is sufficient. The site does
 not need payment credentials or payment processing code.
 
-Open `https://audiobookproject.org/donate`, verify that the link goes to the project's checkout,
-and confirm the intended recipient and available contribution options.
+Open `https://audiobookproject.org/donate`, follow the link to Stripe, and confirm the project
+name, the $5 preset, and that the amount can be changed to $1.
 
 ## Search
 
