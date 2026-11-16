@@ -13,6 +13,11 @@
   "author": "",
   "license": "AGPL-3.0-only",
   "type": "module",
+  "overrides": {
+    "@huggingface/transformers": {
+      "sharp": "0.35.5"
+    }
+  },
   "dependencies": {
     "express": "^5.3.0",
     "fast-xml-parser": "^5.12.1",
