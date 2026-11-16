@@ -100,12 +100,17 @@ async function showHome() {
 }
 
 const drop = $("#drop");
+const fileInput = $("#file");
+drop.addEventListener("click", (e) => {
+  if (e.target !== fileInput && !drop.classList.contains("busy")) fileInput.click();
+});
 ["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave", "drop"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
 drop.addEventListener("drop", (e) => e.dataTransfer.files[0] && uploadFile(e.dataTransfer.files[0]));
-$("#file").addEventListener("change", (e) => e.target.files[0] && uploadFile(e.target.files[0]));
+fileInput.addEventListener("change", () => fileInput.files[0] && uploadFile(fileInput.files[0]));
 
 async function uploadFile(file) {
+  if (drop.classList.contains("busy")) return;
   const err = $("#upload-error");
   err.hidden = true;
   if (!/\.(epub|pdf)$/i.test(file.name)) { err.textContent = "Only EPUB and PDF files work. Kindle formats (AZW, KFX, MOBI) aren't supported."; err.hidden = false; return; }
@@ -120,7 +125,7 @@ async function uploadFile(file) {
     err.hidden = false;
   } finally {
     drop.classList.remove("busy");
-    $("#file").value = "";
+    fileInput.value = "";
   }
 }
 
@@ -320,7 +325,7 @@ function update() {
   const b = state.book;
   if (!b || !$("#chapters")) return;
   const keptUntil = new Date(b.expiresAt).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  $("#book-meta").textContent = `${b.chapters.length} chapters · ${fmtInt(b.totalWords)} words · about ${listenTime(b.totalWords)} · kept until ${keptUntil}`;
+  $("#book-meta").textContent = `${b.chapters.length} chapter${b.chapters.length === 1 ? "" : "s"} · ${fmtInt(b.totalWords)} words · about ${listenTime(b.totalWords)} · kept until ${keptUntil}`;
   const playing = state.playing?.bookId === b.id ? state.playing.index : -1;
   const paused = $("#audio").paused;
   // The list is rebuilt on every change and poll; put keyboard focus back where it was.

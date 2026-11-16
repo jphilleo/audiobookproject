@@ -121,12 +121,16 @@ function headingStarts(pages) {
   pages.forEach((lines, page) => lines.forEach((l, line) => {
     if ((l.para || line === 0) && HEADING.test(l.text)) starts.push({ page, line, title: l.text, skipHeading: true });
   }));
-  return starts.length >= 2 ? starts : null;
+  const first = starts[0];
+  return starts.length >= 2 || (first?.page === 0 && first.line === 0) ? starts : null;
 }
 
 function pageRangeStarts(n) {
   const starts = [];
-  for (let p = 0; p < n; p += PAGES_PER_SECTION) starts.push({ page: p, line: 0, title: `Pages ${p + 1}–${Math.min(n, p + PAGES_PER_SECTION)}` });
+  for (let p = 0; p < n; p += PAGES_PER_SECTION) {
+    const last = Math.min(n, p + PAGES_PER_SECTION);
+    starts.push({ page: p, line: 0, title: last === p + 1 ? `Page ${last}` : `Pages ${p + 1}–${last}` });
+  }
   return starts;
 }
 

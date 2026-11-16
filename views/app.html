@@ -26,15 +26,15 @@
       <h1>{{h1}}</h1>
       <p class="lede">{{lede}}</p>
 
-      <label class="drop" id="drop">
+      <div class="drop" id="drop">
         <input type="file" id="file" accept="{{accept}}" hidden>
         <span class="drop-idle">
-          <span class="btn primary" aria-hidden="true">{{button}}</span>
+          <button type="button" class="btn primary" id="choose-book">{{button}}</button>
           <span class="drop-hint">or drop it here</span>
         </span>
         <span class="drop-busy"><span class="spinner"></span> Reading your book…</span>
-      </label>
-      <p class="error" id="upload-error" hidden></p>
+      </div>
+      <p class="error" id="upload-error" role="alert" hidden></p>
 
       <ul class="facts">
         {{facts}}
