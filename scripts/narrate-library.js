@@ -37,10 +37,19 @@ async function narrate(book, preview) {
   await fs.mkdir(path.join(dir, "chapters"), { recursive: true });
   const parsed = await source(book);
   const selected = parsed.sections.filter((s) => s.selected);
-  const opening = book.openingIndex === undefined
+  let opening = book.openingIndex === undefined
     ? selected.find((s) => /^(?:(?:chapter|book)[\s.:]+(?:0*1|i|one)\b|(?:0*1|i):)/i.test(s.title.trim()))
     : selected.find((s) => s.index === book.openingIndex);
-  if (preview && book.openingIndex !== undefined && !opening) throw new Error("Configured first chapter is missing");
+  if (preview && book.openingTitle && opening?.title !== book.openingTitle) throw new Error("The source edition's chapter list has changed");
+  if (preview && book.openingEndIndex !== undefined) {
+    const sections = selected.filter((s) => s.index >= book.openingIndex && s.index <= book.openingEndIndex);
+    if (sections.length !== book.openingEndIndex - book.openingIndex + 1) throw new Error("Configured chapter sections are missing");
+    opening = {
+      title: book.previewTitle,
+      text: sections.map((s) => `${s.title}\n\n${s.text}`).join("\n\n"),
+      words: sections.reduce((sum, s) => sum + s.words, 0),
+    };
+  }
   const chapters = preview ? [opening || selected[0]].filter(Boolean) : selected;
   if (!chapters.length) throw new Error("No narratable chapters found");
 
