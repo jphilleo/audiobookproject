@@ -15,7 +15,7 @@ function cardinal(n) {
 const ordinals = ["","first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth","eleventh","twelfth","thirteenth","fourteenth","fifteenth","sixteenth","seventeenth","eighteenth","nineteenth","twentieth"];
 
 export function prepareNarration(text, { heading = false } = {}) {
-  let spoken = String(text).replace(/\b(Chapter|Stave|Book|Part|Volume|Act|Scene|Section|Canto|Letter|Appendix)\s+([MDCLXVI]+)\b/gi, (match, label, token) => {
+  let spoken = String(text).replace(/\u00ad/g, "").replace(/\b(Chapter|Stave|Book|Part|Volume|Act|Scene|Section|Canto|Letter|Appendix)\s+([MDCLXVI]+)\b/gi, (match, label, token) => {
     // Lowercase prose such as “mix” is not a Roman numeral. In body text,
     // a lone I can be the pronoun (“the chapter I read”).
     if (token !== token.toUpperCase() || (!heading && token === "I")) return match;

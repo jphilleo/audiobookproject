@@ -28,3 +28,17 @@ Listen for: numeral reading; repeated heading; title/name continuity; Saint pron
 7. When replacing audio, rebuild complete M4B/MP3 and duration metadata, then verify website seeking, chapter transitions, downloads, and podcast feeds against the same version.
 
 Implemented in this pilot: conservative text rules, duplicate-heading handling in both library paths, regression tests, repeatable sample generation. The broader manifest, automated risk queue, ASR comparison, and release checks above are follow-up work, not completed features.
+
+## Follow-up source audit
+
+Scanned 129 local EPUB source files, using only their preselected narration sections. Found 47 decimal-pattern occurrences, 167 initial/name patterns, and 1,348 potentially ambiguous title/abbreviation patterns. These counts are text candidates, not confirmed audible errors, and sources may include multiple editions or copies.
+
+Confirmed additional preparation defects and fixes:
+- The old sentence regex inserted spaces inside decimal values (`$3.50` became `$3. 50`). Language-aware sentence segmentation preserves these. Real examples include `1.25` in *Of Human Bondage* and `6.5 mm.` in *A Farewell to Arms*.
+- Keep short initial/name sequences and abbreviated titles together when packing sentences, without guessing their pronunciation. *Jekyll and Hyde* includes “G. J. Utterson”. Extremely long sentences still require length-limited splitting.
+- Preserve trailing ellipses and closing quotation marks when sentence segmentation returns them separately; these can affect pauses and phrasing.
+- Strip invisible discretionary hyphens before narration while preserving visible compound-word hyphens. None were found in this local corpus; this is a regression-tested input safeguard.
+
+The repeatable scanner is `node scripts/audit-narration-sources.mjs SOURCE_DIRECTORY OUTPUT_JSON` (requires rg). It records examples and checks that chunking preserves the normalized source's letters and digits. This does not verify pronunciation, punctuation fidelity in every case, or audio completeness. Standalone punctuation-only paragraphs remain excluded from synthesis.
+
+Remaining review candidates include Saint/Street, abbreviations such as Rev., historical currency, dates, foreign names, and dialogue phrasing. Avoid global expansions until their context and spoken samples have been reviewed.

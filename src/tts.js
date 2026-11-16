@@ -4,6 +4,7 @@ import { prepareNarration } from "./narration-text.js";
 import { Worker } from "node:worker_threads";
 
 export const SAMPLE_RATE = 24000;
+const sentenceSegmenter = new Intl.Segmenter("en", { granularity: "sentence" });
 const MAX_CHUNK_CHARS = 380; // Kokoro truncates past ~510 phoneme tokens.
 
 let worker;
@@ -54,7 +55,18 @@ export const synthesize = (text, voice, speed = 1) => call({ type: "generate", t
 export function chunkText(text) {
   const chunks = [];
   for (const para of prepareNarration(text).split(/\n{2,}/)) {
-    const sentences = para.match(/[^.!?…]+(?:[.!?…]+["'”’)\]]*|$)/g)?.map((s) => s.trim()).filter(Boolean) || [para];
+    // Sentence boundaries must preserve decimal points and punctuation inside words.
+    const sentences = [];
+    for (const { segment } of sentenceSegmenter.segment(para)) {
+      const sentence = segment.trim();
+      if (!sentence) continue;
+      const last = sentences.at(-1);
+      // Keep initials and ambiguous titles with the following name, without
+      // guessing whether (for example) St. means Saint or Street.
+      if (last && (!/[\p{L}\p{N}]/u.test(sentence) || /\b(?:[A-Z]|St|Rev|Prof|Capt|Col|Gen|No)\.$/.test(last))) {
+        sentences[sentences.length - 1] += " " + sentence;
+      } else sentences.push(sentence);
+    }
     let buf = "";
     const flush = () => {
       if (buf) chunks.push({ text: buf, paragraphEnd: false });

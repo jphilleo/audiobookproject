@@ -26,3 +26,27 @@ test('remove only exact standalone repeated headings', () => {
   assert.equal(chapterNarrationBody('Marley’s Ghost\n\nMarley was dead.', 'Stave I: Marley’s Ghost'), 'Marley was dead.');
   assert.equal(chapterNarrationBody('Marley’s Ghost appeared.\n\nHe spoke.', 'Stave I: Marley’s Ghost'), 'Marley’s Ghost appeared.\n\nHe spoke.');
 });
+
+test('sentence segmentation preserves decimal values and initials', () => {
+  const text = 'It cost $3.50, not $12.75. The value was 0.005.';
+  assert.equal(chunkText(text).map(c => c.text).join(' '), text);
+  const prefix = 'A'.repeat(365) + '.';
+  const chunks = chunkText(prefix + ' J. M. Barrie wrote it.');
+  assert.ok(chunks.some(c => c.text === 'J. M. Barrie wrote it.'));
+  assert.ok(chunks.every(c => !/\b[JM]\.$/.test(c.text)));
+});
+test('remove discretionary hyphens without removing real hyphens', () => {
+  assert.equal(prepareNarration('extra\u00adordinary and well-known'), 'extraordinary and well-known');
+});
+test('dialogue and long paragraphs retain all words', () => {
+  const text = ('“Go!” she said. “Now.” He waited... Then left. ').repeat(40).trim();
+  const chunks = chunkText(text);
+  assert.equal(chunks.map(c => c.text).join(' '), text);
+  assert.ok(chunks.every(c => c.text.length <= 380));
+  assert.equal(chunks.filter(c => c.paragraphEnd).length, 1);
+});
+
+test('trailing ellipses and nested quotes survive segmentation', () => {
+  const text = 'He said, “I can’t exist.…” Then he left.';
+  assert.equal(chunkText(text).map(c=>c.text).join(' ').replace(/\s/g,''), text.replace(/\s/g,''));
+});
