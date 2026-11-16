@@ -130,15 +130,23 @@ sync();
 
 // The feed link goes to the clipboard for pasting into a podcast app.
 const feedBtn = document.getElementById("lib-feed");
-const feedLabel = feedBtn?.querySelector("span");
+const podcastMenu = feedBtn?.closest("details");
+const feedStatus = document.getElementById("lib-feed-status");
 let feedReset;
+podcastMenu?.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && podcastMenu.open) {
+    event.preventDefault();
+    podcastMenu.open = false;
+    podcastMenu.querySelector("summary").focus();
+  }
+});
 feedBtn?.addEventListener("click", async () => {
   const url = feedBtn.dataset.feed;
   try {
     await navigator.clipboard.writeText(url);
     clearTimeout(feedReset);
-    feedLabel.textContent = "Link copied";
-    feedReset = setTimeout(() => { feedLabel.textContent = "Copy podcast link"; }, 3500);
+    feedStatus.textContent = "Link copied";
+    feedReset = setTimeout(() => { feedStatus.textContent = ""; }, 3500);
   } catch {
     prompt("Paste this link into your podcast app:", url);
   }

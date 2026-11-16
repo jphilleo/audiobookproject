@@ -423,7 +423,7 @@ body.at-sea .sea { opacity: 0; }
 .lib-about-heading + .lib-about { margin-top: 0; }
 html:has(.lib-player-dock) { scroll-padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
 body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
-.lib-player-dock { position: fixed; inset: auto 0 0; z-index: 10; background: var(--bg); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+.lib-player-dock { position: fixed; inset: auto 0 0; z-index: 10; background: var(--bg); border-top: 1px solid var(--line); padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); }
 .lib-player { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: center; max-width: 704px; margin: 0 auto; }
 .lib-now-playing { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 550; }
 .lib-player .btn { grid-row: 1 / span 3; grid-column: 1; min-width: 92px; min-height: 44px; }
@@ -433,14 +433,20 @@ body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bo
 .lib-player input:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .lib-position { margin: 0; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .lib-player [role="alert"] { grid-column: 1 / -1; margin: 0; }
-.lib-downloads { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.lib-downloads { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
 .lib-downloads .btn { min-height: 44px; gap: 7px; padding-inline: 12px; font-size: 13px; }
 .lib-downloads .btn svg { width: 16px; height: 16px; }
 .lib-downloads .lib-download { color: var(--brand); background: color-mix(in srgb, var(--brand) 9%, var(--bg)); border-color: color-mix(in srgb, var(--brand) 26%, var(--bg)); }
 .lib-downloads .lib-download:hover { background: color-mix(in srgb, var(--brand) 16%, var(--bg)); }
 .lib-downloads .lib-size { font-size: 11px; color: inherit; }
+.lib-podcasts summary::-webkit-details-marker { display: none; }
+.lib-podcasts[open] summary svg { transform: rotate(180deg); }
+.lib-podcast-panel { position: absolute; top: 100%; right: 0; z-index: 2; width: min(340px, 100%); margin-top: 8px; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px #0002; }
+.lib-podcast-panel p { margin: 0 0 8px; font-size: 13px; }
+#lib-feed-status { margin-left: 8px; font-size: 13px; }
 .lib-chapters { list-style: none; padding: 0 !important; margin: 10px 0 0 !important; border-top: 1px solid var(--line); }
 .lib-chapters li { margin: 0 !important; border-bottom: 1px solid var(--line); }
+.lib-full .lib-chapters li { max-width: none; }
 .lib-chapters button { width: 100%; display: flex; justify-content: space-between; gap: 16px; padding: 10px 2px; background: none; border: 0; cursor: pointer; text-align: left; font-size: 14px; color: var(--ink-2); }
 .lib-chapters button:hover, .lib-chapters button[aria-current] { color: var(--ink); }
 .lib-chapters button[aria-current] .lib-ch-title { font-weight: 600; }
@@ -457,6 +463,7 @@ body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bo
 .lib-more[open] summary { display: none; }
 .lib-more .lib-chapters { margin-top: 0 !important; border-top: 0; }
 @media (max-width: 640px) { .lib-book-head { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; } .lib-book-head h1 { font-size: 24px; } .lib-actions .btn { height: 36px; padding: 0 12px; } }
+@media (max-width: 640px) { .lib-podcast-panel { width: min(340px, calc(100vw - 40px)); } }
 .menu-top { display: none; }
 @media (max-width: 640px) { .menu-extra.menu-top { display: grid; border-top: 0; margin: 0 0 4px; padding: 0; } }
 
