@@ -149,12 +149,14 @@ export function bookVars(b, origin) {
           ${skip(15)}
           ${play}
           ${skip(30, true)}
+        </div>
           <select id="lib-speed" aria-label="Playback speed">
             ${[0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}"${rate === 1 ? " selected" : ""}>${rate}×</option>`).join("")}
           </select>
-        </div>
+        <div class="lib-timeline">
         <input id="lib-seek" type="range" min="0" max="${b.chapters[0].durationMs / 1000}" step="1" value="0" aria-label="Chapter position" aria-valuetext="0:00 of ${clock(b.chapters[0].durationMs)}">
         <p id="lib-position" class="lib-position">0:00 / ${clock(b.chapters[0].durationMs)}</p>
+        </div>
         <audio id="lib-audio" preload="none"></audio>
         ${error}
       </div></section>` : "",
