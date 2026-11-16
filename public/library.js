@@ -50,7 +50,7 @@ if (saved && rows[saved.chapter] && (saved.chapter > 0 || saved.at > 1)) { load(
 
 // The feed link goes to the clipboard for pasting into a podcast app.
 const feedBtn = document.getElementById("lib-feed");
-feedBtn.addEventListener("click", async () => {
+feedBtn?.addEventListener("click", async () => {
   const url = feedBtn.dataset.feed;
   try {
     await navigator.clipboard.writeText(url);

@@ -10,7 +10,11 @@ const xmlEscape = (s) => String(s ?? "").replace(/[<>&'"]/g, (c) => ({ "<": "&lt
 // to the bucket's public address and audio links point there instead.
 const AUDIO_BASE = (process.env.LIBRARY_AUDIO_URL || "").replace(/\/+$/, "");
 export const fileUrl = (b, file) => `/library-audio/${b.slug}/${file}`;
-export const audioUrl = (b, file) => (AUDIO_BASE ? `${AUDIO_BASE}/${b.slug}/${file}` : fileUrl(b, file));
+export const audioUrl = (b, file) => {
+  if (!AUDIO_BASE) return fileUrl(b, file);
+  if (!b.ready && b.preview) return `${AUDIO_BASE}/previews/${b.slug}.m4a`;
+  return `${AUDIO_BASE}/${b.slug}/${file}`;
+};
 const abs = (origin, url) => (/^https?:/.test(url) ? url : `${origin}${url}`);
 // Feeds give each episode's size; the file may only exist in remote storage, so this can be missing.
 const fileSize = (b, file) => { try { return fs.statSync(path.join(bookDir(b.slug), file)).size; } catch { return null; } };
@@ -37,22 +41,26 @@ function cover(b, cls = "lib-cover") {
 
 // What a placeholder says while its book isn't ready.
 const STATE = { narrating: "Narrating now", soon: "Coming soon" };
-// One cover with its caption: a link once the book is ready, a quiet placeholder until then.
+// Playable books and previews link to their pages. Other titles stay placeholders.
 function card(b, { listen = false, lengthLine = false } = {}) {
   const caption = `${cover(b)}<strong>${esc(name(b))}</strong><span>${esc(b.author)}</span>`;
+  if (b.state === "preview") return `<li><a href="${bookUrl(b)}">${caption}<span class="lib-listen">First chapter · ${length(b.durationMs)}</span></a></li>`;
   if (b.state !== "ready") return `<li class="lib-pending"><div>${caption}<span class="lib-badge">${STATE[b.state]}</span></div></li>`;
   const extra = listen ? '<span class="lib-listen">Listen now</span>' : lengthLine ? `<span>${length(b.durationMs)}</span>` : "";
   return `<li><a href="${bookUrl(b)}">${caption}${extra}</a></li>`;
 }
-// Finished books first, then the ones on their way.
-const ordered = () => { const all = libraryStatus(); return [...all.filter((b) => b.state === "ready"), ...all.filter((b) => b.state === "narrating"), ...all.filter((b) => b.state === "soon")]; };
+// Complete books first, then previews, then upcoming titles.
+const ordered = () => {
+  const all = libraryStatus();
+  return ["ready", "preview", "narrating", "soon"].flatMap((state) => all.filter((b) => b.state === state));
+};
 
 // A row of covers, for landing pages.
 export function shelfHtml({ heading, intro, more = "Browse the library", listen = false }) {
   const books = ordered().slice(0, 6);
   if (!books.length) return "";
   return `<div class="lib-head"><h2 id="library">${esc(heading)}</h2><a href="/library">${esc(more)}</a></div>
-      <p>${intro}${books.some((b) => b.state === "ready") ? "" : " The first ones are being narrated right now."}</p>
+      <p>${intro}${books.some((b) => b.state === "ready" || b.state === "preview") ? "" : " The first ones are being narrated right now."}</p>
       <ul class="lib-shelf">
         ${books.map((b) => card(b, { listen })).join("\n        ")}
       </ul>`;
@@ -71,7 +79,7 @@ export function libraryVars(origin) {
   };
   return {
     title: "Free Public-Domain Audiobooks — Audiobook Project",
-    description: "Free audiobooks of classic books, with chapters. Listen online, download M4B or MP3, or add them to your podcast app. No account needed.",
+    description: "Listen to first chapters and complete audiobooks of public-domain classics. Download complete books in M4B or MP3. No account needed.",
     canonical: esc(`${origin}/library`),
     grid,
     jsonld: jsonLdTag(ld),
@@ -82,6 +90,8 @@ export function libraryVars(origin) {
 
 export function bookVars(b, origin) {
   const url = `${origin}${bookUrl(b)}`;
+  const feed = esc(`${url}/feed.xml`);
+  const bookTitle = esc(b.title);
   const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${audioUrl(b, c.file)}" data-index="${i}"><span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
   const SHOWN = 10;
   const list = chapters.length > SHOWN + 2
@@ -99,29 +109,31 @@ export function bookVars(b, origin) {
     duration: `PT${Math.round(b.durationMs / 60000)}M`,
     image: b.cover ? `${origin}${fileUrl(b, b.cover)}` : undefined,
     isAccessibleForFree: true, inLanguage: "en", description: b.description,
-    encoding: ["m4b", "mp3"].map((f) => ({ "@type": "AudioObject", contentUrl: abs(origin, audioUrl(b, b[f].file)), encodingFormat: f === "mp3" ? "audio/mpeg" : "audio/mp4", contentSize: megabytes(b[f].bytes) })),
+    encoding: b.ready ? ["m4b", "mp3"].map((f) => ({ "@type": "AudioObject", contentUrl: abs(origin, audioUrl(b, b[f].file)), encodingFormat: f === "mp3" ? "audio/mpeg" : "audio/mp4", contentSize: megabytes(b[f].bytes) })) : undefined,
   };
   const crumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Library", item: `${origin}/library` },
     { "@type": "ListItem", position: 2, name: b.title, item: url },
   ] };
   return {
-    title: esc(`${b.title} Audiobook (Free) by ${b.author} — Audiobook Project`),
-    description: esc(`Listen to ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Play it here, download M4B or MP3, or add it to your podcast app.`),
+    title: esc(`${b.title} ${b.ready ? "Audiobook (Free)" : "First Chapter"} by ${b.author} — Audiobook Project`),
+    description: esc(b.ready ? `Listen to ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Play it here, download M4B or MP3, or add it to your podcast app.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
     canonical: esc(url),
     ogimage: b.cover ? esc(`${origin}${fileUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
-    booktitle: esc(b.title),
+    booktitle: bookTitle,
     author: esc(b.author),
     year: esc(b.year),
     cover: cover(b, "lib-cover lg"),
-    meta: esc(`${length(b.durationMs)} · ${b.chapters.length} chapters · read by ${b.voice.name}, an AI voice`),
+    meta: esc(`${b.ready ? `${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
+    chaptersHeading: b.ready ? "Chapters" : "First chapter",
     bookdescription: esc(b.description),
-    m4b: audioUrl(b, b.m4b.file), m4bsize: megabytes(b.m4b.bytes),
-    mp3: audioUrl(b, b.mp3.file), mp3size: megabytes(b.mp3.bytes),
-    feed: esc(`${origin}${bookUrl(b)}/feed.xml`),
+    feedLink: b.ready ? `<link rel="alternate" type="application/rss+xml" title="${bookTitle} (podcast feed)" href="${feed}">` : "",
+    downloads: b.ready ? `<a class="btn" href="${esc(audioUrl(b, b.m4b.file))}" download>M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
+          <a class="btn" href="${esc(audioUrl(b, b.mp3.file))}" download>MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
+          <button type="button" class="btn" id="lib-feed" data-feed="${feed}">Add to podcast app</button>` : "",
     chapters: list,
     source: esc(sourceUrl(b)),
-    jsonld: jsonLdTag(ld) + jsonLdTag(crumbs),
+    jsonld: (b.ready ? jsonLdTag(ld) : "") + jsonLdTag(crumbs),
   };
 }
 

@@ -11,7 +11,7 @@
   <meta property="og:description" content="{{description}}">
   <meta property="og:url" content="{{canonical}}">
   <meta property="og:image" content="{{ogimage}}">
-  <link rel="alternate" type="application/rss+xml" title="{{booktitle}} (podcast feed)" href="{{feed}}">
+  {{feedLink}}
   <link rel="icon" href="/brand/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
   {{jsonld}}
@@ -28,15 +28,13 @@
         <p class="lib-meta">{{meta}}</p>
         <div class="lib-actions">
           <button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Play chapter 1</span></button>
-          <a class="btn" href="{{m4b}}" download>M4B <span class="lib-size">{{m4bsize}}</span></a>
-          <a class="btn" href="{{mp3}}" download>MP3 <span class="lib-size">{{mp3size}}</span></a>
-          <button type="button" class="btn" id="lib-feed" data-feed="{{feed}}">Add to podcast app</button>
+          {{downloads}}
         </div>
       </div>
     </div>
     <p class="lib-about">{{bookdescription}}</p>
 
-    <h2 id="chapters">Chapters</h2>
+    <h2 id="chapters">{{chaptersHeading}}</h2>
     <ol class="lib-chapters">
         {{chapters}}
     <audio id="lib-audio" preload="none"></audio>

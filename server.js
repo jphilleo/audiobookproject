@@ -8,7 +8,7 @@ import { listVoices, loadTts, synthesize } from "./src/tts.js";
 import { floatToPcm16, wavHeader } from "./src/audio.js";
 import * as lib from "./src/library.js";
 import { PAGES, INFO_PAGES, render, appVars, infoVars } from "./src/pages.js";
-import { LIBRARY_DIR, readyBooks, findBook, bookUrl } from "./src/catalog.js";
+import { LIBRARY_DIR, publishedBooks, findBook, bookUrl } from "./src/catalog.js";
 import { libraryVars, bookVars, feedXml } from "./src/library-pages.js";
 import { DEV, RELOAD_SCRIPT, devReload } from "./src/dev-reload.js";
 
@@ -41,7 +41,7 @@ app.get("/library/:author/:slug", async (req, res, next) => {
 });
 app.get("/library/:author/:slug/feed.xml", (req, res, next) => {
   const book = findBook(req.params.author, req.params.slug);
-  if (!book) return next();
+  if (!book?.ready) return next();
   res.type("application/rss+xml").send(feedXml(book, origin(req)));
 });
 // Finished audio never changes in place, so it can be cached for a long time.
@@ -51,7 +51,7 @@ app.use("/library-audio", (req, res, next) => (/\.(m4a|m4b|mp3|jpg|png|svg|webp)
 
 app.get("/robots.txt", (req, res) => res.type("text/plain").send(`User-agent: *\nDisallow: /api/\nSitemap: ${origin(req)}/sitemap.xml\n`));
 app.get("/sitemap.xml", (req, res) => {
-  const urls = [...Object.keys(PAGES), ...Object.entries(INFO_PAGES).filter(([, p]) => !p.hidden).map(([r]) => r), "/library", ...readyBooks().map(bookUrl)].map((r) => `<url><loc>${origin(req)}${r}</loc></url>`).join("");
+  const urls = [...Object.keys(PAGES), ...Object.entries(INFO_PAGES).filter(([, p]) => !p.hidden).map(([r]) => r), "/library", ...publishedBooks().map(bookUrl)].map((r) => `<url><loc>${origin(req)}${r}</loc></url>`).join("");
   res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
 });
 

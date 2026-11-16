@@ -1,7 +1,7 @@
 // The public-domain library: free audiobooks we've made ourselves, one per book here.
 // Texts come from Standard Ebooks (public domain, CC0). Audio and covers are made by
 // scripts/narrate-library.js into LIBRARY_DIR/<slug>/; a book appears on the site only once its
-// manifest says it's ready.
+// manifest marks it as a complete book or a first-chapter preview.
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -78,10 +78,9 @@ export const bookUrl = (b) => `/library/${b.authorSlug}/${b.slug}`;
 export const sourceUrl = (b) => `https://standardebooks.org/ebooks/${b.source}`;
 export const epubUrl = (b) => `${sourceUrl(b)}/downloads/${b.source.split("/").join("_")}.epub?source=download`;
 
-// The finished books, with their manifests (chapters, durations, files). Re-read when a manifest
-// changes, so books appear as soon as narration finishes without restarting the server.
+// Re-read changed manifests so complete books and previews can appear without a restart.
 const cache = new Map();
-export function readyBooks() {
+export function publishedBooks() {
   const out = [];
   for (const b of CATALOG) {
     const file = path.join(bookDir(b.slug), "manifest.json");
@@ -92,18 +91,22 @@ export function readyBooks() {
       try { entry = { mtime: stat.mtimeMs, manifest: JSON.parse(fs.readFileSync(file, "utf8")) }; } catch { continue; }
       cache.set(file, entry);
     }
-    if (entry.manifest.ready) out.push({ ...b, ...entry.manifest });
+    if (entry.manifest.ready || (entry.manifest.preview && entry.manifest.chapters?.length === 1)) {
+      out.push({ ...b, ...entry.manifest });
+    }
   }
   return out;
 }
-export const findBook = (authorSlug, slug) => readyBooks().find((b) => b.authorSlug === authorSlug && b.slug === slug);
+export const readyBooks = () => publishedBooks().filter((b) => b.ready);
+export const findBook = (authorSlug, slug) => publishedBooks().find((b) => b.authorSlug === authorSlug && b.slug === slug);
 
 // Every book in the catalog with where it stands: "ready", "narrating" (some chapters done) or
 // "soon", plus its cover if we have one yet. Used for placeholders while books are being made.
 export function libraryStatus() {
-  const ready = new Map(readyBooks().map((b) => [b.slug, b]));
+  const published = new Map(publishedBooks().map((b) => [b.slug, b]));
   return CATALOG.map((b) => {
-    if (ready.has(b.slug)) return { ...ready.get(b.slug), state: "ready" };
+    const book = published.get(b.slug);
+    if (book) return { ...book, state: book.ready ? "ready" : "preview" };
     const dir = bookDir(b.slug);
     const cover = ["cover.jpg", "cover.png", "cover.webp"].find((f) => fs.existsSync(path.join(dir, f))) || null;
     const narrating = fs.existsSync(path.join(dir, "chapters")) && fs.readdirSync(path.join(dir, "chapters")).some((f) => f.endsWith(".m4a"));
