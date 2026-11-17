@@ -8,14 +8,14 @@ for(const ch of chapters)ch.text=ch.text.replace(/\bSt\. Paul’s Churchyard/g,'
 const selection=chapters.map(c=>({title:c.title,index:c.index}));const root=path.join(dir,'checkpoints');const oldDirs=await fs.readdir(root);const report=[];
 try{for(const ch of chapters){
  const chunks=chapterChunks(ch.title,ch.text);const fingerprint=narrationFingerprint({title:ch.title,text:ch.text,voice:manifest.voice.id,selection});const destination=path.join(root,fingerprint);await fs.mkdir(destination,{recursive:true});let copied=0,repaired=0;
- for(const candidate of oldDirs){
+ for(const candidate of [...new Set([...manifest.chapters.map(c=>c.fingerprint),...oldDirs])]){
   if(candidate===fingerprint)continue;
   const source=path.join(root,candidate);let first;try{first=JSON.parse(await fs.readFile(path.join(source,'0.json'),'utf8'));}catch{continue;}
   if(first.text!==chunks[0].text)continue;
   for(const [i,c]of chunks.entries()){
    let metadata,pcm;try{metadata=JSON.parse(await fs.readFile(path.join(source,`${i}.json`),'utf8'));pcm=await fs.readFile(path.join(source,`${i}.pcm`));}catch{continue;}
    assert.equal(metadata.text,c.text);assert.equal(crypto.createHash('sha256').update(pcm).digest('hex'),metadata.sha256);
-   if(prepareSpeechInput(c.text)!==prepareNarration(c.text)){
+   if(prepareSpeechInput(c.text)!==metadata.segments.map(s=>s.text).join(' ')){
     pcm=floatToPcm16(await synthesize(c.text,manifest.voice.id));metadata={text:c.text,segments:await planNarration(c.text,manifest.voice.id),bytes:pcm.length,sha256:crypto.createHash('sha256').update(pcm).digest('hex')};repaired++;
    }else copied++;
    await fs.writeFile(path.join(destination,`${i}.pcm`),pcm);await fs.writeFile(path.join(destination,`${i}.json`),JSON.stringify(metadata));

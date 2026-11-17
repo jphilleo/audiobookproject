@@ -54,5 +54,9 @@ export function chapterNarrationBody(text, title) {
 // Quote delimiters belong in the displayed text, but isolated quoted utterances
 // can distort Kokoro's pronunciation (e.g. “It is.”). Keep their words/punctuation.
 export function prepareSpeechInput(text) {
-  return prepareNarration(text).trim().replace(/^“([^“”]+)”$/u, '$1').replace(/^"([^"\n]+)"$/u, '$1');
+  let spoken = prepareNarration(text).trim().replace(/^“([^“”]+)”$/u, '$1').replace(/^"([^"\n]+)"$/u, '$1');
+  spoken = spoken.replace(/\breechoed\b/g, 're-echoed');
+  if (/^Ding, dong!$/i.test(spoken)) spoken = spoken.replace(/, /, '-');
+  if (/^(?:Ha[ ,!]+)+Ha!$/i.test(spoken)) spoken = spoken.replace(/, /g, '-');
+  return spoken;
 }
