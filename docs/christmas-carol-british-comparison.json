@@ -1,0 +1,66 @@
+{
+  "selected": "bf_emma",
+  "method": "Three identical passages, 776 words per voice, generated using production speech preparation and chunking. Full audio independently transcribed in contiguous 20-second windows with local Whisper-small.en. Window boundaries and ASR spelling differences can introduce mismatches; this is not a human listening score.",
+  "results": [
+    {
+      "voice": "bf_emma",
+      "words": 776,
+      "transcriptionEdits": 22,
+      "seconds": 258.32500000000005,
+      "wordsPerMinute": 180.23807219587727,
+      "passages": [
+        {
+          "passage": "opening",
+          "words": 221,
+          "seconds": 69.715,
+          "edits": 6,
+          "referenceWords": 221
+        },
+        {
+          "passage": "dialogue",
+          "words": 276,
+          "seconds": 94.89,
+          "edits": 9,
+          "referenceWords": 276
+        },
+        {
+          "passage": "family",
+          "words": 279,
+          "seconds": 93.72,
+          "edits": 7,
+          "referenceWords": 279
+        }
+      ]
+    },
+    {
+      "voice": "bm_george",
+      "words": 776,
+      "transcriptionEdits": 22,
+      "seconds": 289.025,
+      "wordsPerMinute": 161.0933310267278,
+      "passages": [
+        {
+          "passage": "opening",
+          "words": 221,
+          "seconds": 79.865,
+          "edits": 10,
+          "referenceWords": 221
+        },
+        {
+          "passage": "dialogue",
+          "words": 276,
+          "seconds": 105.615,
+          "edits": 6,
+          "referenceWords": 276
+        },
+        {
+          "passage": "family",
+          "words": 279,
+          "seconds": 103.545,
+          "edits": 6,
+          "referenceWords": 279
+        }
+      ]
+    }
+  ]
+}

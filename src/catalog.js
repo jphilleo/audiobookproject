@@ -20,6 +20,7 @@ export const CATALOG = [
   },
   {
     slug: "a-christmas-carol", authorSlug: "charles-dickens",
+    voiceId: "bf_emma",
     title: "A Christmas Carol", author: "Charles Dickens", year: 1843,
     source: "charles-dickens/a-christmas-carol",
     description: "Scrooge, three ghosts and one long night. Dickens loved reading this one aloud himself, to packed halls, for years. It's made for listening.",
