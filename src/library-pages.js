@@ -152,9 +152,13 @@ export function bookVars(b, origin) {
           ${skip(30, true)}
           <button type="button" class="btn lib-chapter-step" id="lib-next" aria-label="Next chapter" title="Next chapter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h3v14h-3zM5 5l10 7-10 7z"/></svg></button>
         </div>
-          <select id="lib-speed" aria-label="Playback speed">
-            ${[0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<option value="${rate}"${rate === 1 ? " selected" : ""}>${rate}×</option>`).join("")}
-          </select>
+        <details class="lib-speed-menu" id="lib-speed-menu">
+          <summary id="lib-speed" aria-label="Playback speed, 1×"><span id="lib-speed-label">1×</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary>
+          <div class="lib-speed-panel" role="group" aria-label="Playback speed">
+            <p>Playback speed</p>
+            ${[0.75, 1, 1.25, 1.5, 1.75, 2].map(rate => `<button type="button" data-rate="${rate}" aria-pressed="${rate === 1}"><span>${rate}×</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7"/></svg></button>`).join("")}
+          </div>
+        </details>
         <div class="lib-timeline">
         <input id="lib-seek" type="range" min="0" max="${b.chapters[0].durationMs / 1000}" step="1" value="0" aria-label="Chapter position" aria-valuetext="0:00 of ${clock(b.chapters[0].durationMs)}">
         <p id="lib-position" class="lib-position">0:00 / ${clock(b.chapters[0].durationMs)}</p>

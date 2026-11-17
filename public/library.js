@@ -145,10 +145,43 @@ seek?.addEventListener("input", () => seekTo(Number(seek.value)));
 scope.querySelectorAll(".lib-transport [data-skip]").forEach(button => {
   button.addEventListener("click", () => seekTo(at() + Number(button.dataset.skip)));
 });
-speed?.addEventListener("change", () => {
-  audio.defaultPlaybackRate = Number(speed.value);
-  audio.playbackRate = audio.defaultPlaybackRate;
-});
+const speedMenu = scope.getElementById("lib-speed-menu");
+if (speedMenu) {
+  const options = [...speedMenu.querySelectorAll("[data-rate]")];
+  const speedLabel = scope.getElementById("lib-speed-label");
+  const closeSpeed = () => { speedMenu.open = false; };
+  options.forEach(button => button.addEventListener("click", () => {
+    const rate = Number(button.dataset.rate);
+    audio.defaultPlaybackRate = rate;
+    audio.playbackRate = rate;
+    speedLabel.textContent = `${rate}×`;
+    speed.setAttribute("aria-label", `Playback speed, ${rate}×`);
+    options.forEach(option => option.setAttribute("aria-pressed", String(option === button)));
+    closeSpeed();
+    speed.focus();
+  }));
+  speedMenu.addEventListener("keydown", event => {
+    if (event.key === "Escape") { event.preventDefault(); closeSpeed(); speed.focus(); }
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      event.preventDefault();
+      speedMenu.open = true;
+      const index = options.indexOf(event.target);
+      const next = event.key === "Home" ? 0 : event.key === "End" ? options.length - 1 :
+        index < 0 ? options.findIndex(o => o.getAttribute("aria-pressed") === "true") :
+        (index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
+      options[next].focus();
+    }
+  });
+  speedMenu.addEventListener("focusout", event => {
+    if (!speedMenu.contains(event.relatedTarget)) closeSpeed();
+  });
+  const dismissSpeed = event => {
+    if (!speedMenu.isConnected) { document.removeEventListener("pointerdown", dismissSpeed); return; }
+    if (!speedMenu.contains(event.target)) closeSpeed();
+  };
+  document.addEventListener("pointerdown", dismissSpeed);
+}
+
 
 const controller = {
   audio, path: bookPath, dock: scope.querySelector(".lib-player-dock"),

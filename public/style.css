@@ -454,10 +454,21 @@ body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bo
 .lib-skip svg { width: 30px; height: 30px; stroke-width: 1.8; }
 .lib-skip-arrow { fill: currentColor; stroke: none; }
 .lib-skip text { font-family: inherit; font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; fill: currentColor; stroke: none; }
-#lib-speed {
-  color: var(--ink); background: transparent; border: 0; border-radius: 8px; justify-self: end; grid-column: 3; grid-row: 1 / 3;
-  appearance: auto; width: 66px; padding-inline: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
-}
+.lib-speed-menu { position: relative; justify-self: end; grid-column: 3; grid-row: 1 / 3; }
+#lib-speed { display: flex; align-items: center; justify-content: center; gap: 7px; min-width: 60px; min-height: 44px; padding: 0 10px; border: 0; border-radius: 9px; color: var(--ink-2); font-size: 13px; font-weight: 600; cursor: pointer; list-style: none; }
+#lib-speed::-webkit-details-marker { display: none; }
+#lib-speed:hover, .lib-speed-menu[open] #lib-speed { color: var(--ink); background: var(--soft); }
+#lib-speed svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.lib-speed-menu[open] #lib-speed svg { transform: rotate(180deg); }
+.lib-speed-panel { position: absolute; right: 0; bottom: calc(100% + 12px); width: 176px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); box-shadow: 0 8px 32px #0004; }
+.lib-speed-panel p { margin: 4px 10px 8px; color: var(--ink-2); font-size: 11px; font-weight: 600; }
+.lib-speed-panel button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 7px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer; }
+.lib-speed-panel button:hover { background: var(--line); color: var(--ink); }
+.lib-speed-panel button[aria-pressed="true"] { color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, var(--soft)); font-weight: 600; }
+.lib-speed-panel button svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; visibility: hidden; }
+.lib-speed-panel button[aria-pressed="true"] svg { visibility: visible; }
+#lib-speed:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
 .lib-player input {
   --progress: 0%;
   --track-fill: linear-gradient(to right, var(--brand) var(--progress), var(--line) var(--progress));
@@ -475,7 +486,7 @@ body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bo
 @media (max-width: 800px) {
   .lib-player { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; }
   .lib-track { grid-column: 1; grid-row: 1; }
-  #lib-speed { grid-column: 2; grid-row: 1; }
+  .lib-speed-menu { grid-column: 2; grid-row: 1; }
   .lib-transport { grid-column: 1 / -1; }
   .lib-timeline { grid-column: 1 / -1; }
 }
