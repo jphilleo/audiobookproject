@@ -1,0 +1,37 @@
+// Read-only audit probes. Records current behavior, including defects; not a passing regression suite.
+import fs from 'node:fs/promises';
+import {htmlToText,finalizeSections} from '../src/epub.js';
+import {prepareNarration} from '../src/narration-text.js';
+import {chunkText} from '../src/tts.js';
+const pdfSource=await fs.readFile(new URL('../src/pdf.js',import.meta.url),'utf8');
+// Exercise private extraction helpers with synthetic PDF text items, without generating a PDF.
+const pdf=new Function(pdfSource.replace(/^import .*;$/gm,'').replace(/export /g,'')+'\nreturn {pageLines,toParagraphs,outlineStarts,stripRunningHeaders};')();
+const results=[];
+const record=(id,issue,input,actual,expected)=>results.push({id,issue,input,actual,expected});
+record(1,'Regnal-name rule mistakes a pronoun for a numeral','The Henry I knew was kind.',prepareNarration('The Henry I knew was kind.'),'The Henry I knew was kind.');
+record(2,'Small-caps cleanup changes acronyms','<p>US troops arrived.</p>',htmlToText('<p>US troops arrived.</p>').text,'US troops arrived.');
+record(3,'Roman-page filter removes ordinary words','<p>civil</p><p>mix</p><p>He spoke.</p>',htmlToText('<p>civil</p><p>mix</p><p>He spoke.</p>').text,'civil / mix / He spoke.');
+const long='This is a sentence in the story. '.repeat(30);
+record(4,'All-caps ending removed as printer boilerplate','Story followed by THE KING IS DEAD AT LAST',finalizeSections([{title:'Chapter 1',text:long+'\n\nTHE KING IS DEAD AT LAST'}],'Example')[0].text.slice(-65),'Preserve THE KING IS DEAD AT LAST');
+record(5,'Short final chapter silently unselected','Two long chapters and a five-word Epilogue',finalizeSections([{title:'Chapter 1',text:long},{title:'Chapter 2',text:long},{title:'Epilogue',text:'And so they went home.'}],'Example').map(s=>({title:s.title,selected:s.selected})),'Epilogue selected or explicitly reviewed');
+record(6,'Boilerplate keyword excludes narrative chapter','Story begins Copyright was the subject of their quarrel.',finalizeSections([{title:'Chapter 1',text:'Copyright was the subject of their quarrel. '+long}],'Example').map(s=>({title:s.title,selected:s.selected})),'Narrative chapter selected');
+record(7,'Superscript exponent silently removed','<p>The area is 10<sup>2</sup> square units.</p>',htmlToText('<p>The area is 10<sup>2</sup> square units.</p>').text,'Keep exponent meaning');
+record(8,'Figure container discards narrative text','<figure><blockquote><p>I shall return at dawn.</p></blockquote></figure><p>He left.</p>',htmlToText('<figure><blockquote><p>I shall return at dawn.</p></blockquote></figure><p>He left.</p>').text,'Preserve the quotation');
+record(9,'Three-link table mistaken for contents','<table><tr><td><a href="#a">Alice</a> paid five pounds.</td><td><a href="#b">Bob</a> paid ten.</td><td><a href="#c">Clara</a> paid twenty.</td></tr></table>',htmlToText('<table><tr><td><a href="#a">Alice</a> paid five pounds.</td><td><a href="#b">Bob</a> paid ten.</td><td><a href="#c">Clara</a> paid twenty.</td></tr></table>').text,'Retain substantive table text');
+record(10,'Mixed block/inline content loses direct text','<div>Before.<p>Inside.</p>After.</div>',htmlToText('<div>Before.<p>Inside.</p>After.</div>').text,'Before. Inside. After.');
+record(11,'PDF dehyphenation removes genuine compound hyphens','A well- at line end followed by known author.',pdf.toParagraphs([{text:'A well-',para:true},{text:'known author.',para:false}],false,new Set(['a','well-','known','author'])),'A well-known author.');
+const item=(str,x)=>({str,transform:[1,0,0,10,x,100],height:10,hasEOL:false});
+record(12,'PDF positioned words joined without separator','PDF items Hello at x0 and world at x80',await pdf.pageLines({getTextContent:async()=>({items:[item('Hello',0),item('world.',80)]})}),'Hello world.');
+record(13,'PDF bookmark strips short body opening','Bookmark points to First sentence. with no printed heading',pdf.toParagraphs([{text:'First sentence.',para:true},{text:'Then the story continues.',para:true}],true,new Set()),'First sentence. retained');
+const doc={getOutline:async()=>[{title:'Start',dest:[0]},{title:'Next',dest:[2]}]};
+record(14,'Numeric bookmark destination zero ignored','Bookmarks on zero-based pages 0 and 2',await pdf.outlineStarts(doc),'Both bookmark starts retained');
+record(15,'Same-page PDF bookmarks collapsed','Three sections on pages 1,1,2',await pdf.outlineStarts({getOutline:async()=>[{title:'A',dest:[1]},{title:'B',dest:[1]},{title:'C',dest:[2]}]}),'A, B, C retained with destination position');
+const pages=Array.from({length:4},()=>[{text:'Never again.',x:0,y:100},{text:'Never again.',x:0,y:80}]);pdf.stripRunningHeaders(pages);
+record(16,'Repeated meaningful PDF edge text removed','Four pages whose two lines read Never again.',pages,'Repeated content retained unless identified as header/footer');
+record(17,'CRLF paragraph boundaries collapse','First paragraph.\\r\\n\\r\\nSecond paragraph.',chunkText('First paragraph.\r\n\r\nSecond paragraph.'),'Two paragraphEnd markers');
+record(18,'Long chapter titles bypass chunk limit','A 600-character heading is prepared and passed directly to synthesize',{preparedLength:prepareNarration('A'.repeat(600),{heading:true}).length,bodyChunkLengths:chunkText('A'.repeat(600)).map(c=>c.text.length)},'Title segmented before model call; note body chunks also reach 381');
+record(19,'Voice and speed can change during a chapter','startNarration assigns book.voice/book.speed while narrateChapter reads them on every chunk','Code-path finding: working chapter is not restarted or locked; final metadata records only latest setting','Snapshot settings for each job or reject changes while working');
+record(20,'Old chapter assets reused after source/rule changes','Existing chapter .m4a and .ms files','Code-path finding: reuse condition checks file existence only, not source/rule/model version','Reuse only when generation fingerprint matches');
+const out=process.argv[2]||'../../outputs/christmas-carol-audit/additional-20-issues.json';
+await fs.writeFile(out,JSON.stringify(results,null,2));
+for(const r of results) console.log(r.id,r.issue,JSON.stringify(r.actual).slice(0,220));
