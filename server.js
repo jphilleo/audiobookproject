@@ -10,10 +10,12 @@ import { floatToPcm16, wavHeader } from "./src/audio.js";
 import * as lib from "./src/library.js";
 import { PAGES, INFO_PAGES, render, appVars, infoVars } from "./src/pages.js";
 import { LIBRARY_DIR, publishedBooks, findBook, bookUrl } from "./src/catalog.js";
-import { libraryVars, bookVars, feedXml } from "./src/library-pages.js";
+import { libraryVars, bookVars, feedXml, authorsVars, authorVars } from "./src/library-pages.js";
 import { DEV, RELOAD_SCRIPT, devReload } from "./src/dev-reload.js";
 
 import { installRequestRoutes, requestsEnabled } from "./src/request-routes.js";
+
+import { librarySitemapEntries } from "./src/library-seo.js";
 
 const PORT = Number(process.env.PORT || 4800);
 const MAX_UPLOAD_MB = 50;
@@ -36,6 +38,17 @@ for (const [route, page] of Object.entries(INFO_PAGES)) {
   app.get([route, `${route}/`], async (req, res) => sendHtml(res, render(await layout(page.view), route, infoVars(route, origin(req)))));
 }
 // The public-domain library: an index, a page and a podcast feed per finished book, and the audio itself.
+app.use('/library', (req,res,next) => {
+  if (req.method === 'GET' && req.path.endsWith('/') && req.originalUrl.split('?')[0] !== '/library') {
+    const [pathname,query]=req.originalUrl.split('?');return res.redirect(301,pathname.slice(0,-1)+(query?'?'+query:''));
+  }
+  next();
+});
+app.get('/library/authors', async (req,res)=>sendHtml(res,render(await layout('library-author'),'/library',authorsVars(origin(req)))));
+app.get('/library/authors/:authorSlug', async (req,res,next)=>{
+  const vars=authorVars(req.params.authorSlug,origin(req),{delivery:requestsEnabled()});
+  if(!vars)return next();sendHtml(res,render(await layout('library-author'),'/library',vars));
+});
 app.get(["/library", "/library/"], async (req, res) => sendHtml(res, render(await layout("library"), "/library", libraryVars(origin(req), { delivery: requestsEnabled() }))));
 app.get("/library/:author/:slug", async (req, res, next) => {
   const book = findBook(req.params.author, req.params.slug);
@@ -54,7 +67,9 @@ app.use("/library-audio", (req, res, next) => (/\.(m4a|m4b|mp3|jpg|png|svg|webp)
 
 app.get("/robots.txt", (req, res) => res.type("text/plain").send(`User-agent: *\nDisallow: /api/\nSitemap: ${origin(req)}/sitemap.xml\n`));
 app.get("/sitemap.xml", (req, res) => {
-  const urls = [...Object.keys(PAGES), ...Object.entries(INFO_PAGES).filter(([, p]) => !p.hidden).map(([r]) => r), "/library", ...publishedBooks().map(bookUrl)].map((r) => `<url><loc>${origin(req)}${r}</loc></url>`).join("");
+  const xml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+  const entries=[...Object.keys(PAGES),...Object.entries(INFO_PAGES).filter(([,p])=>!p.hidden).map(([r])=>r)].map(url=>({url})).concat(librarySitemapEntries());
+  const urls=entries.map(e=>`<url><loc>${xml(origin(req)+e.url)}</loc>${e.modified?`<lastmod>${e.modified}</lastmod>`:''}</url>`).join('');
   res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
 });
 

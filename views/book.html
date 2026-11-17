@@ -6,7 +6,7 @@
   <title>{{title}}</title>
   <meta name="description" content="{{description}}">
   <link rel="canonical" href="{{canonical}}">
-  <meta property="og:type" content="music.album">
+  <meta property="og:type" content="book">
   <meta property="og:title" content="{{title}}">
   <meta property="og:description" content="{{description}}">
   <meta property="og:url" content="{{canonical}}">
@@ -19,12 +19,12 @@
 <body>
 {{header}}
   <main class="prose library lib-book {{bookClass}}">
-    <nav class="lib-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a> › {{author}}</nav>
+    <nav class="lib-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a> › {{authorLink}} › {{booktitle}}</nav>
     <div class="lib-book-head">
       {{cover}}
       <div>
         <h1>{{booktitle}}</h1>
-        <p class="lib-byline">{{author}}{{year}}</p>
+        <p class="lib-byline">{{authorLink}}{{year}}</p>
         <p class="lib-meta">{{meta}}</p>
         {{previewPlay}}
         {{downloads}}
@@ -39,6 +39,8 @@
     {{about}}
 
     <p class="lib-credit">Text from <a href="{{source}}" rel="noopener">Standard Ebooks</a> (public domain). Narrated with Kokoro, an open-source AI voice. Free to download and share.</p>
+    {{editionDetails}}
+    {{related}}
     <div class="callout">
       <p><strong>Have a different book?</strong> Turn any DRM-free EPUB or PDF into an audiobook like this one.</p>
       <a class="btn" href="/">Make an audiobook</a>

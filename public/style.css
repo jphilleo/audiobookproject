@@ -568,3 +568,15 @@ html.lib-embedded .lib-player-dock { display: none; }
   .lib-request { width: 100%; }
   .lib-request form { padding: 1rem; }
 }
+
+.lib-edition, .lib-related { margin-top: 2.5rem; }
+.lib-edition dl { margin: 1rem 0; }
+.lib-edition dl > div { display: grid; grid-template-columns: 130px minmax(0,1fr); gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--line); }
+.lib-edition dt { font-weight: 600; }
+.lib-edition dd { margin: 0; }
+.lib-related ul, .lib-author-list, .lib-author-books { list-style: none; padding: 0; }
+.lib-related li, .lib-author-list li { padding: .8rem 0; border-bottom: 1px solid var(--line); }
+.lib-related li span, .lib-author-list li span { display: block; font-size: .9rem; color: var(--muted); margin-top: .3rem; }
+.lib-author-books > li { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.lib-author-books h2 { margin-top: 0; }
+@media(max-width:640px) { .lib-edition dl > div { grid-template-columns: 1fr; gap: .3rem; } }
