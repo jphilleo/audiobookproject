@@ -16,20 +16,34 @@ function call(msg) {
     worker.on("message", ({ id, result, error }) => {
       const p = pending.get(id);
       pending.delete(id);
+      clearTimeout(p?.timer);
       error ? p?.reject(new Error(error)) : p?.resolve(result);
     });
+    const instance=worker;
+    worker.on("exit", () => {
+      if(worker !== instance) return;
+      for(const p of pending.values()){ clearTimeout(p.timer); p.reject(new Error("Speech worker exited; retry narration")); }
+      pending.clear(); worker=null;
+    });
     worker.on("error", (err) => {
-      for (const p of pending.values()) p.reject(err);
+      for (const p of pending.values()) { clearTimeout(p.timer); p.reject(err); }
       pending.clear();
       worker = null;
     });
   }
   const id = nextId++;
   return new Promise((resolve, reject) => {
-    pending.set(id, { resolve, reject });
+    const instance=worker;
+    const timer=setTimeout(() => {
+      if(worker===instance) instance.terminate();
+    }, 300000);
+    pending.set(id, { resolve, reject, timer });
     worker.postMessage({ id, ...msg });
   });
 }
+
+export const planNarration = (text, voice) => call({ type: "plan", text: prepareNarration(text), voice });
+export const closeTts = async () => { const current=worker; worker=null; if(current) await current.terminate(); };
 
 export const loadTts = () => call({ type: "ready" });
 
@@ -79,6 +93,7 @@ export function chunkText(text, options = {}) {
         if (cut < MAX_CHUNK_CHARS / 3) cut = s.lastIndexOf(" ", MAX_CHUNK_CHARS);
         if (cut <= 0) cut = MAX_CHUNK_CHARS - 1;
         if (cut === MAX_CHUNK_CHARS) cut--;
+        if (/[\uD800-\uDBFF]/.test(s[cut]) && /[\uDC00-\uDFFF]/.test(s[cut+1] || "")) cut--;
         flush();
         chunks.push({ text: s.slice(0, cut + 1).trim(), paragraphEnd: false });
         s = s.slice(cut + 1).trim();

@@ -137,6 +137,9 @@ app.delete("/api/books/:id", wrap(async (req, res) => { need(req); await lib.del
 
 app.get("/api/books/:id/cover", (req, res) => {
   const p = lib.coverPath(req.params.id);
+  // Uploaded covers may contain active SVG. Sandbox direct navigation as well as image embedding.
+  res.set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+  res.set("X-Content-Type-Options", "nosniff");
   p ? res.sendFile(p) : res.status(404).end();
 });
 

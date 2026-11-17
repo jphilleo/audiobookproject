@@ -75,7 +75,7 @@ export async function parseEpub(buffer) {
     if (!item || !/x?html/.test(item["media-type"] || "")) continue;
     const href = resolve(splitHref(item.href).file);
     const file = zip.file(href);
-    if (!file) continue;
+    if (!file) throw new Error(`Missing required EPUB section: ${href}`);
 
     const entries = toc.filter((e) => e.file === href);
     const fileEntry = entries.find((e) => !e.frag);
@@ -318,6 +318,8 @@ function prune(root) {
     if (tag === "script" || tag === "style" || tag === "figcaption") { el.remove(); continue; }
     // Only explicitly marked navigation is disposable; linked data tables are content.
     if (/\b(?:toc|landmarks|page-list)\b/.test(el.getAttribute("epub:type") || "") || el.getAttribute("role") === "doc-toc") { el.remove(); continue; }
+    if (SKIP_CLASS.test(el.getAttribute("class") || "") || SKIP_TYPE.test(el.getAttribute("epub:type") || "") || el.getAttribute("role") === "doc-noteref") { el.remove(); continue; }
+    if (el.hasAttribute("hidden") || el.getAttribute("aria-hidden") === "true" || tag === "del") { el.remove(); continue; }
     if (tag === "sup" && /^\d+$/.test(el.text.trim()) && !el.querySelector('a')) {
       const n = el.text.trim();
       el.replaceWith(n === "2" ? " squared " : n === "3" ? " cubed " : ` to the power of ${n} `);
@@ -325,7 +327,6 @@ function prune(root) {
     }
     // Project Gutenberg's header, footer and license: never narrated, never a chapter.
     if (/^pg-(header|footer)$/.test(el.getAttribute("id") || "")) { el.remove(); continue; }
-    if (SKIP_CLASS.test(el.getAttribute("class") || "") || SKIP_TYPE.test(el.getAttribute("epub:type") || "") || el.getAttribute("role") === "doc-noteref") { el.remove(); continue; }
     // Decorative drop caps drawn as images: <img alt="M"> + "R. BENNET".
     if (tag === "img") {
       const alt = (el.getAttribute("alt") || "").trim();
@@ -400,7 +401,7 @@ export function splitDocument(html, anchors = new Map(), groups = { current: nul
       return;
     }
     // Footnote markers stuck to a word ("Pangloss[1]") would be read out as numbers.
-    text = text.replace(/([^\s[])\[\d{1,3}\]/g, "$1");
+    // Literal bracketed numbers are content unless markup identifies a note.
     part.paragraphs.push(text);
   };
   walk(body);

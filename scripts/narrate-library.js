@@ -6,10 +6,11 @@ import { narrationFingerprint } from "../src/narration-version.js";
 //   node scripts/narrate-library.js frankenstein
 //   LIBRARY_DIR=/path/to/previews node scripts/narrate-library.js --preview frankenstein
 import fs from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { CATALOG, LIBRARY_VOICE, bookDir, epubUrl } from "../src/catalog.js";
 import { parseEpub, countWords } from "../src/epub.js";
-import { synthesize, chapterChunks, listVoices, SAMPLE_RATE } from "../src/tts.js";
+import { synthesize, chapterChunks, listVoices, planNarration, closeTts, SAMPLE_RATE } from "../src/tts.js";
 import { recommendVoice } from "../src/voice-recommendation.js";
 import { floatToPcm16, silence, encodeChapter, buildAudiobook } from "../src/audio.js";
 
@@ -51,6 +52,8 @@ async function narrate(book, preview) {
       words: sections.reduce((sum, s) => sum + s.words, 0),
     };
   }
+  // Edition-specific pronunciation, not a global guess about ambiguous St.
+  if(book.slug === "a-christmas-carol") for(const section of selected) section.text=section.text.replace(/\bSt\. Paul’s Churchyard/g,"Saint Paul’s Churchyard");
   const chapters = preview ? [opening || selected[0]].filter(Boolean) : selected;
   if (!chapters.length) throw new Error("No narratable chapters found");
 
@@ -75,7 +78,7 @@ async function narrate(book, preview) {
   }
   const manifest = { ready: false, voice, cover, words: chapters.reduce((n, c) => n + c.words, 0), chapters: [] };
   if (preview) manifest.preview = true;
-  const save = () => fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+  const save = async () => { await fs.writeFile(`${manifestPath}.tmp`, JSON.stringify(manifest, null, 2)); await fs.rename(`${manifestPath}.tmp`,manifestPath); };
   await save();
   log(book.slug, `${chapters.length} chapters, ${manifest.words} words`);
 
@@ -90,16 +93,35 @@ async function narrate(book, preview) {
     if (!reusable) {
       const started = Date.now();
       // The parser strips chapter headings from the text, so the title is announced first, as in the app.
-      const parts = [];
-      for (const c of chapterChunks(ch.title, ch.text)) {
-        parts.push(floatToPcm16(await synthesize(c.text, voice.id)), silence(c.paragraphEnd ? 0.45 : 0.12));
-      }
-      const pcm = Buffer.concat(parts);
-      await fs.writeFile(pcmPath, pcm);
+      const chunkDir=path.join(dir,"checkpoints",fingerprint);
+      await fs.mkdir(chunkDir,{recursive:true});
+      const record=[];
+      const output=await fs.open(pcmPath,"w");let bytes=0;
+      try {
+        for (const [index,c] of chapterChunks(ch.title,ch.text).entries()) {
+          const chunkPath=path.join(chunkDir,`${index}.pcm`);
+          const metadataPath=path.join(chunkDir,`${index}.json`);
+          let pcm, metadata;
+          try {
+            metadata=JSON.parse(await fs.readFile(metadataPath,"utf8")); pcm=await fs.readFile(chunkPath);
+            if(metadata.text!==c.text || pcm.length===0 || pcm.length%2 || createHash("sha256").update(pcm).digest("hex")!==metadata.sha256)throw new Error("Invalid checkpoint");
+          } catch {
+            const segments=await planNarration(c.text,voice.id);
+            pcm=floatToPcm16(await synthesize(c.text,voice.id));
+            metadata={text:c.text,segments,bytes:pcm.length,sha256:createHash("sha256").update(pcm).digest("hex")};
+            await fs.writeFile(`${chunkPath}.tmp`,pcm);await fs.rename(`${chunkPath}.tmp`,chunkPath);
+            await fs.writeFile(`${metadataPath}.tmp`,JSON.stringify(metadata));await fs.rename(`${metadataPath}.tmp`,metadataPath);
+          }
+          await output.writeFile(pcm); const pause=silence(c.paragraphEnd?0.45:0.12);await output.writeFile(pause);
+          bytes+=pcm.length+pause.length; record.push({...metadata,paragraphEnd:c.paragraphEnd});
+          if(index%25===0)log(book.slug,`chapter ${i+1}: ${index+1} chunks verified`);
+        }
+      } finally { await output.close(); }
+      await fs.writeFile(path.join(dir,"chapters",`${name}.audit.json`),JSON.stringify({fingerprint,chunks:record},null,2));
       await encodeChapter(pcmPath, `${file}.new.m4a`);
       await fs.rename(`${file}.new.m4a`, file);
       await fs.rm(pcmPath, { force: true });
-      const ms = Math.round((pcm.length / 2 / SAMPLE_RATE) * 1000);
+      const ms = Math.round((bytes / 2 / SAMPLE_RATE) * 1000);
       await fs.writeFile(lenPath, String(ms));
       log(book.slug, `${i + 1}/${chapters.length}`, ch.title, `${Math.round(ms / 1000)}s audio in ${Math.round((Date.now() - started) / 1000)}s`);
     }
@@ -131,8 +153,9 @@ async function narrate(book, preview) {
 const preview = process.argv.includes("--preview");
 const wanted = process.argv.slice(2).filter((arg) => arg !== "--preview");
 if (preview && !process.env.LIBRARY_DIR) throw new Error("Set LIBRARY_DIR to a separate directory for previews");
+for(const slug of wanted) if(!CATALOG.some(b=>b.slug===slug))throw new Error(`Unknown book: ${slug}`);
 const books = wanted.length ? CATALOG.filter((b) => wanted.includes(b.slug)) : CATALOG;
 for (const book of books) {
   try { await narrate(book, preview); } catch (e) { log(book.slug, "failed:", e.message); process.exitCode = 1; }
 }
-process.exit(process.exitCode || 0);
+await closeTts();

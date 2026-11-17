@@ -1,7 +1,7 @@
 // Changing extraction, preparation, model configuration, or dependencies invalidates reuse.
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-const files = ['epub.js','pdf.js','narration-text.js','tts.js','tts-worker.js','audio.js','library.js','narration-version.js','../scripts/narrate-library.js'];
+const files = ['epub.js','pdf.js','narration-text.js','tts.js','tts-worker.js','token-safe-tts.js','audio.js','library.js','narration-version.js','../scripts/narrate-library.js'];
 const versionHash = createHash('sha256');
 for (const file of files) versionHash.update(readFileSync(new URL(file, import.meta.url)));
 versionHash.update(readFileSync(new URL('../package-lock.json', import.meta.url)));
