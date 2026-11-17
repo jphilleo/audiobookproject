@@ -9,3 +9,6 @@ test('invalid and silent generated audio cannot be marked complete',()=>{for(con
 test('semantic notes precede exponent conversion and literal numbers survive',()=>{assert.equal(htmlToText('<p>Word<sup epub:type="noteref">2</sup>; values[1]; 10<sup>2</sup>.</p>').text,'Word; values[1]; 10 squared .');});
 test('hidden and deleted drafts are excluded',()=>{assert.equal(htmlToText('<p hidden>Draft</p><p><del>Wrong</del><ins>Correct</ins></p>').text,'Correct');});
 test('hard chunk boundaries preserve supplementary characters',()=>{const chunks=chunkText('a'.repeat(379)+'\u{10400}'+'b');assert.ok(chunks.every(c=>c.text.isWellFormed()));});
+
+import {prepareSpeechInput} from '../src/narration-text.js';
+test('isolated dialogue drops only outer speech delimiters',()=>{assert.equal(prepareSpeechInput('“It is.”'),'It is.');assert.equal(prepareSpeechInput('“A golden one.”'),'A golden one.');assert.equal(prepareSpeechInput('“No,” he said. “Go.”'),'“No,” he said. “Go.”');});
