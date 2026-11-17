@@ -1,0 +1,143 @@
+{
+  "verification": {
+    "voice": {
+      "id": "bf_emma",
+      "name": "Emma"
+    },
+    "chapters": [
+      {
+        "title": "Stave I: Marley\u2019s Ghost",
+        "words": 6458,
+        "chunks": 214,
+        "maxTokens": 396,
+        "durationMs": 2178270,
+        "sourceCoverage": "exact prepared-text match",
+        "checkpointHashes": "all verified"
+      },
+      {
+        "title": "Stave II: The First of the Three Spirits",
+        "words": 6175,
+        "chunks": 200,
+        "maxTokens": 398,
+        "durationMs": 2021910,
+        "sourceCoverage": "exact prepared-text match",
+        "checkpointHashes": "all verified"
+      },
+      {
+        "title": "Stave III: The Second of the Three Spirits",
+        "words": 8250,
+        "chunks": 232,
+        "maxTokens": 397,
+        "durationMs": 2713410,
+        "sourceCoverage": "exact prepared-text match",
+        "checkpointHashes": "all verified"
+      },
+      {
+        "title": "Stave IV: The Last of the Spirits",
+        "words": 5364,
+        "chunks": 185,
+        "maxTokens": 394,
+        "durationMs": 1752460,
+        "sourceCoverage": "exact prepared-text match",
+        "checkpointHashes": "all verified"
+      },
+      {
+        "title": "Stave V: The End of It",
+        "words": 2308,
+        "chunks": 77,
+        "maxTokens": 397,
+        "durationMs": 745500,
+        "sourceCoverage": "exact prepared-text match",
+        "checkpointHashes": "all verified"
+      }
+    ],
+    "decode": [
+      {
+        "file": "chapters/001.m4a",
+        "completeDecode": true
+      },
+      {
+        "file": "chapters/002.m4a",
+        "completeDecode": true
+      },
+      {
+        "file": "chapters/003.m4a",
+        "completeDecode": true
+      },
+      {
+        "file": "chapters/004.m4a",
+        "completeDecode": true
+      },
+      {
+        "file": "chapters/005.m4a",
+        "completeDecode": true
+      },
+      {
+        "file": "a-christmas-carol.m4b",
+        "completeDecode": true
+      },
+      {
+        "file": "a-christmas-carol.mp3",
+        "completeDecode": true
+      }
+    ]
+  },
+  "delivery": [
+    {
+      "file": "001.m4a",
+      "bytes": 17760757,
+      "sha256": "9dcedbc2c16ff95b85f92a602a8a0b224bbce484a67c286157ea889c67a36f91",
+      "contentType": "audio/mp4",
+      "fullHashVerified": true,
+      "range206": true
+    },
+    {
+      "file": "002.m4a",
+      "bytes": 16522174,
+      "sha256": "0c6440d3df44b5d2a0c1053e7c913bbc8f4d65f62e032ba6b40ce85b230aac85",
+      "contentType": "audio/mp4",
+      "fullHashVerified": true,
+      "range206": true
+    },
+    {
+      "file": "003.m4a",
+      "bytes": 22401050,
+      "sha256": "c046f3440c6fe7004a49657d1b25612889fa514f960360ff23509d9039f18b65",
+      "contentType": "audio/mp4",
+      "fullHashVerified": true,
+      "range206": true
+    },
+    {
+      "file": "004.m4a",
+      "bytes": 14243097,
+      "sha256": "a795c6379ad4310ed8d65f15c4ae9faffa8aec3361ee067f6b8d550738bc2ae2",
+      "contentType": "audio/mp4",
+      "fullHashVerified": true,
+      "range206": true
+    },
+    {
+      "file": "005.m4a",
+      "bytes": 5996036,
+      "sha256": "b436633f117f9bf5ff14759f10ca035738ea6f8b7dec4a863592f6c1ff9a6412",
+      "contentType": "audio/mp4",
+      "fullHashVerified": true,
+      "range206": true
+    },
+    {
+      "file": "a-christmas-carol.m4b",
+      "bytes": 77269672,
+      "sha256": "4a6901df57e496557c0ad6a62c8c723ddeb965249b807b9614a51b4836e2f0fb",
+      "contentType": "audio/mp4",
+      "fullHashVerified": true,
+      "range206": true
+    },
+    {
+      "file": "a-christmas-carol.mp3",
+      "bytes": 75642967,
+      "sha256": "8c4b1823e01f5fdd4f2e84a7664dc5131c6d04eb7a6c18bb01b6fd930d78f36f",
+      "contentType": "audio/mpeg",
+      "fullHashVerified": true,
+      "range206": true
+    }
+  ]
+}
