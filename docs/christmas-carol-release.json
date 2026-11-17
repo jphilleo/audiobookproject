@@ -1,0 +1,55 @@
+{
+  "codeCommit": "537dde7",
+  "voice": "af_heart",
+  "sourceWords": 28555,
+  "chapters": 5,
+  "segments": 908,
+  "tokenMaximum": 403,
+  "durationMs": 9934525,
+  "fullDecodeFiles": 7,
+  "automatedTranscriptionFlags": 16,
+  "limitations": "Transcription flags are reviewed with a second model and context; this is not a full human listening review or a guarantee of perfect pronunciation. Model grades do not measure book-specific artistic fit.",
+  "files": {
+    "001.m4a": {
+      "bytes": 19348625,
+      "sha256": "2740fda20e7061cb1163e74f4a33591e02a7850353c0cee482100f9256142638"
+    },
+    "002.m4a": {
+      "bytes": 18042435,
+      "sha256": "8be4cbdf5183d3dd91d433bc0e6e9713a8b3f38005a4d579932be8853546ce49"
+    },
+    "003.m4a": {
+      "bytes": 24424952,
+      "sha256": "a27077c29a5f27b345c57b48bd44b4a968782600890d7361b78270f3a7634ace"
+    },
+    "004.m4a": {
+      "bytes": 15317085,
+      "sha256": "3c98302a45dfbb29ddaf0ae91404964131445259b54efcd0828a1b775ee0a7f4"
+    },
+    "005.m4a": {
+      "bytes": 6540915,
+      "sha256": "27cab1c0e43e4d545d237b0b707c35a27214b22df731ec194713f57b3d4429e3"
+    },
+    "a-christmas-carol.m4b": {
+      "bytes": 84020526,
+      "sha256": "9fc33f89408a0a982c2611702edade868377cb26198111f5a71d5e52d1823e28"
+    },
+    "a-christmas-carol.mp3": {
+      "bytes": 79826839,
+      "sha256": "572b59d71d7885968c52df31da5d04bd083ef64c748263fd71e069d5e78c1a83"
+    }
+  },
+  "published": true,
+  "releasePrefix": "a-christmas-carol/repair-878d579/",
+  "r2FilesVerified": 7,
+  "podcastEpisodesVerified": 5,
+  "browserVerification": {
+    "desktopAllFiveChaptersPlayed": true,
+    "nextChapter": true,
+    "mobileViewport": "390x844",
+    "mobileResumeAfterReload": true,
+    "mobilePreviousChapter": true,
+    "horizontalOverflow": false
+  },
+  "regressionTests": 40
+}
