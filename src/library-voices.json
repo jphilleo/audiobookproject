@@ -1,0 +1,794 @@
+{
+  "alices-adventures-in-wonderland": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-time-machine": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "frankenstein": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "pride-and-prejudice": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-adventures-of-sherlock-holmes": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "dracula": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "meditations": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "moby-dick": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-count-of-monte-cristo": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "suspense": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-picture-of-dorian-gray": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "jane-eyre": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "crime-and-punishment": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-great-gatsby": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "robur-the-conqueror": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-prisoner-in-the-opal": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-vultures": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-emperor-of-portugallia": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-extraordinary-adventures-of-arsene-lupin-gentleman-burglar": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-brothers-karamazov": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-storm-of-steel": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-green-mummy": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-mystery-of-the-barranca": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "of-one-blood": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "wuthering-heights": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-gold-bag": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "sense-and-sensibility": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "sir-nigel": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "middlemarch": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "a-study-in-scarlet": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-sowers": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "a-tale-of-two-cities": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "war-and-peace": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-house-of-the-arrow": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "treasure-island": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "anna-karenina": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-hound-of-the-baskervilles": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "great-expectations": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "to-the-lighthouse": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-cave-girl": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "anne-of-green-gables": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-war-of-the-worlds": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "discourses": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "little-women": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-call-of-the-wild": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "emma": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "persuasion": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-murder-of-roger-ackroyd": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "notes-from-underground": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-wonderful-wizard-of-oz": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-secret-garden": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-prophet": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "with-edged-tools": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-sign-of-the-four": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-adventures-of-huckleberry-finn": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-idiot": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "les-miserables": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "around-the-world-in-eighty-days": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-mysterious-affair-at-styles": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-adventures-of-tom-sawyer": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-wind-in-the-willows": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "a-farewell-to-arms": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-maltese-falcon": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-castle": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-sun-also-rises": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "journey-to-the-center-of-the-earth": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "winnie-the-pooh": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "as-i-lay-dying": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-invisible-man": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "demons": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-turn-of-the-screw": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "three-men-in-a-boat": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "barlasch-of-the-guard": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "on-liberty": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "northanger-abbey": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "siddhartha": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-autobiography-of-a-super-tramp": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "oliver-twist": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "nicomachean-ethics": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-scarlet-letter": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "flatland": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "a-room-with-a-view": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-jungle-book": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "bleak-house": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-magic-mountain": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-secret-adversary": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "mansfield-park": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-life-and-adventures-of-robinson-crusoe": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "pragmatism": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-woman-in-white": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-age-of-innocence": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-valley-of-fear": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "dubliners": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "his-royal-nibs": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-lost-world": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-mystery-of-the-blue-train": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-problems-of-philosophy": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "partners-in-crime": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-king-in-yellow": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-wealth-of-nations": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "beyond-good-and-evil": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "tusculan-disputations": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "an-enquiry-concerning-human-understanding": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "thus-spake-zarathustra": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-murder-at-the-vicarage": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "a-treatise-of-human-nature": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "leviathan": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-tower-treasure": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-secret-of-the-old-clock": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-mummy": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-island-of-doctor-moreau": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-phantom-of-the-opera": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-city-of-god": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-mystery-of-edwin-drood": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "all-quiet-on-the-western-front": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "white-fang": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-portrait-of-a-lady": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "a-princess-of-mars": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "peter-and-wendy": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "black-beauty": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-gambler": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "king-solomons-mines": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-awakening": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "madame-bovary": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "a-confession": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-great-airport-mystery": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-murder-on-the-links": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "candide": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-narrative-of-arthur-gordon-pym-of-nantucket": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "we": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "a-passage-to-india": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-seven-dials-mystery": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-mysterious-island": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-moonstone": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-king-of-elflands-daughter": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "two-treatises-of-government": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "kidnapped": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-man-in-the-brown-suit": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-story-of-doctor-dolittle": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "hard-times": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "howards-end": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-mill-on-the-floss": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-prince-and-the-pauper": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-story-of-my-experiments-with-truth": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "sailing-alone-around-the-world": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "from-the-earth-to-the-moon": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "russian-folktales": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "red-harvest": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-imitation-of-christ": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-secret-agent": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "jude-the-obscure": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "of-human-bondage": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "villette": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "our-mutual-friend": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-secret-of-chimneys": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-pickwick-papers": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "nostromo": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "lord-jim": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-lost-stradivarius": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "far-from-the-madding-crowd": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-hidden-staircase": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-pursuit-of-god": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-mystery-at-lilac-inn": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "my-antonia": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-princess-and-the-goblin": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "fathers-and-children": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "metamorphoses": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "nicholas-nickleby": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "dangerous-liaisons": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-stainless-steel-rat": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "twelve-years-a-slave": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "at-the-villa-rose": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "discourses-on-livy": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "what-is-art": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-book-of-tea": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-innocents-abroad": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-bungalow-mystery": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-house-on-the-cliff": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-history-of-tom-jones-a-foundling": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-moon-and-sixpence": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-well-at-the-worlds-end": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-theory-of-moral-sentiments": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-return-of-the-native": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "resurrection": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "krakatit": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "bulfinchs-mythology": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-chink-in-the-armour": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "jacobs-room": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-story-of-my-life": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-adventures-of-pinocchio": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "erewhon": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-secret-of-the-old-mill": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "clarissa": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "news-from-nowhere": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-red-house-mystery": {
+    "voiceId": "bf_emma",
+    "reason": "Quality-first British English narration for this British work or English translation."
+  },
+  "the-mystery-of-cabin-island": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "roughing-it": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  },
+  "the-marvelous-land-of-oz": {
+    "voiceId": "af_heart",
+    "reason": "Quality-first American English narration for this North American author."
+  }
+}

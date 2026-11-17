@@ -15,7 +15,10 @@ export const audioUrl = (b, file) => {
     return `${fileUrl(b, file)}?v=${b.audioSha256.slice(0, 12)}`;
   }
   if (!AUDIO_BASE || b.audioStorage === "origin") return fileUrl(b, file);
-  if (!b.ready && b.preview) return `${AUDIO_BASE}/previews/${b.slug}.m4a`;
+  if (!b.ready && b.preview) {
+    const version = /^[a-z0-9-]+$/.test(b.previewRelease || "") ? `${b.previewRelease}/` : "";
+    return `${AUDIO_BASE}/previews/${version}${b.slug}.m4a`;
+  }
   return `${AUDIO_BASE}/${b.slug}/${file}`;
 };
 const abs = (origin, url) => (/^https?:/.test(url) ? url : `${origin}${url}`);
@@ -45,9 +48,9 @@ function cover(b, cls = "lib-cover") {
 // What a placeholder says while its book isn't ready.
 const STATE = { narrating: "Narrating now", soon: "Coming soon" };
 // Playable books and previews link to their pages. Other titles stay placeholders.
-function card(b, { listen = false, lengthLine = false } = {}) {
+function card(b, { listen = false, lengthLine = false, delivery = false } = {}) {
   const caption = `${cover(b)}<strong>${esc(name(b))}</strong><span>${esc(b.author)}</span>`;
-  if (b.state === "preview") return `<li><a href="${bookUrl(b)}">${caption}<span class="lib-listen">First chapter · ${length(b.durationMs)}</span></a></li>`;
+  if (b.state === "preview") return `<li><a href="${bookUrl(b)}">${caption}<span class="lib-listen">${delivery ? "Full audiobook by email · Listen to sample" : `First chapter · ${length(b.durationMs)}`}</span></a></li>`;
   if (b.state !== "ready") return `<li class="lib-pending"><div>${caption}<span class="lib-badge">${STATE[b.state]}</span></div></li>`;
   const extra = listen ? '<span class="lib-listen">Listen now</span>' : lengthLine ? `<span>${length(b.durationMs)}</span>` : "";
   return `<li><a href="${bookUrl(b)}">${caption}${extra}</a></li>`;
@@ -71,10 +74,10 @@ export function shelfHtml({ heading, intro, more = "Browse the library", listen 
 
 /* ---------- The library index ---------- */
 
-export function libraryVars(origin) {
+export function libraryVars(origin, { delivery = false } = {}) {
   const books = readyBooks();
   const grid = `<ul class="lib-grid">
-      ${ordered().map((b) => card(b, { lengthLine: true })).join("\n      ")}
+      ${ordered().map((b) => card(b, { lengthLine: true, delivery })).join("\n      ")}
     </ul>`;
   const ld = {
     "@context": "https://schema.org", "@type": "CollectionPage", name: "Free audiobooks of public-domain books", url: `${origin}/library`,
@@ -82,7 +85,8 @@ export function libraryVars(origin) {
   };
   return {
     title: "Free Public-Domain Audiobooks — Audiobook Project",
-    description: "Listen to first chapters and complete audiobooks of public-domain classics. Download complete books in M4B or MP3. No account needed.",
+    description: delivery ? "Free audiobooks of public-domain classics. Listen to samples and request the full book in M4B or MP3 by email. Finished recordings are also available instantly." : "Listen to first chapters and complete audiobooks of public-domain classics. Download complete books in M4B or MP3. No account needed.",
+    libraryIntro: delivery ? "Public-domain classics, read aloud by AI voices. Listen to a sample and get the full audiobook free by email. Books that need preparation enter the queue after you confirm your address; finished recordings can be downloaded instantly." : "Public-domain classics, read aloud by AI voices. Listen to a first chapter or a complete audiobook. Complete books are also available to download or add to a podcast app.",
     canonical: esc(`${origin}/library`),
     grid,
     jsonld: jsonLdTag(ld),
@@ -91,7 +95,7 @@ export function libraryVars(origin) {
 
 /* ---------- A book ---------- */
 
-export function bookVars(b, origin) {
+export function bookVars(b, origin, { delivery = false } = {}) {
   const url = `${origin}${bookUrl(b)}`;
   const feed = esc(`${url}/feed.xml`);
   const bookTitle = esc(b.title);
@@ -125,9 +129,20 @@ export function bookVars(b, origin) {
   const error = '<p id="lib-playback-error" role="alert" hidden>Audio couldn’t play. Try again in a moment.</p>';
   const description = `<p class="lib-about">${esc(b.description)}</p>`;
   const downloadIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>';
+  const requestForm = delivery ? `<details class="lib-request"><summary class="btn lib-download">${downloadIcon}${b.ready ? "Email me a download link" : "Get the full audiobook free"}</summary>
+      <form data-book-request data-slug="${esc(b.slug)}">
+        <p>${b.ready ? "We’ll email you a link to the complete recording after you confirm your address." : "Listen to the sample now. Confirm your email and we’ll prepare the full audiobook and send a download link. Preparation can take several days, depending on book length and the queue."}</p>
+        <label>Email address<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <fieldset><legend>Download format</legend><label><input type="radio" name="format" value="m4b" checked> M4B · audiobook apps, with chapters</label><label><input type="radio" name="format" value="mp3"> MP3 · most audio players</label></fieldset>
+        <label class="request-honey" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+        <button class="btn primary" type="submit">Email me a confirmation link</button>
+        <p class="lib-request-note">Only emails about this request. No mailing list. <a href="/privacy">Privacy</a></p>
+        <p data-request-status role="status" aria-live="polite"></p>
+      </form></details>` : "";
   return {
-    title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : `${b.title} First Chapter by ${b.author} — Audiobook Project`),
-    description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
+    requestForm,
+    title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : delivery ? `${b.title} by ${b.author} — Free Audiobook` : `${b.title} First Chapter by ${b.author} — Audiobook Project`),
+    description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : delivery ? `Get ${b.title} by ${b.author} as a free M4B or MP3 audiobook by email. Listen to a sample now; the full recording is prepared after you confirm your request.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
     canonical: esc(url),
     ogimage: b.cover ? esc(`${origin}${fileUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
     booktitle: bookTitle,

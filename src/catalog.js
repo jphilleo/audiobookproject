@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import expansion from "./library-expansion.json" with { type: "json" };
+import libraryVoices from "./library-voices.json" with { type: "json" };
 
 export const LIBRARY_DIR = path.resolve(process.env.LIBRARY_DIR || path.join(import.meta.dirname, "..", "library"));
 export const LIBRARY_VOICE = { id: "af_heart", name: "Heart" };
@@ -74,7 +75,7 @@ export const CATALOG = [
     description: "Ishmael signs on to a whaling ship and finds himself under Captain Ahab, who wants one thing: the white whale that took his leg. Long and strange, with whole chapters about whales between the chase.",
   },
   ...expansion,
-];
+].map(book => libraryVoices[book.slug] ? { ...book, voiceId: libraryVoices[book.slug].voiceId } : book);
 
 export const bookDir = (slug) => path.join(LIBRARY_DIR, slug);
 export const bookUrl = (b) => `/library/${b.authorSlug}/${b.slug}`;

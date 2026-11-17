@@ -13,6 +13,8 @@ import { LIBRARY_DIR, publishedBooks, findBook, bookUrl } from "./src/catalog.js
 import { libraryVars, bookVars, feedXml } from "./src/library-pages.js";
 import { DEV, RELOAD_SCRIPT, devReload } from "./src/dev-reload.js";
 
+import { installRequestRoutes, requestsEnabled } from "./src/request-routes.js";
+
 const PORT = Number(process.env.PORT || 4800);
 const MAX_UPLOAD_MB = 50;
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -34,11 +36,11 @@ for (const [route, page] of Object.entries(INFO_PAGES)) {
   app.get([route, `${route}/`], async (req, res) => sendHtml(res, render(await layout(page.view), route, infoVars(route, origin(req)))));
 }
 // The public-domain library: an index, a page and a podcast feed per finished book, and the audio itself.
-app.get(["/library", "/library/"], async (req, res) => sendHtml(res, render(await layout("library"), "/library", libraryVars(origin(req)))));
+app.get(["/library", "/library/"], async (req, res) => sendHtml(res, render(await layout("library"), "/library", libraryVars(origin(req), { delivery: requestsEnabled() }))));
 app.get("/library/:author/:slug", async (req, res, next) => {
   const book = findBook(req.params.author, req.params.slug);
   if (!book) return next();
-  sendHtml(res, render(await layout("book"), "/library", bookVars(book, origin(req))));
+  sendHtml(res, render(await layout("book"), "/library", bookVars(book, origin(req), { delivery: requestsEnabled() })));
 });
 app.get("/library/:author/:slug/feed.xml", (req, res, next) => {
   const book = findBook(req.params.author, req.params.slug);
@@ -180,6 +182,7 @@ ${items.join("\n")}
 
 app.use((err, _req, res, _next) => res.status(400).json({ error: err.code === "LIMIT_FILE_SIZE" ? `File is larger than ${MAX_UPLOAD_MB}MB` : String(err.message || err) }));
 
+await installRequestRoutes(app);
 await lib.loadLibrary();
 await lib.deleteExpired();
 setInterval(() => lib.deleteExpired().catch((err) => console.error("Cleanup failed:", err)), 3600000);
