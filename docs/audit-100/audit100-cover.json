@@ -1,0 +1,5 @@
+{
+  "file": "audit100-cover.json",
+  "id": 38,
+  "error": "ffmpeg failed: [mp4 @ 0x13e61eac0] Could not find tag for codec webp in stream #1, codec not currently supported in container\n[out#0/mp4 @ 0x13e61e9f0] Could not write header (incorrect codec parameters ?): Invalid argument\n[vost#0:1/copy @ 0x13e61d880] Error initializing output stream:"
+}

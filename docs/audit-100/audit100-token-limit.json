@@ -1,0 +1,12 @@
+{
+  "id": 26,
+  "sourceCharacters": 329,
+  "chunks": 1,
+  "results": [
+    {
+      "phonemes": 1503,
+      "untruncatedTokens": 1505,
+      "modelTokens": 512
+    }
+  ]
+}

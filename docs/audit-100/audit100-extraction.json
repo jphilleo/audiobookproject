@@ -1,0 +1,283 @@
+[
+  {
+    "id": 1,
+    "input": "<p>Word<sup epub:type=\"noteref\">2</sup>.</p>",
+    "actual": {
+      "text": "Word squared .",
+      "heading": ""
+    }
+  },
+  {
+    "id": 2,
+    "input": "<p>The array element is values[1].</p>",
+    "actual": {
+      "text": "The array element is values.",
+      "heading": ""
+    }
+  },
+  {
+    "id": 3,
+    "input": "<p><ruby>東京<rt>とうきょう</rt></ruby></p>",
+    "actual": {
+      "text": "東京とうきょう",
+      "heading": ""
+    }
+  },
+  {
+    "id": 4,
+    "input": "<p hidden>Hidden draft.</p><p>Published text.</p>",
+    "actual": {
+      "text": "Hidden draft.\n\nPublished text.",
+      "heading": ""
+    }
+  },
+  {
+    "id": 5,
+    "input": "<p><del>Old version.</del><ins>New version.</ins></p>",
+    "actual": {
+      "text": "Old version.New version.",
+      "heading": ""
+    }
+  },
+  {
+    "id": 6,
+    "input": "<p>The sign read <img alt=\"KEEP OUT\"/>.</p>",
+    "actual": {
+      "text": "The sign read .",
+      "heading": ""
+    }
+  },
+  {
+    "id": 16,
+    "input": "<p>First line<br/>Second line<br/>Third line</p>",
+    "actual": {
+      "text": "First line Second line Third line",
+      "heading": ""
+    }
+  },
+  {
+    "id": 7,
+    "input": "spine linear=no is supplemental",
+    "actual": {
+      "cover": false,
+      "sections": [
+        {
+          "title": "Chapter One",
+          "text": "Main story.\n\nSupplemental answer key.",
+          "selected": true
+        }
+      ]
+    }
+  },
+  {
+    "id": 8,
+    "input": "second required spine file missing",
+    "actual": {
+      "cover": false,
+      "sections": [
+        {
+          "title": "Chapter One",
+          "text": "Main story.",
+          "selected": true
+        }
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "input": "cover href is cover%20image.png",
+    "actual": {
+      "cover": false,
+      "sections": [
+        {
+          "title": "Chapter One",
+          "text": "Main story.",
+          "selected": true
+        }
+      ]
+    }
+  },
+  {
+    "id": 10,
+    "input": "nav href is nav%20page.xhtml",
+    "actual": {
+      "cover": false,
+      "sections": [
+        {
+          "title": "Section 1",
+          "text": "Story.",
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "id": 11,
+    "input": "fragment-only links in nav/spine file",
+    "actual": {
+      "cover": false,
+      "sections": [
+        {
+          "title": "Section 1",
+          "text": "First.\n\nSecond.",
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "id": 12,
+    "input": "invalid Roman numerals in title",
+    "actual": {
+      "IIX": "Chapter 10",
+      "CIVIL": "Chapter 153",
+      "Chapter IC": "Chapter 99"
+    }
+  },
+  {
+    "id": 13,
+    "input": "meaningful prefix before Chapter IV",
+    "actual": "Chapter 4"
+  },
+  {
+    "id": 14,
+    "input": "three short chapters with headings but no TOC",
+    "actual": {
+      "cover": false,
+      "sections": [
+        {
+          "title": "Chapter 1",
+          "text": "One.\n\nChapter 2\n\nTwo.\n\nChapter 3\n\nThree.",
+          "selected": true
+        }
+      ]
+    }
+  },
+  {
+    "id": 15,
+    "input": "two TOC anchors in one paragraph",
+    "actual": [
+      {
+        "entry": "Two",
+        "text": [
+          "First.Second."
+        ]
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "input": "selectable 3-word PDF",
+    "actual": "This PDF has no selectable text (it's probably a scan), so it can't be read aloud."
+  },
+  {
+    "id": 18,
+    "input": "three-page PDF, middle page has no selectable text",
+    "actual": {
+      "sections": 1,
+      "warnings": null,
+      "words": 160
+    }
+  },
+  {
+    "id": 19,
+    "input": "PDF catalog Lang=fr",
+    "actual": "en"
+  },
+  {
+    "id": 21,
+    "input": "two columns supplied row-by-row",
+    "actual": [
+      {
+        "text": "Left one Right one",
+        "x": 50,
+        "y": 700,
+        "h": 12,
+        "endX": 390,
+        "para": false,
+        "margin": false
+      },
+      {
+        "text": "Left two Right two",
+        "x": 50,
+        "y": 680,
+        "h": 12,
+        "endX": 390,
+        "para": false,
+        "margin": false
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "input": "two outline parts each containing two chapters",
+    "actual": [
+      {
+        "page": 0,
+        "line": 0,
+        "title": "Part A",
+        "skipHeading": true
+      },
+      {
+        "page": 3,
+        "line": 0,
+        "title": "Part B",
+        "skipHeading": true
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "input": "page view lower-left is y=100, header y=850",
+    "actual": [
+      {
+        "text": "Body at 790",
+        "x": 50,
+        "y": 790,
+        "h": 12,
+        "endX": 90,
+        "para": false,
+        "margin": true
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "input": "short narrative chapter title differs from book only by number",
+    "actual": [
+      {
+        "title": "Book 2",
+        "text": "This story continues.",
+        "words": 3,
+        "index": 0,
+        "selected": false
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "input": "supplementary letter straddles 380-code-unit boundary",
+    "actual": [
+      {
+        "text": "aaaa\ud801",
+        "wellFormed": false
+      },
+      {
+        "text": "\udc00b",
+        "wellFormed": false
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "input": "NaN and infinities in generated waveform",
+    "actual": [
+      0,
+      0,
+      255,
+      127,
+      0,
+      128
+    ]
+  }
+]

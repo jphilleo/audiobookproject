@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+import {KokoroTTS} from 'kokoro-js';
+import {chunkText} from '../../src/tts.js';
+const k=await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX',{dtype:'fp32',device:'cpu'});
+const tokenizer=k.tokenizer;const results=[];
+k.tokenizer=(text,opts)=>{const raw=tokenizer(text,{...opts,truncation:false});const cut=tokenizer(text,opts);results.push({phonemes:text.length,untruncatedTokens:raw.input_ids.dims.at(-1),modelTokens:cut.input_ids.dims.at(-1)});return cut;};
+k.generate_from_ids=async()=>({auditOnly:true});
+const text='1234567890 '.repeat(30).trim();
+for(const c of chunkText(text))await k.generate(c.text,{voice:'af_heart'});
+const evidence={id:26,sourceCharacters:text.length,chunks:chunkText(text).length,results};
+await fs.writeFile(process.argv[2],JSON.stringify(evidence,null,2));console.log(evidence);process.exit(0);

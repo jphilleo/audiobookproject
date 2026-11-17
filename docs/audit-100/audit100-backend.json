@@ -1,0 +1,73 @@
+[
+  {
+    "id": 23,
+    "actual": "This PDF has multiple bookmarks at the same position. Use an EPUB or a PDF with distinct chapter destinations so no section is silently skipped."
+  },
+  {
+    "id": 55,
+    "actual": {
+      "path": "[workspace]/outputs/audit100-runtime/books/eeeeeeeeeeeeeeee/audiobook.m4b",
+      "exists": false
+    }
+  },
+  {
+    "id": 39,
+    "actual": {
+      "selected": 3,
+      "done": 2,
+      "export": "[workspace]/outputs/audit100-runtime/books/dddddddddddddddd/audiobook.m4b"
+    }
+  },
+  {
+    "id": 42,
+    "actual": {
+      "status": "done",
+      "fileExists": false
+    }
+  },
+  {
+    "id": 43,
+    "actual": [
+      "done",
+      "idle",
+      "idle"
+    ]
+  },
+  {
+    "id": 47,
+    "actual": {
+      "selected": 0,
+      "status": "resolved successfully"
+    }
+  },
+  {
+    "id": 48,
+    "actual": {
+      "acceptedSpeed": -2
+    }
+  },
+  {
+    "id": 49,
+    "actual": {
+      "acceptedVoice": "nonexistent-voice"
+    }
+  },
+  {
+    "id": 70,
+    "actual": "<enclosure url=\"https://example.test/library-audio/audit-remote-only/chapter.m4a\" type=\"audio/mp4\"/>"
+  },
+  {
+    "id": 71,
+    "actual": {
+      "pubDatesChanged": true
+    }
+  },
+  {
+    "id": 72,
+    "actual": "/library-audio/audit-remote-only/chapter.m4a"
+  },
+  {
+    "id": 74,
+    "actual": "Cannot read properties of undefined (reading 'map')"
+  }
+]

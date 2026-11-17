@@ -1,0 +1,203 @@
+[
+  {
+    "id": 58,
+    "actual": "yes",
+    "errors": []
+  },
+  {
+    "id": 79,
+    "actual": {
+      "checked": 2,
+      "downloadVisible": true,
+      "serverSelected": 3
+    },
+    "errors": []
+  },
+  {
+    "id": 80,
+    "actual": {
+      "fingerprints": [
+        "old",
+        "old",
+        "old"
+      ],
+      "action": "Download M4B\nAdd to podcast app\n\n<1 min · M4B with chapters, plays in Apple Books · Get MP3 instead"
+    },
+    "errors": []
+  },
+  {
+    "id": 81,
+    "actual": "Recreate with this voice — free\n\n3 chapters · about <1 min of audio · 90 words",
+    "errors": []
+  },
+  {
+    "id": 82,
+    "actual": {
+      "url": "http://127.0.0.1:4874/#/book/dddddddddddddddd",
+      "title": "Audit One"
+    },
+    "errors": []
+  },
+  {
+    "id": 83,
+    "actual": {
+      "requests": 2,
+      "body": "Your books\n\nTemporary outage"
+    },
+    "errors": []
+  },
+  {
+    "id": 84,
+    "actual": {
+      "errors": [
+        "el?.matches is not a function",
+        "Temporary outage"
+      ],
+      "visibleError": false
+    },
+    "errors": [
+      "el?.matches is not a function",
+      "Temporary outage"
+    ]
+  },
+  {
+    "id": 85,
+    "actual": {
+      "errors": [
+        "Cancel failed"
+      ],
+      "errorShown": false
+    },
+    "errors": [
+      "Cancel failed"
+    ]
+  },
+  {
+    "id": 86,
+    "actual": {
+      "src": "http://127.0.0.1:4874/api/books/cccccccccccccccc/audio/1.m4a?v=af_heart-13125",
+      "time": 10.615785
+    },
+    "errors": [
+      "The play() request was interrupted by a new load request. https://goo.gl/LdLk22"
+    ]
+  },
+  {
+    "id": 87,
+    "actual": {
+      "errors": [
+        "Failed to load because no supported source was found."
+      ],
+      "visibleError": false
+    },
+    "errors": [
+      "Failed to load because no supported source was found."
+    ]
+  },
+  {
+    "id": 88,
+    "actual": {
+      "errors": [
+        "Failed to set the 'currentTime' property on 'HTMLMediaElement': The provided double value is non-finite."
+      ]
+    },
+    "errors": [
+      "Failed to set the 'currentTime' property on 'HTMLMediaElement': The provided double value is non-finite."
+    ]
+  },
+  {
+    "id": 89,
+    "actual": {
+      "src": "/api/books/cccccccccccccccc/audio/1.m4a?v=af_heart-13125"
+    },
+    "errors": [
+      "The play() request was interrupted by a new load request. https://goo.gl/LdLk22"
+    ]
+  },
+  {
+    "id": 90,
+    "actual": "{\"index\":2,\"time\":15.2}",
+    "errors": []
+  },
+  {
+    "id": 91,
+    "actual": {
+      "errorVisible": false
+    },
+    "errors": []
+  },
+  {
+    "id": 92,
+    "actual": {
+      "paused": false
+    },
+    "errors": []
+  },
+  {
+    "id": 93,
+    "actual": "true",
+    "errors": []
+  },
+  {
+    "id": 94,
+    "actual": {
+      "parentPaused": false,
+      "parentTitle": "A Christmas Carol\n· 1 / 3",
+      "childPlaying": true
+    },
+    "errors": []
+  },
+  {
+    "id": 95,
+    "actual": {
+      "parentPlaying": true,
+      "childPlaying": 1
+    },
+    "errors": [
+      "el?.matches is not a function"
+    ]
+  },
+  {
+    "id": 96,
+    "actual": {
+      "top": "http://127.0.0.1:4874/",
+      "child": "http://127.0.0.1:4874/#/book/cccccccccccccccc"
+    },
+    "errors": [
+      "el?.matches is not a function"
+    ]
+  },
+  {
+    "id": 97,
+    "probeError": "locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-sample-book]').locator('[data-src]').last()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" data-src=\"/library-audio/a-christmas-carol/chapters/003.m4a\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    9 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n",
+    "errors": [
+      "el?.matches is not a function"
+    ]
+  },
+  {
+    "id": 98,
+    "actual": {
+      "requests": 1
+    },
+    "errors": [
+      "el?.matches is not a function"
+    ]
+  },
+  {
+    "id": 99,
+    "actual": {
+      "label": "Play Chapter 1",
+      "playing": true
+    },
+    "errors": []
+  },
+  {
+    "id": 100,
+    "actual": {
+      "before": "14",
+      "after": "14",
+      "audio": 7
+    },
+    "errors": []
+  }
+]

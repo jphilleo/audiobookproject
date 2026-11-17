@@ -1,0 +1,2203 @@
+{
+  "date": "2026-11-16",
+  "auditedCommit": "b27fb18",
+  "scope": "Local code and isolated synthetic fixtures; no full-book listening or production load/security testing. Findings include defects and explicit risk/quality gaps. Existing published recordings were not regenerated.",
+  "summary": {
+    "Reproduced locally": 61,
+    "Code review; not runtime-reproduced": 39
+  },
+  "findings": [
+    {
+      "id": 1,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Semantic footnotes become exponents",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "An epub:type=noteref superscript 2 becomes \u201csquared\u201d before note removal.",
+      "fix": "Remove semantic note markers before interpreting mathematical superscripts.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 411
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 1,
+          "input": "<p>Word<sup epub:type=\"noteref\">2</sup>.</p>",
+          "actual": {
+            "text": "Word squared .",
+            "heading": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Literal bracketed numbers are deleted",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "values[1] becomes values; a general footnote regex removes meaningful notation.",
+      "fix": "Remove references using markup and preserve ambiguous literal brackets.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 411
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 2,
+          "input": "<p>The array element is values[1].</p>",
+          "actual": {
+            "text": "The array element is values.",
+            "heading": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Ruby annotations are read twice",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Base text and ruby pronunciation concatenate into one spoken string.",
+      "fix": "Choose the pronunciation or base text explicitly; do not concatenate both.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 411
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 3,
+          "input": "<p><ruby>\u6771\u4eac<rt>\u3068\u3046\u304d\u3087\u3046</rt></ruby></p>",
+          "actual": {
+            "text": "\u6771\u4eac\u3068\u3046\u304d\u3087\u3046",
+            "heading": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Hidden draft text enters narration",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A paragraph with the hidden attribute is retained.",
+      "fix": "Respect hidden content and define a conservative CSS visibility policy.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 411
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 4,
+          "input": "<p hidden>Hidden draft.</p><p>Published text.</p>",
+          "actual": {
+            "text": "Hidden draft.\n\nPublished text.",
+            "heading": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Tracked deletions and insertions are both read",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "del and ins produce Old version.New version.",
+      "fix": "Choose a documented revision policy and keep sentence boundaries.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 411
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 5,
+          "input": "<p><del>Old version.</del><ins>New version.</ins></p>",
+          "actual": {
+            "text": "Old version.New version.",
+            "heading": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Meaningful image alternative text disappears",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "The sign read an image with alt KEEP OUT becomes The sign read .",
+      "fix": "Preserve meaningful alt text while excluding decorative images.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 411
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 6,
+          "input": "<p>The sign read <img alt=\"KEEP OUT\"/>.</p>",
+          "actual": {
+            "text": "The sign read .",
+            "heading": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Nonlinear spine entries join the story",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A linear=no answer key is appended to the selected chapter.",
+      "fix": "Keep supplemental spine material separately selectable.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 73
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 7,
+          "input": "spine linear=no is supplemental",
+          "actual": {
+            "cover": false,
+            "sections": [
+              {
+                "title": "Chapter One",
+                "text": "Main story.\n\nSupplemental answer key.",
+                "selected": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Missing required EPUB files are silently skipped",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A missing second spine file produces a successful partial book.",
+      "fix": "Fail with the missing section identified, or require explicit partial conversion.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 73
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 8,
+          "input": "second required spine file missing",
+          "actual": {
+            "cover": false,
+            "sections": [
+              {
+                "title": "Chapter One",
+                "text": "Main story.",
+                "selected": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Encoded cover filenames fail to resolve",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "cover%20image.png does not find cover image.png in the archive.",
+      "fix": "Apply the same URI decoding to every EPUB resource lookup.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 248
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 9,
+          "input": "cover href is cover%20image.png",
+          "actual": {
+            "cover": false,
+            "sections": [
+              {
+                "title": "Chapter One",
+                "text": "Main story.",
+                "selected": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Encoded navigation filenames lose chapter names",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "nav%20page.xhtml is ignored despite the file existing with a space.",
+      "fix": "Decode the navigation resource path before ZIP lookup.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 203
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 10,
+          "input": "nav href is nav%20page.xhtml",
+          "actual": {
+            "cover": false,
+            "sections": [
+              {
+                "title": "Section 1",
+                "text": "Story.",
+                "selected": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Fragment-only navigation links lose section boundaries",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Links #one and #two in the navigation/spine document collapse into one section.",
+      "fix": "Resolve an empty path to the current document, not its directory.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 203
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 11,
+          "input": "fragment-only links in nav/spine file",
+          "actual": {
+            "cover": false,
+            "sections": [
+              {
+                "title": "Section 1",
+                "text": "First.\n\nSecond.",
+                "selected": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Invalid Roman headings are interpreted as numbers",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "IIX becomes Chapter 10; CIVIL becomes Chapter 153.",
+      "fix": "Validate Roman numeral grammar and require heading context before conversion.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 286
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 12,
+          "input": "invalid Roman numerals in title",
+          "actual": {
+            "IIX": "Chapter 10",
+            "CIVIL": "Chapter 153",
+            "Chapter IC": "Chapter 99"
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Title cleanup discards meaningful prefixes",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Thoughts on Chapter IV becomes Chapter 4.",
+      "fix": "Anchor chapter-title recognition and preserve surrounding words.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 286
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 13,
+          "input": "meaningful prefix before Chapter IV",
+          "actual": "Chapter 4"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Short multi-chapter documents stay one chapter",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Three short h1 chapter sections without a TOC remain one section.",
+      "fix": "Recognize consistent chapter headings independently of the 12,000-word threshold.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 27
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 14,
+          "input": "three short chapters with headings but no TOC",
+          "actual": {
+            "cover": false,
+            "sections": [
+              {
+                "title": "Chapter 1",
+                "text": "One.\n\nChapter 2\n\nTwo.\n\nChapter 3\n\nThree.",
+                "selected": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Two inline TOC anchors assign text to the last chapter",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "First and Second inside one paragraph are both assigned to entry Two.",
+      "fix": "Split at anchor positions, including within a text block.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 343
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 15,
+          "input": "two TOC anchors in one paragraph",
+          "actual": [
+            {
+              "entry": "Two",
+              "text": [
+                "First.Second."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "category": "Extraction",
+      "priority": "Low",
+      "title": "Poetry line breaks lose their pacing",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "br-separated lines become a single space-separated sentence.",
+      "fix": "Preserve verse line boundaries and apply a separate pause policy; listening evaluation remains needed.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 411
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 16,
+          "input": "<p>First line<br/>Second line<br/>Third line</p>",
+          "actual": {
+            "text": "First line Second line Third line",
+            "heading": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Short selectable PDFs are mislabeled as scans",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A three-word text PDF is rejected as having no selectable text.",
+      "fix": "Separate empty extraction from a short but valid document.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 10
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 17,
+          "input": "selectable 3-word PDF",
+          "actual": "This PDF has no selectable text (it's probably a scan), so it can't be read aloud."
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Mixed text/scanned PDFs omit pages without warning",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "A three-page text/empty/text fixture succeeds with no extraction warning.",
+      "fix": "Report pages with no extracted text and request OCR/review when appropriate; blank pages alone are not errors.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 10
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 18,
+          "input": "three-page PDF, middle page has no selectable text",
+          "actual": {
+            "sections": 1,
+            "warnings": null,
+            "words": 160
+          }
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "PDF language metadata is ignored",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A PDF whose catalog Lang is fr returns language en.",
+      "fix": "Read document language and avoid falsely labeling unsupported languages English.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 10
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 19,
+          "input": "PDF catalog Lang=fr",
+          "actual": "en"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "PDF cleanup is skipped on parser errors",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "task.destroy runs only on the success path; short-document and page errors bypass it.",
+      "fix": "Destroy the loading task in finally. Resource exhaustion has not been load-tested.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 10
+      },
+      "observations": []
+    },
+    {
+      "id": 21,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Multi-column PDFs interleave unrelated sentences",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Row-ordered items produce Left one Right one, then Left two Right two.",
+      "fix": "Group columns/reading regions before joining text, and flag ambiguous layouts.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 53
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 21,
+          "input": "two columns supplied row-by-row",
+          "actual": [
+            {
+              "text": "Left one Right one",
+              "x": 50,
+              "y": 700,
+              "h": 12,
+              "endX": 390,
+              "para": false,
+              "margin": false
+            },
+            {
+              "text": "Left two Right two",
+              "x": 50,
+              "y": 680,
+              "h": 12,
+              "endX": 390,
+              "para": false,
+              "margin": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "Nested PDF chapters disappear under multiple parts",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Two outline parts with child chapters return only the two part entries.",
+      "fix": "Traverse the outline and choose the appropriate chapter level.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 105
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 22,
+          "input": "two outline parts each containing two chapters",
+          "actual": [
+            {
+              "page": 0,
+              "line": 0,
+              "title": "Part A",
+              "skipHeading": true
+            },
+            {
+              "page": 3,
+              "line": 0,
+              "title": "Part B",
+              "skipHeading": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "category": "Extraction",
+      "priority": "Medium",
+      "title": "FitR bookmark coordinates are ignored",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Distinct FitR rectangles on the same page are rejected as the same position.",
+      "fix": "Read FitR top coordinates and account for destination geometry.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 105
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 23,
+          "actual": "This PDF has multiple bookmarks at the same position. Use an EPUB or a PDF with distinct chapter destinations so no section is silently skipped."
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "PDF margin detection ignores page-origin offsets",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "On a view starting at y=100, body text at y=790 is marked as margin.",
+      "fix": "Normalize coordinates against the view origin before margin classification.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 53
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 24,
+          "input": "page view lower-left is y=100, header y=850",
+          "actual": [
+            {
+              "text": "Body at 790",
+              "x": 50,
+              "y": 790,
+              "h": 12,
+              "endX": 90,
+              "para": false,
+              "margin": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "category": "Extraction",
+      "priority": "High",
+      "title": "Digit-only title differences trigger title-page exclusion",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A short Book 2 section in Book 1 is unselected because title comparison drops digits.",
+      "fix": "Preserve numerals in title-page matching and require stronger front-matter evidence.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 144
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 25,
+          "input": "short narrative chapter title differs from book only by number",
+          "actual": [
+            {
+              "title": "Book 2",
+              "text": "This story continues.",
+              "words": 3,
+              "index": 0,
+              "selected": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Character limits still permit model token truncation",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "329 characters of repeated numbers yield 1,505 tokens, but the model receives 512.",
+      "fix": "Chunk after phonemization/tokenization with an explicit no-truncation assertion.",
+      "source": {
+        "file": "src/tts.js",
+        "line": 55
+      },
+      "observations": [
+        {
+          "file": "audit100-token-limit.json",
+          "id": 26,
+          "sourceCharacters": 329,
+          "chunks": 1,
+          "results": [
+            {
+              "phonemes": 1503,
+              "untruncatedTokens": 1505,
+              "modelTokens": 512
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "category": "Audio generation",
+      "priority": "Medium",
+      "title": "Hard splits can break Unicode characters",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A supplementary character across the 380-code-unit boundary becomes two lone surrogates.",
+      "fix": "Split on Unicode code-point or grapheme boundaries.",
+      "source": {
+        "file": "src/tts.js",
+        "line": 55
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 27,
+          "input": "supplementary letter straddles 380-code-unit boundary",
+          "actual": [
+            {
+              "text": "aaaa\ud801",
+              "wellFormed": false
+            },
+            {
+              "text": "\udc00b",
+              "wellFormed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "category": "Audio generation",
+      "priority": "Medium",
+      "title": "Invalid waveform samples are silently converted",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "NaN becomes zero; infinities saturate. No invalid-sample error is raised.",
+      "fix": "Reject or explicitly repair non-finite audio with diagnostics before encoding.",
+      "source": {
+        "file": "src/audio.js",
+        "line": 7
+      },
+      "observations": [
+        {
+          "file": "audit100-extraction.json",
+          "id": 28,
+          "input": "NaN and infinities in generated waveform",
+          "actual": [
+            0,
+            0,
+            255,
+            127,
+            0,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Worker exits can strand pending requests",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The client handles worker error and message but not exit.",
+      "fix": "Reject outstanding calls on every worker exit and recreate a healthy worker.",
+      "source": {
+        "file": "src/tts.js",
+        "line": 13
+      },
+      "observations": []
+    },
+    {
+      "id": 30,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Inference has no deadline or recovery path",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Pending worker calls have no timeout; a stalled generation can hold the single queue.",
+      "fix": "Add bounded inference deadlines, cancellation, and worker restart.",
+      "source": {
+        "file": "src/tts.js",
+        "line": 13
+      },
+      "observations": []
+    },
+    {
+      "id": 31,
+      "category": "Audio generation",
+      "priority": "Medium",
+      "title": "A failed first voice lookup stays failed",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "voicesPromise permanently caches a rejected promise.",
+      "fix": "Clear the cached promise on rejection and permit retry.",
+      "source": {
+        "file": "src/tts.js",
+        "line": 39
+      },
+      "observations": []
+    },
+    {
+      "id": 32,
+      "category": "Audio generation",
+      "priority": "Medium",
+      "title": "Model calls can overlap without an admission limit",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The async worker message listener can run multiple generate calls concurrently.",
+      "fix": "Serialize or explicitly bound inference concurrency; overload has not been stress-tested.",
+      "source": {
+        "file": "src/tts-worker.js",
+        "line": 9
+      },
+      "observations": []
+    },
+    {
+      "id": 33,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Empty synthesized audio can be accepted as a chapter",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "No output-length validation occurs before silence is appended and the chapter becomes done.",
+      "fix": "Validate nonempty finite audio per chunk and flag implausible durations.",
+      "source": {
+        "file": "src/tts-worker.js",
+        "line": 9
+      },
+      "observations": []
+    },
+    {
+      "id": 34,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Encoder subprocesses have no timeout",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The ffmpeg promise waits indefinitely for close.",
+      "fix": "Apply timeouts, terminate child processes, and expose retryable errors.",
+      "source": {
+        "file": "src/audio.js",
+        "line": 35
+      },
+      "observations": []
+    },
+    {
+      "id": 35,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Library narration buffers a whole chapter twice",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The CLI retains every PCM chunk, then Buffer.concat allocates the full chapter again.",
+      "fix": "Stream PCM to disk with backpressure and a memory budget.",
+      "source": {
+        "file": "scripts/narrate-library.js",
+        "line": 93
+      },
+      "observations": []
+    },
+    {
+      "id": 36,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Converter regeneration writes over the served chapter",
+      "classification": "Defect",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "encodeChapter writes the final M4A path directly while the audio route serves any existing file.",
+      "fix": "Encode to a temporary file and atomically replace only after validation.",
+      "source": {
+        "file": "src/audio.js",
+        "line": 45
+      },
+      "observations": []
+    },
+    {
+      "id": 37,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Concurrent exports share temporary and output filenames",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "M4B/MP3 builders use the same concat.txt and chapters.ffmeta in a book directory.",
+      "fix": "Use a per-book export lock, immutable inputs, and unique temporary files.",
+      "source": {
+        "file": "src/audio.js",
+        "line": 53
+      },
+      "observations": []
+    },
+    {
+      "id": 38,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "WebP covers break M4B downloads",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Actual buildAudiobook fails because WebP cannot be stream-copied into the MP4 container.",
+      "fix": "Transcode supported cover inputs to a compatible still format before muxing.",
+      "source": {
+        "file": "src/audio.js",
+        "line": 53
+      },
+      "observations": [
+        {
+          "file": "audit100-cover.json",
+          "id": 38,
+          "error": "ffmpeg failed: [mp4 @ 0x13e61eac0] Could not find tag for codec webp in stream #1, codec not currently supported in container\n[out#0/mp4 @ 0x13e61e9f0] Could not write header (incorrect codec parameters ?): Invalid argument\n[vost#0:1/copy @ 0x13e61d880] Error initializing output stream:"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "Whole-book export accepts an incomplete selection",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "An export succeeds with three selected chapters but only two done.",
+      "fix": "Distinguish partial exports explicitly or require all selected chapters to be ready.",
+      "source": {
+        "file": "src/library.js",
+        "line": 254
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 39,
+          "actual": {
+            "selected": 3,
+            "done": 2,
+            "export": "/Users/joephilleo/Documents/Codex/2026-11-15/audiobook-project-launch/outputs/audit100-runtime/books/dddddddddddddddd/audiobook.m4b"
+          }
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "category": "Audio generation",
+      "priority": "High",
+      "title": "PCM stream failures lack an error handler",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The write stream has no error listener; write/drain/end promises only resolve.",
+      "fix": "Handle stream errors and reject the job without crashing or hanging the server.",
+      "source": {
+        "file": "src/library.js",
+        "line": 211
+      },
+      "observations": []
+    },
+    {
+      "id": 41,
+      "category": "Storage and jobs",
+      "priority": "High",
+      "title": "Book metadata writes are non-atomic",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "book.json is overwritten directly; a partial write is silently skipped during load.",
+      "fix": "Write a temporary snapshot and rename atomically; surface corrupt-book recovery.",
+      "source": {
+        "file": "src/library.js",
+        "line": 47
+      },
+      "observations": []
+    },
+    {
+      "id": 42,
+      "category": "Storage and jobs",
+      "priority": "High",
+      "title": "Done status does not verify that audio exists",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A chapter remains done after its audio file disappears; reload trusts metadata.",
+      "fix": "Reconcile completed status with valid assets during load and before download.",
+      "source": {
+        "file": "src/library.js",
+        "line": 49
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 42,
+          "actual": {
+            "status": "done",
+            "fileExists": false
+          }
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "category": "Storage and jobs",
+      "priority": "High",
+      "title": "Restart abandons queued work",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "loadLibrary converts every non-done status to idle and reconstructs no queue.",
+      "fix": "Persist jobs and restore safe pending work after restart.",
+      "source": {
+        "file": "src/library.js",
+        "line": 49
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 43,
+          "actual": [
+            "done",
+            "idle",
+            "idle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Late cancellation can still finish the chapter",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Cancellation is checked before each chunk, not after the last inference or before publishing the encoded file.",
+      "fix": "Check cancellation before encoding and before committing output.",
+      "source": {
+        "file": "src/library.js",
+        "line": 211
+      },
+      "observations": []
+    },
+    {
+      "id": 45,
+      "category": "Storage and jobs",
+      "priority": "High",
+      "title": "Deleting a working book races with the queue",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "deleteBook removes the directory immediately; runQueue later saves outside its chapter catch, and its promise is not awaited.",
+      "fix": "Wait for cancellation to settle or tombstone the book and guard all final writes.",
+      "source": {
+        "file": "src/library.js",
+        "line": 278
+      },
+      "observations": []
+    },
+    {
+      "id": 46,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Concurrent starts can exceed the active-book limit",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The count is checked before asynchronous fingerprint reads; other books can reserve work during that gap.",
+      "fix": "Reserve capacity atomically and recheck after asynchronous preparation.",
+      "source": {
+        "file": "src/library.js",
+        "line": 145
+      },
+      "observations": []
+    },
+    {
+      "id": 47,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Invalid chapter indexes are accepted",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Indexes 999 and 1.5 succeed and leave every real chapter unselected.",
+      "fix": "Validate unique integer indexes against the book before changing any state.",
+      "source": {
+        "file": "src/library.js",
+        "line": 145
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 47,
+          "actual": {
+            "selected": 0,
+            "status": "resolved successfully"
+          }
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Narration speed is not bounded or validated",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A speed of -2 is accepted into book settings; the route only coerces Number(speed).",
+      "fix": "Reject non-finite and out-of-range speeds before queueing.",
+      "source": {
+        "file": "src/library.js",
+        "line": 145
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 48,
+          "actual": {
+            "acceptedSpeed": -2
+          }
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Unknown voices are accepted into jobs",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A nonexistent voice is accepted into book settings without membership validation.",
+      "fix": "Validate the voice against available model voices before changing settings.",
+      "source": {
+        "file": "src/library.js",
+        "line": 145
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 49,
+          "actual": {
+            "acceptedVoice": "nonexistent-voice"
+          }
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Disk-space checks fail open",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Unexpected statfs errors are swallowed by checkSpace.",
+      "fix": "Treat an unavailable capacity check as a retryable operational failure.",
+      "source": {
+        "file": "src/library.js",
+        "line": 33
+      },
+      "observations": []
+    },
+    {
+      "id": 51,
+      "category": "Storage and jobs",
+      "priority": "High",
+      "title": "Accepted jobs can consume the remaining disk",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Space is checked before work, with no reservation or checks while PCM/export files grow.",
+      "fix": "Reserve estimated storage and monitor capacity during generation and export.",
+      "source": {
+        "file": "src/library.js",
+        "line": 33
+      },
+      "observations": []
+    },
+    {
+      "id": 52,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Failed or cancelled generation leaves PCM files",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "PCM deletion happens only after successful encoding.",
+      "fix": "Remove temporary audio in finally, with a deliberate checkpoint policy.",
+      "source": {
+        "file": "src/library.js",
+        "line": 211
+      },
+      "observations": []
+    },
+    {
+      "id": 53,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Partial upload writes can leave untracked directories",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Directories and text files are written before registration; failure can leave paths outside the books map and normal cleanup.",
+      "fix": "Roll back failed uploads and periodically reconcile orphan directories.",
+      "source": {
+        "file": "src/library.js",
+        "line": 68
+      },
+      "observations": []
+    },
+    {
+      "id": 54,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Completed chunks cannot be resumed after interruption",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Only chapter-level completion is persisted; partially generated chunks have no checkpoint.",
+      "fix": "Checkpoint verified chunks with source/settings fingerprints.",
+      "source": {
+        "file": "src/library.js",
+        "line": 211
+      },
+      "observations": []
+    },
+    {
+      "id": 55,
+      "category": "Storage and jobs",
+      "priority": "High",
+      "title": "Missing cached exports are not rebuilt",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A matching built key returns audiobook.m4b even when that file does not exist.",
+      "fix": "Check asset existence/integrity before trusting the cached export key.",
+      "source": {
+        "file": "src/library.js",
+        "line": 254
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 55,
+          "actual": {
+            "path": "/Users/joephilleo/Documents/Codex/2026-11-15/audiobook-project-launch/outputs/audit100-runtime/books/eeeeeeeeeeeeeeee/audiobook.m4b",
+            "exists": false
+          }
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Cancelled regeneration can leave old audio reachable",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Old M4A remains while metadata moves to idle/error; the audio route checks only file existence.",
+      "fix": "Keep published and working revisions separate and serve the declared revision.",
+      "source": {
+        "file": "src/library.js",
+        "line": 211
+      },
+      "observations": []
+    },
+    {
+      "id": 57,
+      "category": "Storage and jobs",
+      "priority": "Medium",
+      "title": "Private metadata and text lack explicit no-store headers",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Owner-protected book/text routes send responses without the policy used by voice recommendations.",
+      "fix": "Set private, no-store consistently. Shared-cache exposure was not demonstrated.",
+      "source": {
+        "file": "server.js",
+        "line": 78
+      },
+      "observations": []
+    },
+    {
+      "id": 58,
+      "category": "Storage and jobs",
+      "priority": "High",
+      "title": "Uploaded SVG covers execute same-origin script",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Directly opening the fixture cover runs its onload script; the route serves raw uploaded SVG.",
+      "fix": "Sanitize or rasterize SVG, or isolate it on a separate origin with restrictive response policy.",
+      "source": {
+        "file": "server.js",
+        "line": 138
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 58,
+          "actual": "yes",
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "category": "Resource handling",
+      "priority": "High",
+      "title": "EPUB decompression has no expanded-size budget",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The 50MB upload limit does not cap ZIP expansion, entry count, or total extracted text.",
+      "fix": "Enforce decompressed-byte, entry, and text budgets before full extraction.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 33
+      },
+      "observations": []
+    },
+    {
+      "id": 60,
+      "category": "Resource handling",
+      "priority": "High",
+      "title": "PDF processing has no page/work budget",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "parsePdf reads every page with no document-level deadline or page cap.",
+      "fix": "Bound document complexity and move expensive extraction into cancellable workers.",
+      "source": {
+        "file": "src/pdf.js",
+        "line": 10
+      },
+      "observations": []
+    },
+    {
+      "id": 61,
+      "category": "Resource handling",
+      "priority": "High",
+      "title": "Concurrent uploads have no aggregate memory limit",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Multer memoryStorage buffers each request; only per-file size is limited.",
+      "fix": "Stream uploads and enforce concurrent request/global byte admission limits.",
+      "source": {
+        "file": "server.js",
+        "line": 76
+      },
+      "observations": []
+    },
+    {
+      "id": 62,
+      "category": "Resource handling",
+      "priority": "Medium",
+      "title": "EPUB parsing performs large synchronous work on the server thread",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "XML/HTML parsing occurs in the request process after archive reads.",
+      "fix": "Move parsing to a bounded worker pool and measure event-loop delay on large fixtures.",
+      "source": {
+        "file": "src/epub.js",
+        "line": 33
+      },
+      "observations": []
+    },
+    {
+      "id": 63,
+      "category": "Resource handling",
+      "priority": "High",
+      "title": "Voice-preview audio cache grows without a bound",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Each distinct voice/text pair stores a WAV buffer forever in a Map.",
+      "fix": "Use a byte-bounded LRU with expiry.",
+      "source": {
+        "file": "server.js",
+        "line": 95
+      },
+      "observations": []
+    },
+    {
+      "id": 64,
+      "category": "Resource handling",
+      "priority": "Medium",
+      "title": "Identical simultaneous previews duplicate inference",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The cache entry is added after await synthesize, with no shared pending promise.",
+      "fix": "Deduplicate in-flight preview requests and clear failures for retry.",
+      "source": {
+        "file": "server.js",
+        "line": 95
+      },
+      "observations": []
+    },
+    {
+      "id": 65,
+      "category": "Resource handling",
+      "priority": "High",
+      "title": "Preview requests bypass narration admission limits",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The preview endpoint invokes synthesis without the job-owner limit or a rate limiter.",
+      "fix": "Apply per-owner/global inference admission and fair scheduling to previews too.",
+      "source": {
+        "file": "server.js",
+        "line": 95
+      },
+      "observations": []
+    },
+    {
+      "id": 66,
+      "category": "Resource handling",
+      "priority": "High",
+      "title": "Startup model failure is not caught",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "loadTts().then has no rejection handler at server startup.",
+      "fix": "Handle load failure, report readiness accurately, and retry or exit deliberately.",
+      "source": {
+        "file": "server.js",
+        "line": 184
+      },
+      "observations": []
+    },
+    {
+      "id": 67,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "Private feeds include deselected chapters",
+      "classification": "Defect",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The feed filters done status only, rather than selected and done.",
+      "fix": "Define the feed selection contract and honor the saved selection.",
+      "source": {
+        "file": "server.js",
+        "line": 159
+      },
+      "observations": []
+    },
+    {
+      "id": 68,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "Private episode identity omits the audio revision",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "GUID uses book/index/voice but not speed or fingerprint; corrected audio reuses the same URL.",
+      "fix": "Define stable episode identity plus explicit revision/update behavior and versioned enclosure URLs.",
+      "source": {
+        "file": "server.js",
+        "line": 159
+      },
+      "observations": []
+    },
+    {
+      "id": 69,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "Public episode identities depend on list position",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Inserting a chapter changes the meaning of slug-number GUIDs.",
+      "fix": "Assign durable chapter IDs independent of array position.",
+      "source": {
+        "file": "src/library-pages.js",
+        "line": 190
+      },
+      "observations": []
+    },
+    {
+      "id": 70,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "Remote-only feed audio has no enclosure length",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "fileSize checks local disk only; the generated remote-only fixture omits length.",
+      "fix": "Persist byte counts in the manifest and use them for feeds; actual podcast-client failure is not claimed.",
+      "source": {
+        "file": "src/library-pages.js",
+        "line": 190
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 70,
+          "actual": "<enclosure url=\"https://example.test/library-audio/audit-remote-only/chapter.m4a\" type=\"audio/mp4\"/>"
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "category": "Feeds and publishing",
+      "priority": "Low",
+      "title": "Feed dates change if builtAt is absent",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "Two renders one second apart produce different pubDates.",
+      "fix": "Require a stable publication timestamp in validated manifests.",
+      "source": {
+        "file": "src/library-pages.js",
+        "line": 190
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 71,
+          "actual": {
+            "pubDatesChanged": true
+          }
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "R2 audio URLs do not use content revisions",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "Hash versioning applies only to explicit origin storage; R2 keys remain unchanged after replacement.",
+      "fix": "Publish immutable versioned R2 keys or a verified cache-purge/version strategy.",
+      "source": {
+        "file": "src/library-pages.js",
+        "line": 13
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 72,
+          "actual": "/library-audio/audit-remote-only/chapter.m4a"
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "Converter audio cache key omits the fingerprint",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The player URL uses voice and duration; a same-duration correction keeps the same URL.",
+      "fix": "Include the actual generation fingerprint in media URLs.",
+      "source": {
+        "file": "public/app.js",
+        "line": 510
+      },
+      "observations": []
+    },
+    {
+      "id": 74,
+      "category": "Feeds and publishing",
+      "priority": "High",
+      "title": "Malformed ready manifests reach page rendering",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "ready=true is accepted without a chapter/download schema; missing chapters throws in bookVars.",
+      "fix": "Validate manifests before publication and retain the last valid version.",
+      "source": {
+        "file": "src/catalog.js",
+        "line": 96
+      },
+      "observations": [
+        {
+          "file": "audit100-backend.json",
+          "id": 74,
+          "actual": "Cannot read properties of undefined (reading 'map')"
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "Non-atomic public manifest writes can temporarily unpublish a book",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The generator overwrites JSON while publishedBooks skips parse failures.",
+      "fix": "Publish manifest snapshots atomically and retain the previous valid manifest on read errors.",
+      "source": {
+        "file": "scripts/narrate-library.js",
+        "line": 78
+      },
+      "observations": []
+    },
+    {
+      "id": 76,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "First cover-thumbnail generation blocks requests",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "smallCover invokes spawnSync ffmpeg during page rendering.",
+      "fix": "Generate thumbnails in the publication pipeline or a background job.",
+      "source": {
+        "file": "src/catalog.js",
+        "line": 123
+      },
+      "observations": []
+    },
+    {
+      "id": 77,
+      "category": "Feeds and publishing",
+      "priority": "Medium",
+      "title": "Thumbnail failures are retried on every request",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "Missing or unsupported covers cause repeated synchronous conversion attempts without a failure cache.",
+      "fix": "Record failures/backoff and return a safe placeholder.",
+      "source": {
+        "file": "src/catalog.js",
+        "line": 123
+      },
+      "observations": []
+    },
+    {
+      "id": 78,
+      "category": "Feeds and publishing",
+      "priority": "Low",
+      "title": "Misspelled generation targets exit successfully",
+      "classification": "Defect",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "An unknown slug matches no books and the CLI exits zero without an error.",
+      "fix": "Reject unknown requested slugs and summarize selected work before starting.",
+      "source": {
+        "file": "scripts/narrate-library.js",
+        "line": 134
+      },
+      "observations": []
+    },
+    {
+      "id": 79,
+      "category": "Playback and UI",
+      "priority": "High",
+      "title": "Checkbox changes do not change the download selection",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Unchecking a chapter leaves two checked in the UI, three selected on the server, and Download still available.",
+      "fix": "Persist selection separately and build downloads from that saved selection.",
+      "source": {
+        "file": "public/app.js",
+        "line": 305
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 79,
+          "actual": {
+            "checked": 2,
+            "downloadVisible": true,
+            "serverSelected": 3
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "The converter offers old audio as current",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "A fixture with obsolete fingerprints still offers Download because UI freshness ignores fingerprints.",
+      "fix": "Expose a server-computed current/stale state and use it consistently.",
+      "source": {
+        "file": "public/app.js",
+        "line": 188
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 80,
+          "actual": {
+            "fingerprints": [
+              "old",
+              "old",
+              "old"
+            ],
+            "action": "Download M4B\nAdd to podcast app\n\n<1 min \u00b7 M4B with chapters, plays in Apple Books \u00b7 Get MP3 instead"
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Reopening a non-default-speed book suggests unnecessary recreation",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A speed-2 completed book renders Recreate because client speed stays at its initial value.",
+      "fix": "Restore saved book speed before evaluating completion.",
+      "source": {
+        "file": "public/app.js",
+        "line": 145
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 81,
+          "actual": "Recreate with this voice \u2014 free\n\n3 chapters \u00b7 about <1 min of audio \u00b7 90 words",
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "category": "Playback and UI",
+      "priority": "High",
+      "title": "Slow navigation can display the wrong uploaded book",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A delayed response for A overwrites B after the URL has changed to B.",
+      "fix": "Cancel stale requests or guard responses with a navigation token.",
+      "source": {
+        "file": "public/app.js",
+        "line": 145
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 82,
+          "actual": {
+            "url": "http://127.0.0.1:4874/#/book/dddddddddddddddd",
+            "title": "Audit One"
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "One failed poll permanently stops job updates",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "After one successful queued response and one 500, no more polls occur.",
+      "fix": "Retry transient failures with backoff and preserve the last known job state.",
+      "source": {
+        "file": "public/app.js",
+        "line": 175
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 83,
+          "actual": {
+            "requests": 2,
+            "body": "Your books\n\nTemporary outage"
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "A failed book-list load has no visible error",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A mocked /api/books 500 yields an unhandled rejection and no visible upload error.",
+      "fix": "Catch list-load failures and show a retry action.",
+      "source": {
+        "file": "public/app.js",
+        "line": 87
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 84,
+          "actual": {
+            "errors": [
+              "el?.matches is not a function",
+              "Temporary outage"
+            ],
+            "visibleError": false
+          },
+          "errors": [
+            "el?.matches is not a function",
+            "Temporary outage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Failed cancellation has no visible error",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A mocked cancel 500 yields an unhandled rejection without a book error.",
+      "fix": "Catch cancellation failures and leave an honest retryable state.",
+      "source": {
+        "file": "public/app.js",
+        "line": 483
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 85,
+          "actual": {
+            "errors": [
+              "Cancel failed"
+            ],
+            "errorShown": false
+          },
+          "errors": [
+            "Cancel failed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "category": "Playback and UI",
+      "priority": "High",
+      "title": "A stale metadata listener seeks the next chapter incorrectly",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Switching from delayed chapter A with a saved 10s position to B applies A's seek to B.",
+      "fix": "Bind seek restoration to the current source/load generation and remove obsolete listeners.",
+      "source": {
+        "file": "public/app.js",
+        "line": 501
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 86,
+          "actual": {
+            "src": "http://127.0.0.1:4874/api/books/cccccccccccccccc/audio/1.m4a?v=af_heart-13125",
+            "time": 10.615785
+          },
+          "errors": [
+            "The play() request was interrupted by a new load request. https://goo.gl/LdLk22"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Converter audio failure has no usable recovery message",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A chapter 404 rejects play but leaves the visible book-error region hidden.",
+      "fix": "Handle both media errors and play rejection, with retry and source diagnostics.",
+      "source": {
+        "file": "public/app.js",
+        "line": 501
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 87,
+          "actual": {
+            "errors": [
+              "Failed to load because no supported source was found."
+            ],
+            "visibleError": false
+          },
+          "errors": [
+            "Failed to load because no supported source was found."
+          ]
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Corrupt saved position throws a playback exception",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A saved time of bad is passed to currentTime as a non-finite value.",
+      "fix": "Validate and clamp persisted indexes/times, discarding invalid state.",
+      "source": {
+        "file": "public/app.js",
+        "line": 501
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 88,
+          "actual": {
+            "errors": [
+              "Failed to set the 'currentTime' property on 'HTMLMediaElement': The provided double value is non-finite."
+            ]
+          },
+          "errors": [
+            "Failed to set the 'currentTime' property on 'HTMLMediaElement': The provided double value is non-finite."
+          ]
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Autoplay ignores unchecked chapters",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "After chapter 1 ends, unchecked chapter 2 is selected because step filters only done.",
+      "fix": "Use the listener's selected playlist for previous/next and auto-advance.",
+      "source": {
+        "file": "public/app.js",
+        "line": 527
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 89,
+          "actual": {
+            "src": "/api/books/cccccccccccccccc/audio/1.m4a?v=af_heart-13125"
+          },
+          "errors": [
+            "The play() request was interrupted by a new load request. https://goo.gl/LdLk22"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "category": "Playback and UI",
+      "priority": "Low",
+      "title": "Completed converter books keep a resume position at the end",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "Ending the final chapter leaves the stored index and full duration.",
+      "fix": "Record completion separately and offer a clean restart.",
+      "source": {
+        "file": "public/app.js",
+        "line": 527
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 90,
+          "actual": "{\"index\":2,\"time\":15.2}",
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Late library media errors leave the error message hidden",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "Dispatching a media error after play does not reveal the playback-error region.",
+      "fix": "Listen for audio error/stalled events and restore usable controls.",
+      "source": {
+        "file": "public/library.js",
+        "line": 127
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 91,
+          "actual": {
+            "errorVisible": false
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Current chapter click cannot pause inside persistent navigation",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "An embedded chapter click delegates to parent play and leaves already-playing audio running.",
+      "fix": "Make the current chapter action toggle play/pause consistently.",
+      "source": {
+        "file": "public/persistent-player.js",
+        "line": 25
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 92,
+          "actual": {
+            "paused": false
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "category": "Playback and UI",
+      "priority": "Low",
+      "title": "Landing pages throw when the URL has no hash",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "openFromHash produces false then calls false.matches; Chrome reports el?.matches is not a function.",
+      "fix": "Use null for no target or guard that the target is an Element.",
+      "source": {
+        "file": "public/samples.js",
+        "line": 102
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 84,
+          "observed": "el?.matches is not a function; also reproduced in cases 95, 96, 98"
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "category": "Playback and UI",
+      "priority": "High",
+      "title": "An embedded book preview can play over the persistent audiobook",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "The fixture shows parentPaused=false and childPlaying=true after starting a preview.",
+      "fix": "Route previews through the shared player or explicitly arbitrate parent/child audio.",
+      "source": {
+        "file": "public/persistent-player.js",
+        "line": 81
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 94,
+          "actual": {
+            "parentPaused": false,
+            "parentTitle": "A Christmas Carol\n\u00b7 1 / 3",
+            "childPlaying": true
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Detached voice samples bypass persistent playback coordination",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "A new Audio voice sample plays while the parent audiobook continues; it never reaches the document play listener.",
+      "fix": "Use one explicit audio coordinator for detached samples and the persistent player.",
+      "source": {
+        "file": "public/persistent-player.js",
+        "line": 81
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 95,
+          "actual": {
+            "parentPlaying": true,
+            "childPlaying": 1
+          },
+          "errors": [
+            "el?.matches is not a function"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "Converter navigation inside the frame leaves the address bar stale",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "The iframe opens #/book/id while the top URL remains the homepage.",
+      "fix": "Synchronize route changes and browser history across the persistent shell.",
+      "source": {
+        "file": "public/persistent-player.js",
+        "line": 48
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 96,
+          "actual": {
+            "top": "http://127.0.0.1:4874/",
+            "child": "http://127.0.0.1:4874/#/book/cccccccccccccccc"
+          },
+          "errors": [
+            "el?.matches is not a function"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "category": "Playback and UI",
+      "priority": "Low",
+      "title": "Replaying a finished homepage sample starts at the last chapter",
+      "classification": "Risk / quality gap",
+      "verification": "Code review; not runtime-reproduced",
+      "evidence": "The replay path calls play on the retained last source and never resets its chapter index.",
+      "fix": "Define Replay book to reset to the first chapter after full completion.",
+      "source": {
+        "file": "public/samples.js",
+        "line": 75
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 97,
+          "probeError": "locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-sample-book]').locator('[data-src]').last()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" data-src=\"/library-audio/a-christmas-carol/chapters/003.m4a\">\u2026</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    9 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n",
+          "errors": [
+            "el?.matches is not a function"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "category": "Playback and UI",
+      "priority": "Low",
+      "title": "A transient sample-timing failure is cached for the page lifetime",
+      "classification": "Risk / quality gap",
+      "verification": "Reproduced locally",
+      "evidence": "A failed timings request is replaced by an empty object and never retried.",
+      "fix": "Retry transient failures and cache only successful timing data.",
+      "source": {
+        "file": "public/samples.js",
+        "line": 18
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 98,
+          "actual": {
+            "requests": 1
+          },
+          "errors": [
+            "el?.matches is not a function"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "category": "Playback and UI",
+      "priority": "Low",
+      "title": "Converter chapter buttons announce Play while playing",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "The playing chapter retains aria-label Play Chapter 1.",
+      "fix": "Update accessible labels with the actual toggle action.",
+      "source": {
+        "file": "public/app.js",
+        "line": 351
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 99,
+          "actual": {
+            "label": "Play Chapter 1",
+            "playing": true
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "category": "Playback and UI",
+      "priority": "Medium",
+      "title": "A cancelled seek gesture freezes progress updates",
+      "classification": "Defect",
+      "verification": "Reproduced locally",
+      "evidence": "pointerdown then pointercancel leaves seeking=true and the slider stops following audio.",
+      "fix": "Reset seeking on pointercancel, lost capture, and blur as well as pointerup.",
+      "source": {
+        "file": "public/app.js",
+        "line": 565
+      },
+      "observations": [
+        {
+          "file": "audit100-browser.json",
+          "id": 100,
+          "actual": {
+            "before": "14",
+            "after": "14",
+            "audio": 7
+          },
+          "errors": []
+        }
+      ]
+    }
+  ]
+}
