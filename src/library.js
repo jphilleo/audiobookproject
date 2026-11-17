@@ -1,4 +1,4 @@
-import { prepareNarration, chapterNarrationBody } from "./narration-text.js";
+import { narrationFingerprint, requireIdleNarration } from "./narration-version.js";
 // Book storage on disk and the single background worker that narrates chapters.
 import fs from "node:fs/promises";
 import { createWriteStream } from "node:fs";
@@ -6,7 +6,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { parseEpub } from "./epub.js";
 import { parsePdf } from "./pdf.js";
-import { chunkText, synthesize, SAMPLE_RATE } from "./tts.js";
+import { chunkText, chapterChunks, synthesize, SAMPLE_RATE } from "./tts.js";
 import { floatToPcm16, silence, encodeChapter, buildAudiobook } from "./audio.js";
 
 export const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(import.meta.dirname, "..", "data", "books"));
@@ -151,12 +151,20 @@ export async function startNarration(id, { voice, speed = 1, chapters }) {
     throw new Error(`You already have ${busy.length} books narrating. Wait for one to finish, or stop one, and then start this one.`);
   }
   const wanted = new Set(chapters);
+  const fingerprints = new Map(await Promise.all(book.chapters.filter(ch => wanted.has(ch.index)).map(async ch => {
+    const text = await fs.readFile(path.join(bookDir(id), "text", `${ch.index}.txt`), "utf8");
+    return [ch.index, narrationFingerprint({title: ch.title, text, voice, speed})];
+  })));
+  // No await between this guard and marking chapters queued: concurrent requests
+  // cannot alter settings after another request has reserved the book.
+  requireIdleNarration(book);
   book.voice = voice;
   book.speed = speed;
   for (const ch of book.chapters) {
     ch.selected = wanted.has(ch.index);
+    const fingerprint = fingerprints.get(ch.index);
     // Re-narrate if the voice changed; otherwise keep finished chapters.
-    if (ch.selected && (ch.status !== "done" || ch.voice !== voice || ch.speed !== speed) && ch.status !== "queued" && ch.status !== "working") {
+    if (ch.selected && (ch.status !== "done" || ch.voice !== voice || ch.speed !== speed || ch.fingerprint !== fingerprint) && ch.status !== "queued" && ch.status !== "working") {
       Object.assign(ch, { status: "queued", progress: 0 });
       queue.push({ bookId: id, index: ch.index });
     }
@@ -204,7 +212,9 @@ async function narrateChapter(book, ch) {
   const dir = bookDir(book.id);
   const text = await fs.readFile(path.join(dir, "text", `${ch.index}.txt`), "utf8");
   // The parser strips chapter headings from the text, so the title is always announced first.
-  const chunks = [{ text: prepareNarration(ch.title, { heading: true }), paragraphEnd: true }, ...chunkText(chapterNarrationBody(text, ch.title))];
+  const { voice, speed } = book;
+  const fingerprint = narrationFingerprint({title: ch.title, text, voice, speed});
+  const chunks = chapterChunks(ch.title, text);
 
   const pcmPath = path.join(dir, "audio", `${ch.index}.pcm`);
   const out = createWriteStream(pcmPath);
@@ -216,7 +226,7 @@ async function narrateChapter(book, ch) {
   try {
     for (let i = 0; i < chunks.length; i++) {
       if (book.cancelRequested) throw new Error("Cancelled");
-      const audio = await synthesize(chunks[i].text, book.voice, book.speed);
+      const audio = await synthesize(chunks[i].text, voice, speed);
       await write(floatToPcm16(audio));
       await write(silence(chunks[i].paragraphEnd ? 0.45 : 0.12));
       ch.progress = (i + 1) / chunks.length;
@@ -233,8 +243,9 @@ async function narrateChapter(book, ch) {
     status: "done",
     progress: 1,
     etaSeconds: 0,
-    voice: book.voice,
-    speed: book.speed,
+    voice,
+    speed,
+    fingerprint,
     durationMs: Math.round((bytes / 2 / SAMPLE_RATE) * 1000),
   });
 }
@@ -247,7 +258,7 @@ export async function audiobookPath(id, format = "m4b") {
   if (!done.length) throw new Error("No narrated chapters yet");
   const dir = bookDir(id);
   const outPath = path.join(dir, `audiobook.${format}`);
-  const key = done.map((c) => `${c.index}:${c.voice}:${c.durationMs}`).join(",");
+  const key = done.map((c) => `${c.index}:${c.fingerprint}:${c.voice}:${c.durationMs}`).join(",");
   book.built ??= {};
   if (book.built[format] !== key) {
     await buildAudiobook({

@@ -1,6 +1,6 @@
 # Twenty additional narration-pipeline findings
 
-2026-11-16. Read-only follow-up audit; these findings are not yet fixed.
+2026-11-16. Historical follow-up audit. All 20 findings are now addressed; see the resolution section below. Original observed outputs are retained as before-fix evidence.
 
 ## Evidence and scope
 
@@ -200,3 +200,13 @@ Reproduce with `node scripts/probe-narration-audit.mjs OUTPUT_JSON`. The script 
 4. Exercise representative EPUBs and PDFs end to end, then generate short listening comparisons. Replace full recordings only after checking content coverage and listening quality.
 
 The complete source corpus was not rescanned for these exact structural patterns; the previous 129-source scan did not establish their incidence. In particular, the prior letters/digits preservation check started after parsing and normalization, so it could not detect text already lost by these earlier stages.
+
+## Resolution
+
+All 20 have corresponding regression checks in `test/narration-audit-fixes.test.js`; run `npm test`. Actual ZIP/XML/HTML EPUB and binary PDF integration tests are included. The conservative extraction rules preserve uncertain narrative content instead of silently deleting it. PDF destinations that overlap and cannot be disambiguated now produce an explicit error rather than dropping a section.
+
+The real synthesis smoke test verified that active jobs reject changes, unchanged chapter input is reused, changed source triggers regeneration, and M4B/MP3 files are produced. A separate public-library CLI smoke test verified both unchanged-input reuse and model-version invalidation; both formats fully decoded.
+
+The 129-source comparison selected 19 additional sections, including the endings of Tom Sawyer, Metamorphoses, and The Wonderful Wizard of Oz. No previously selected chapter titles were removed in that comparison. This is extraction coverage, not a listening-quality certification.
+
+Generation fingerprints cover source text/title, selection (library CLI), voice/speed, dtype, model-version setting, preparation/extraction/encoding code, and dependency lockfile. Legacy audio without a fingerprint is regenerated when explicitly requested. Existing public recordings are not automatically replaced by deploying these code changes.

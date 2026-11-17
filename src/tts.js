@@ -1,6 +1,6 @@
 // Free tier TTS: Kokoro-82M running locally via ONNX. No API keys, no per-book cost.
 // Inference runs in a worker thread (tts-worker.js); this module is the main-thread client.
-import { prepareNarration } from "./narration-text.js";
+import { prepareNarration, chapterNarrationBody } from "./narration-text.js";
 import { Worker } from "node:worker_threads";
 
 export const SAMPLE_RATE = 24000;
@@ -52,9 +52,9 @@ export const synthesize = (text, voice, speed = 1) => call({ type: "generate", t
 
 // Split a chapter into speakable chunks. Each chunk records whether it ends a paragraph
 // so we can insert a slightly longer pause there.
-export function chunkText(text) {
+export function chunkText(text, options = {}) {
   const chunks = [];
-  for (const para of prepareNarration(text).split(/\n{2,}/)) {
+  for (const para of prepareNarration(text, options).split(/\n{2,}/)) {
     // Sentence boundaries must preserve decimal points and punctuation inside words.
     const sentences = [];
     for (const { segment } of sentenceSegmenter.segment(para)) {
@@ -77,7 +77,8 @@ export function chunkText(text) {
       while (s.length > MAX_CHUNK_CHARS) {
         let cut = Math.max(s.lastIndexOf(", ", MAX_CHUNK_CHARS), s.lastIndexOf("; ", MAX_CHUNK_CHARS));
         if (cut < MAX_CHUNK_CHARS / 3) cut = s.lastIndexOf(" ", MAX_CHUNK_CHARS);
-        if (cut <= 0) cut = MAX_CHUNK_CHARS;
+        if (cut <= 0) cut = MAX_CHUNK_CHARS - 1;
+        if (cut === MAX_CHUNK_CHARS) cut--;
         flush();
         chunks.push({ text: s.slice(0, cut + 1).trim(), paragraphEnd: false });
         s = s.slice(cut + 1).trim();
@@ -89,4 +90,9 @@ export function chunkText(text) {
     if (chunks.length) chunks[chunks.length - 1].paragraphEnd = true;
   }
   return chunks.filter((c) => /[\p{L}\p{N}]/u.test(c.text));
+}
+
+// Titles use the same length and pause constraints as body text.
+export function chapterChunks(title, text) {
+  return [...chunkText(title, { heading: true }), ...chunkText(chapterNarrationBody(text, title))];
 }

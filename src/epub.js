@@ -144,10 +144,6 @@ function foldInnerParts(parts, fileEntry, chapterCount) {
 export function finalizeSections(sections, bookTitle) {
   const lettersOnly = (s) => s.toLowerCase().replace(/[^\p{L}]/gu, "");
   for (const s of sections) {
-    // Drop trailing all-caps printer's lines ("CHISWICK PRESS:—CHARLES WHITTINGHAM AND CO…"), keep short sign-offs like "R.W."
-    const paras = s.text.split("\n\n");
-    while (paras.length > 1 && !/\p{Ll}/u.test(paras.at(-1)) && countWords(paras.at(-1)) >= 4) paras.pop();
-    s.text = paras.join("\n\n");
     s.words = countWords(s.text);
   }
   sections = sections.filter((s) => s.words > 0);
@@ -177,7 +173,8 @@ export function finalizeSections(sections, bookTitle) {
   // of short pieces (a poetry collection) uses a lower bar.
   const median = [...sections].map((s) => s.words).sort((a, b) => a - b)[sections.length >> 1] || 0;
   const minWords = median < 400 ? 30 : 150;
-  const boiler = (s) => BOILERPLATE.test(s.title) || BOILERPLATE.test(s.text.slice(0, 400));
+  const boiler = (s) => /^(?:copyright(?: page)?|colophon|imprint|uncopyright|table of contents|contents|endnotes|footnotes|index|title ?page|cover(?: page)?|list of illustrations|about the author|acknowledgements?|acknowledgments?)[:.\s]*$/i.test(s.title)
+    || /^\s*\*{3}\s*(?:START|END) OF (?:THE|THIS) PROJECT GUTENBERG EBOOK/i.test(s.text);
   const titlePage = (s) => s.words < 150 && lettersOnly(s.title) === lettersOnly(bookTitle);
   const real = sections.map((s) => s.words >= 150 && !boiler(s) && !titlePage(s));
   const first = real.indexOf(true), last = real.lastIndexOf(true);
@@ -186,7 +183,7 @@ export function finalizeSections(sections, bookTitle) {
     s.title ||= `Section ${index + 1}`;
     // A short part opener ("Part the First" and its epigraph) is kept so you hear where the part starts.
     const opener = GROUP_TITLE.test(s.title) && index < last;
-    s.selected = !boiler(s) && !titlePage(s) && (s.words >= minWords || opener || (index > first && index < last));
+    s.selected = !boiler(s) && !titlePage(s) && (s.words >= minWords || /^(?:epilogue|afterword|prologue|chapter|stave|canto|scene|act|part|book)\b/i.test(s.title) || opener || (first >= 0 && index > first));
     delete s.rawTitle;
     delete s.parent;
   }
@@ -318,12 +315,17 @@ const SKIP_TYPE = /\b(noteref|pagebreak|footnote|endnote|rearnote)\b/;
 function prune(root) {
   for (const el of root.querySelectorAll("*")) {
     const tag = el.rawTagName?.toLowerCase();
-    if (tag === "script" || tag === "style" || tag === "figure" || tag === "figcaption" || tag === "sup" && /^\s*[\d*†‡§]+\s*$/.test(el.text)) { el.remove(); continue; }
-    // Tables full of links are tables of contents or lists of illustrations.
-    if (tag === "table" && el.querySelectorAll("a[href]").length >= 3) { el.remove(); continue; }
+    if (tag === "script" || tag === "style" || tag === "figcaption") { el.remove(); continue; }
+    // Only explicitly marked navigation is disposable; linked data tables are content.
+    if (/\b(?:toc|landmarks|page-list)\b/.test(el.getAttribute("epub:type") || "") || el.getAttribute("role") === "doc-toc") { el.remove(); continue; }
+    if (tag === "sup" && /^\d+$/.test(el.text.trim()) && !el.querySelector('a')) {
+      const n = el.text.trim();
+      el.replaceWith(n === "2" ? " squared " : n === "3" ? " cubed " : ` to the power of ${n} `);
+      continue;
+    }
     // Project Gutenberg's header, footer and license: never narrated, never a chapter.
     if (/^pg-(header|footer)$/.test(el.getAttribute("id") || "")) { el.remove(); continue; }
-    if (SKIP_CLASS.test(el.getAttribute("class") || "") || SKIP_TYPE.test(el.getAttribute("epub:type") || "") || el.getAttribute("role") === "figure" || el.getAttribute("role") === "doc-noteref") { el.remove(); continue; }
+    if (SKIP_CLASS.test(el.getAttribute("class") || "") || SKIP_TYPE.test(el.getAttribute("epub:type") || "") || el.getAttribute("role") === "doc-noteref") { el.remove(); continue; }
     // Decorative drop caps drawn as images: <img alt="M"> + "R. BENNET".
     if (tag === "img") {
       const alt = (el.getAttribute("alt") || "").trim();
@@ -365,13 +367,25 @@ export function splitDocument(html, anchors = new Map(), groups = { current: nul
     const tag = node.rawTagName?.toLowerCase();
     const isLeafBlock = BLOCK_TAGS.has(tag) && !node.querySelector(BLOCK_SEL);
     if (!isLeafBlock) {
-      for (const child of node.childNodes) walk(child);
+      // Keep direct text and inline runs between nested blocks, in source order.
+      let inline = "";
+      const flushInline = () => {
+        if (inline.trim()) walk(parseHtml(`<p>${inline}</p>`).firstChild);
+        inline = "";
+      };
+      for (const child of node.childNodes) {
+        const childTag = child.rawTagName?.toLowerCase();
+        if (child.nodeType === 1 && (BLOCK_TAGS.has(childTag) || child.querySelector(BLOCK_SEL))) {
+          flushInline(); walk(child);
+        } else inline += child.toString();
+      }
+      flushInline();
       return;
     }
     for (const d of node.querySelectorAll("[id]")) if (anchors.has(d.getAttribute("id"))) pending = d.getAttribute("id");
     let text = squash(node.text);
     // Skip empties and bare page numbers.
-    if (!text || /^[\divxlcdm]+\.?$/i.test(text)) return;
+    if (!text) return;
     if (pending) { startPart(pending); pending = null; }
     const part = parts[parts.length - 1];
     // The chapter's own heading becomes its title, not narrated body text.
@@ -387,11 +401,9 @@ export function splitDocument(html, anchors = new Map(), groups = { current: nul
     }
     // Footnote markers stuck to a word ("Pangloss[1]") would be read out as numbers.
     text = text.replace(/([^\s[])\[\d{1,3}\]/g, "$1");
-    // Small-caps chapter openings ("IT is a truth", "MR. BENNET was") would be spelled out.
-    if (!part.paragraphs.length) text = text.replace(/^(?:[“"']?[A-Z][A-Z’'.]+\s+)+/, (m) => m.toLowerCase().replace(/(^[“"']?|\s)\p{L}/gu, (c) => c.toUpperCase()));
     part.paragraphs.push(text);
   };
-  for (const child of body.childNodes) walk(child);
+  walk(body);
   return parts;
 }
 

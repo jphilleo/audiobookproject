@@ -1,4 +1,4 @@
-import { prepareNarration, chapterNarrationBody } from "../src/narration-text.js";
+import { narrationFingerprint } from "../src/narration-version.js";
 // Narrates the public-domain library (src/catalog.js) into LIBRARY_DIR/<slug>/:
 //   source.epub, cover.*, chapters/NNN.m4a, <slug>.m4b, <slug>.mp3, manifest.json
 // Resumable: finished chapters are kept, so it can be stopped and run again.
@@ -9,7 +9,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { CATALOG, LIBRARY_VOICE, bookDir, epubUrl } from "../src/catalog.js";
 import { parseEpub, countWords } from "../src/epub.js";
-import { synthesize, chunkText, listVoices, SAMPLE_RATE } from "../src/tts.js";
+import { synthesize, chapterChunks, listVoices, SAMPLE_RATE } from "../src/tts.js";
 import { recommendVoice } from "../src/voice-recommendation.js";
 import { floatToPcm16, silence, encodeChapter, buildAudiobook } from "../src/audio.js";
 
@@ -76,28 +76,34 @@ async function narrate(book, preview) {
   const manifest = { ready: false, voice, cover, words: chapters.reduce((n, c) => n + c.words, 0), chapters: [] };
   if (preview) manifest.preview = true;
   const save = () => fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
-  if (!old) await save();
+  await save();
   log(book.slug, `${chapters.length} chapters, ${manifest.words} words`);
 
   for (const [i, ch] of chapters.entries()) {
     const name = String(i + 1).padStart(3, "0");
     const file = path.join(dir, "chapters", `${name}.m4a`), pcmPath = path.join(dir, "chapters", `${name}.pcm`), lenPath = `${file}.ms`;
-    if (!(await exists(file)) || !(await exists(lenPath))) {
+    const fingerprint = narrationFingerprint({title: ch.title, text: ch.text, voice: voice.id,
+      selection: chapters.map(c => ({title:c.title,index:c.index}))});
+    const prior = old?.chapters?.[i];
+    const reusable = prior?.fingerprint === fingerprint && Number.isFinite(prior.durationMs) && prior.durationMs > 0
+      && await exists(file) && await exists(lenPath);
+    if (!reusable) {
       const started = Date.now();
       // The parser strips chapter headings from the text, so the title is announced first, as in the app.
       const parts = [];
-      for (const c of [{ text: prepareNarration(ch.title, { heading: true }), paragraphEnd: true }, ...chunkText(chapterNarrationBody(ch.text, ch.title))]) {
+      for (const c of chapterChunks(ch.title, ch.text)) {
         parts.push(floatToPcm16(await synthesize(c.text, voice.id)), silence(c.paragraphEnd ? 0.45 : 0.12));
       }
       const pcm = Buffer.concat(parts);
       await fs.writeFile(pcmPath, pcm);
-      await encodeChapter(pcmPath, file);
+      await encodeChapter(pcmPath, `${file}.new.m4a`);
+      await fs.rename(`${file}.new.m4a`, file);
       await fs.rm(pcmPath, { force: true });
       const ms = Math.round((pcm.length / 2 / SAMPLE_RATE) * 1000);
       await fs.writeFile(lenPath, String(ms));
       log(book.slug, `${i + 1}/${chapters.length}`, ch.title, `${Math.round(ms / 1000)}s audio in ${Math.round((Date.now() - started) / 1000)}s`);
     }
-    manifest.chapters.push({ title: ch.title, words: countWords(ch.text), file: `chapters/${name}.m4a`, durationMs: Number(await fs.readFile(lenPath, "utf8")) });
+    manifest.chapters.push({ fingerprint, title: ch.title, words: countWords(ch.text), file: `chapters/${name}.m4a`, durationMs: Number(await fs.readFile(lenPath, "utf8")) });
     await save();
   }
 

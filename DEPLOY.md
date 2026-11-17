@@ -97,3 +97,9 @@ Inspection and check the Page indexing report after it finishes processing.
 
 The site can also be added to Bing Webmaster Tools. Cloudflare Web Analytics is available if
 enabled for the project.
+
+## Narration cache validity
+
+Chapter fingerprints invalidate reused audio when text, title, voice/speed, selection, dtype, pipeline code or dependencies change. When replacing model weights under the same model identifier, set `NARRATION_MODEL_VERSION` to the new immutable weight revision/digest in both the service and local rendering environment. The default identifies Kokoro-82M-v1.0-ONNX; the model loader does not expose a revision option. Do not silently replace weights without changing this value.
+
+Old chapters with no fingerprint remain downloadable, but an explicit new narration request regenerates them. The public-library renderer marks its manifest unready during regeneration; render in a staging library directory, validate outputs, then publish the completed set. Do not run bulk regeneration as part of a web-service deploy.

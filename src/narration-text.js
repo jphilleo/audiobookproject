@@ -15,7 +15,7 @@ function cardinal(n) {
 const ordinals = ["","first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth","eleventh","twelfth","thirteenth","fourteenth","fifteenth","sixteenth","seventeenth","eighteenth","nineteenth","twentieth"];
 
 export function prepareNarration(text, { heading = false } = {}) {
-  let spoken = String(text).replace(/\u00ad/g, "").replace(/\b(Chapter|Stave|Book|Part|Volume|Act|Scene|Section|Canto|Letter|Appendix)\s+([MDCLXVI]+)\b/gi, (match, label, token) => {
+  let spoken = String(text).replace(/\r\n?/g, "\n").replace(/\u00ad/g, "").replace(/\b(Chapter|Stave|Book|Part|Volume|Act|Scene|Section|Canto|Letter|Appendix)\s+([MDCLXVI]+)\b/gi, (match, label, token) => {
     // Lowercase prose such as “mix” is not a Roman numeral. In body text,
     // a lone I can be the pronoun (“the chapter I read”).
     if (token !== token.toUpperCase() || (!heading && token === "I")) return match;
@@ -23,6 +23,7 @@ export function prepareNarration(text, { heading = false } = {}) {
     return number ? label + " " + cardinal(number) : match;
   });
   spoken = spoken.replace(/\b(Henry|Edward|George|William|Louis|Charles|Elizabeth|Richard|James|Philip|Frederick|Napoleon|Pope [A-Z][a-z]+)\s+([MDCLXVI]+)\b/g, (match, name, token) => {
+    if (token === "I" && !heading && !name.startsWith("Pope ")) return match;
     const number = romanNumber(token);
     return ordinals[number] ? name + " the " + ordinals[number] : match;
   });
@@ -40,7 +41,8 @@ export function prepareNarration(text, { heading = false } = {}) {
 // Some EPUBs retain the subtitle as the first standalone paragraph.
 // Remove only an exact title/subtitle match when we announce that title separately.
 export function chapterNarrationBody(text, title) {
-  const paragraphs = String(text).split(/\n{2,}/);
+  text = String(text).replace(/\r\n?/g, "\n");
+  const paragraphs = text.split(/\n{2,}/);
   const first = paragraphs[0].trim();
   const subtitle = String(title).split(/:\s*/).slice(1).join(": ");
   if (paragraphs.length > 1 && (first === String(title).trim() || (subtitle && first === subtitle))) {

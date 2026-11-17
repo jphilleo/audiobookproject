@@ -1,8 +1,9 @@
-// Read-only audit probes. Records current behavior, including defects; not a passing regression suite.
+// Historical audit fixtures, evaluated against current behavior. Assertions live in test/narration-audit-fixes.test.js.
 import fs from 'node:fs/promises';
 import {htmlToText,finalizeSections} from '../src/epub.js';
 import {prepareNarration} from '../src/narration-text.js';
-import {chunkText} from '../src/tts.js';
+import {chunkText,chapterChunks} from '../src/tts.js';
+import {requireIdleNarration,narrationFingerprint} from '../src/narration-version.js';
 const pdfSource=await fs.readFile(new URL('../src/pdf.js',import.meta.url),'utf8');
 // Exercise private extraction helpers with synthetic PDF text items, without generating a PDF.
 const pdf=new Function(pdfSource.replace(/^import .*;$/gm,'').replace(/export /g,'')+'\nreturn {pageLines,toParagraphs,outlineStarts,stripRunningHeaders};')();
@@ -29,9 +30,9 @@ record(15,'Same-page PDF bookmarks collapsed','Three sections on pages 1,1,2',aw
 const pages=Array.from({length:4},()=>[{text:'Never again.',x:0,y:100},{text:'Never again.',x:0,y:80}]);pdf.stripRunningHeaders(pages);
 record(16,'Repeated meaningful PDF edge text removed','Four pages whose two lines read Never again.',pages,'Repeated content retained unless identified as header/footer');
 record(17,'CRLF paragraph boundaries collapse','First paragraph.\\r\\n\\r\\nSecond paragraph.',chunkText('First paragraph.\r\n\r\nSecond paragraph.'),'Two paragraphEnd markers');
-record(18,'Long chapter titles bypass chunk limit','A 600-character heading is prepared and passed directly to synthesize',{preparedLength:prepareNarration('A'.repeat(600),{heading:true}).length,bodyChunkLengths:chunkText('A'.repeat(600)).map(c=>c.text.length)},'Title segmented before model call; note body chunks also reach 381');
-record(19,'Voice and speed can change during a chapter','startNarration assigns book.voice/book.speed while narrateChapter reads them on every chunk','Code-path finding: working chapter is not restarted or locked; final metadata records only latest setting','Snapshot settings for each job or reject changes while working');
-record(20,'Old chapter assets reused after source/rule changes','Existing chapter .m4a and .ms files','Code-path finding: reuse condition checks file existence only, not source/rule/model version','Reuse only when generation fingerprint matches');
+record(18,'Long chapter titles bypass chunk limit','A 600-character heading is prepared and passed directly to synthesize',{modelInputLengths:chapterChunks('A'.repeat(600),'Body.').map(c=>c.text.length)},'Title segmented before model call; note body chunks also reach 381');
+record(19,'Voice and speed can change during a chapter','startNarration assigns book.voice/book.speed while narrateChapter reads them on every chunk',(()=>{try{requireIdleNarration({chapters:[{status:'working'}]});return 'not blocked';}catch(e){return e.message;}})(),'Snapshot settings for each job or reject changes while working');
+record(20,'Old chapter assets reused after source/rule changes','Existing chapter .m4a and .ms files',{sameInput:narrationFingerprint({title:'One',text:'Text',voice:'af_heart'}),changedInput:narrationFingerprint({title:'One',text:'Changed',voice:'af_heart'})},'Reuse only when generation fingerprint matches');
 const out=process.argv[2]||'../../outputs/christmas-carol-audit/additional-20-issues.json';
 await fs.writeFile(out,JSON.stringify(results,null,2));
 for(const r of results) console.log(r.id,r.issue,JSON.stringify(r.actual).slice(0,220));
