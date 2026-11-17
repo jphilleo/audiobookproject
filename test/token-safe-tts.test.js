@@ -14,3 +14,5 @@ import {prepareSpeechInput} from '../src/narration-text.js';
 test('isolated dialogue drops only outer speech delimiters',()=>{assert.equal(prepareSpeechInput('“It is.”'),'It is.');assert.equal(prepareSpeechInput('“A golden one.”'),'A golden one.');assert.equal(prepareSpeechInput('“No,” he said. “Go.”'),'“No,” he said. “Go.”');});
 
 test('reviewed pronunciation spellings preserve ordinary prose',()=>{assert.equal(prepareSpeechInput('Which all the family reechoed.'),'Which all the family re-echoed.');assert.equal(prepareSpeechInput('“Ding, dong!”'),'Ding-dong!');assert.equal(prepareSpeechInput('“Ha, ha! Ha, ha, ha, ha!”'),'Ha-ha! Ha-ha-ha-ha!');assert.equal(prepareSpeechInput('He said ha, then left.'),'He said ha, then left.');});
+
+test('Emma isolated affirmation keeps its positive meaning without changing other voices',()=>{assert.equal(prepareSpeechInput('“I can.”',{voice:'bf_emma'}),'I can');assert.equal(prepareSpeechInput('“I can.”',{voice:'af_heart'}),'I can.');assert.equal(prepareSpeechInput('I can. Do it, then.',{voice:'bf_emma'}),'I can. Do it, then.');});

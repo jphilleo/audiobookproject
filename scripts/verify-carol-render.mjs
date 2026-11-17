@@ -10,7 +10,7 @@ for(const [i,c]of manifest.chapters.entries()){
  assert.deepEqual(audit.chunks.map(x=>x.text),planned.map(x=>x.text));assert.equal(audit.fingerprint,c.fingerprint);
  let maxTokens=0;let pcmBytes=0;
  for(const [j,chunk]of audit.chunks.entries()){
-  assert.equal(chunk.segments.map(x=>x.text).join(' ').replace(/\s+/g,' '),prepareSpeechInput(chunk.text).replace(/\s+/g,' '));
+  assert.equal(chunk.segments.map(x=>x.text).join(' ').replace(/\s+/g,' '),prepareSpeechInput(chunk.text, {voice:manifest.voice.id}).replace(/\s+/g,' '));
   for(const s of chunk.segments){assert.ok(s.tokens<=510 && s.tokens>0);maxTokens=Math.max(maxTokens,s.tokens);}
   const pcm=await fs.readFile(path.join(dir,'checkpoints',c.fingerprint,`${j}.pcm`));assert.equal(pcm.length,chunk.bytes);assert.ok(pcm.length>0);assert.equal(crypto.createHash('sha256').update(pcm).digest('hex'),chunk.sha256);
   pcmBytes+=pcm.length+Math.round((chunk.paragraphEnd?.45:.12)*24000)*2;

@@ -42,7 +42,7 @@ function call(msg) {
   });
 }
 
-export const planNarration = (text, voice) => call({ type: "plan", text: prepareSpeechInput(text), voice });
+export const planNarration = (text, voice) => call({ type: "plan", text: prepareSpeechInput(text, { voice }), voice });
 export const closeTts = async () => { const current=worker; worker=null; if(current) await current.terminate(); };
 
 export const loadTts = () => call({ type: "ready" });
@@ -62,7 +62,7 @@ export async function listVoices() {
 }
 
 // Returns a Float32Array @ 24kHz mono.
-export const synthesize = (text, voice, speed = 1) => call({ type: "generate", text: prepareSpeechInput(text), voice, speed });
+export const synthesize = (text, voice, speed = 1) => call({ type: "generate", text: prepareSpeechInput(text, { voice }), voice, speed });
 
 // Split a chapter into speakable chunks. Each chunk records whether it ends a paragraph
 // so we can insert a slightly longer pause there.
