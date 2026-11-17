@@ -444,15 +444,16 @@ body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bo
 .lib-now-playing { font-size: 14px; font-weight: 600; }
 .lib-transport { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .lib-transport .btn, #lib-speed { min-height: 44px; }
+.lib-transport .btn { display: grid; place-items: center; flex: none; height: 44px; }
 .lib-transport #lib-play { min-width: 44px; width: 44px; padding: 0; border-radius: 50%; background: var(--brand); border-color: var(--brand); color: var(--bg); }
 .lib-transport #lib-play span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .lib-transport #lib-play svg { width: 16px; height: 16px; fill: currentColor; stroke: none; }
 .lib-transport .lib-skip { position: relative; padding: 0; width: 44px; border-color: transparent; border-radius: 50%; color: var(--ink-2); }
 .lib-transport .lib-chapter-step { width: 44px; padding: 0; border: 0; border-radius: 50%; color: var(--ink-2); }
 .lib-chapter-step svg { width: 18px; height: 18px; fill: currentColor; stroke: none; }
-.lib-skip svg { width: 28px; height: 28px; stroke-width: 1.5; }
-.lib-skip-forward { transform: scaleX(-1); }
-.lib-skip span { position: absolute; font-size: 10px; font-variant-numeric: tabular-nums; }
+.lib-skip svg { width: 30px; height: 30px; stroke-width: 1.8; }
+.lib-skip-arrow { fill: currentColor; stroke: none; }
+.lib-skip text { font-family: inherit; font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; fill: currentColor; stroke: none; }
 #lib-speed {
   color: var(--ink); background: transparent; border: 0; border-radius: 8px; justify-self: end; grid-column: 3; grid-row: 1 / 3;
   appearance: auto; width: 66px; padding-inline: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
@@ -523,8 +524,6 @@ body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bo
 .lib-pending .lib-badge { font-weight: 600; color: var(--ink-3); }
 .lib-pending .lib-badge::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 5px; vertical-align: 1px; }
 
-.lib-skip svg { width: 30px; height: 30px; }
-.lib-skip span { font-size: 10px; top: 50%; left: 50%; transform: translate(-50%, -42%); }
 .lib-site-frame { position: fixed; inset: 0; width: 100%; height: calc(100dvh - var(--dock-height, 100px)); border: 0; background: var(--bg); z-index: 9; }
 html.lib-embedded body { padding-bottom: 0; }
 html.lib-embedded .lib-player-dock { display: none; }
