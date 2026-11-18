@@ -17,7 +17,7 @@ test('HTTP request, confirmation, privacy, cancellation and origin checks',async
  let response=await fetch(base+'/api/library-requests',{method:'POST',headers:{'Content-Type':'application/json',origin:'https://bad.example'},body:JSON.stringify(payload)});assert.equal(response.status,403);
  response=await fetch(base+'/api/library-requests',{method:'POST',headers:{'Content-Type':'application/json',origin},body:JSON.stringify(payload)});assert.equal(response.status,202);assert.doesNotMatch(await response.text(),/reader@example/);
  const token=Object.values(queue.state.requests)[0].token;
- response=await fetch(base+'/requests/'+token);assert.equal(response.headers.get('x-robots-tag'),'noindex, nofollow');assert.match(response.headers.get('cache-control'),/no-store/);assert.match(await response.text(),/Confirm audiobook request/);
+ response=await fetch(base+'/requests/'+token);assert.equal(response.headers.get('x-robots-tag'),'noindex, nofollow');assert.equal(response.headers.get('referrer-policy'),'same-origin');assert.match(response.headers.get('cache-control'),/no-store/);assert.match(await response.text(),/Confirm audiobook request/);
  // Merely opening an email link must not start generation (email scanners may follow links).
  assert.equal(queue.get(token).confirmed,false);
  response=await fetch(base+'/requests/'+token+'/download');assert.equal(response.status,404);

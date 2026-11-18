@@ -38,7 +38,7 @@ export async function installRequestRoutes(app, overrides = {}) {
     if (req.get('origin') !== origin) return res.status(403).json({ error: 'Please submit the form from this site.' });
     next();
   };
-  app.use('/requests', (_req, res, next) => { res.set({ 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'no-referrer' }); next(); });
+  app.use('/requests', (_req, res, next) => { res.set({ 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'same-origin' }); next(); });
   app.post('/api/library-requests', sameOrigin, async (req, res) => {
     res.set('Cache-Control', 'no-store');
     try { await queue.request({ ...req.body, ip: req.ip }); res.status(202).json({ message: 'Check your email for a confirmation link. If it does not arrive, check spam or try again tomorrow. We start preparing the book after you confirm.' }); }

@@ -24,7 +24,7 @@ Required runtime: Node, existing npm dependencies/model cache, ffmpeg, `nice`, s
 
 ## Delivery, retries and limits
 
-Private request pages are noindex/no-store with no-referrer. They expose no recipient addresses. Confirmation expires after 48 hours. Confirmed pending requests expire after 90 days; fulfilled requests and recipient addresses expire 30 days after the delivery email is accepted by the provider. The private link lets a reader cancel and remove their request. Public-domain recordings may be reused by other readers.
+Private request pages are noindex/no-store with a same-origin referrer policy (private links are never sent as referrers to other sites). They expose no recipient addresses. Confirmation expires after 48 hours. Confirmed pending requests expire after 90 days; fulfilled requests and recipient addresses expire 30 days after the delivery email is accepted by the provider. The private link lets a reader cancel and remove their request. Public-domain recordings may be reused by other readers.
 
 One job per book; at most 20 queued/working jobs, 1,000 retained requests, five submissions per hashed network address daily, and three new requests per recipient daily. Unconfirmed addresses never start generation. A honeypot and same-origin POST checks add basic abuse controls. Email attempts are capped at 90 per rolling day with delivery prioritized over confirmations; review limits against the selected provider plan before larger traffic. These controls are not a substitute for dedicated bot protection at high volume.
 
