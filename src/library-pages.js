@@ -1,6 +1,7 @@
 // Pages for the public-domain library: the shelf shown on landing pages, the library index,
 // each book's page and its podcast feed. Book data comes from src/catalog.js.
 import fs from "node:fs";
+import chapterLists from "./library-chapters.json" with { type: "json" };
 import path from "node:path";
 import { readyBooks, publishedBooks, libraryStatus, bookUrl, sourceUrl, bookDir, smallCover, CATALOG } from "./catalog.js";
 
@@ -105,7 +106,13 @@ export function bookVars(b, origin, { delivery = false } = {}) {
   const author = authorGroups().find(a=>a.slug===b.authorSlug);
   const authorLink = author ? `<a href="${authorUrl(b.authorSlug)}">${esc(b.author)}</a>` : esc(b.author);
   const related = relatedBooks(b);
-  const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${esc(audioUrl(b, c.file))}" data-index="${i}" data-duration="${c.durationMs / 1000}"><span class="lib-ch-icon" aria-hidden="true"></span><span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
+  const sourceList = !b.ready && b.preview ? chapterLists[b.slug] : null;
+  const contents = sourceList ? sourceList.titles.map((title, index) => ({ title, audio: index === sourceList.previewIndex ? b.chapters[0] : null })) : b.chapters.map(audio => ({title: audio.title, audio}));
+  const firstPosition = sourceList ? sourceList.previewIndex + 1 : 1;
+  let audioIndex = 0;
+  const chapters = contents.map(({title, audio: c}, position) => c
+    ? `<li><button type="button" data-src="${esc(audioUrl(b, c.file))}" data-index="${audioIndex++}" data-chapter-number="${position+1}" data-chapter-total="${contents.length}" data-duration="${c.durationMs / 1000}"><span class="lib-ch-icon" aria-hidden="true"></span><span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`
+    : `<li><div class="lib-ch-unavailable"><span aria-hidden="true"></span><span class="lib-ch-title">${esc(title)}</span></div></li>`);
   const SHOWN = 10;
   const list = chapters.length > SHOWN + 2
     ? `${chapters.slice(0, SHOWN).join("\n        ")}
@@ -164,7 +171,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
         <div class="lib-track">
           ${b.cover ? cover(b, "lib-cover lib-player-cover") : ""}
           <div class="lib-track-text">
-            <p class="lib-track-book"><span>${bookTitle}</span> <span id="lib-chapter-number">· 1 / ${b.chapters.length}</span></p>
+            <p class="lib-track-book"><span>${bookTitle}</span> <span id="lib-chapter-number">· ${firstPosition} / ${contents.length}</span></p>
             <p id="lib-now-playing" class="lib-now-playing" aria-live="polite">${esc(b.chapters[0].title)}</p>
           </div>
         </div>

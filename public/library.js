@@ -52,7 +52,7 @@ function sync() {
     if (nowPlaying.textContent !== title) nowPlaying.textContent = title;
     previousChapter.disabled = current === 0;
     nextChapter.disabled = current === rows.length - 1;
-    chapterNumber.textContent = `· ${current + 1} / ${rows.length}`;
+    chapterNumber.textContent = `· ${rows[current].dataset.chapterNumber || current + 1} / ${rows[current].dataset.chapterTotal || rows.length}`;
     syncPosition();
   }
 }

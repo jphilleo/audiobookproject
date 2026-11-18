@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { requestPage } from './request-presentation.js';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { BookRequests, sendResend } from './book-requests.js';
@@ -44,14 +45,14 @@ export async function installRequestRoutes(app, overrides = {}) {
     try { await queue.request({ ...req.body, ip: req.ip }); res.status(202).json({ message: 'Check your email for a confirmation link. If it does not arrive, check spam or try again tomorrow. We start preparing the book after you confirm.' }); }
     catch (e) { res.status(400).json({ error: e.message }); }
   });
-  const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${escape(title)} — Audiobook Project</title><link rel="stylesheet" href="/style.css"></head><body><main class="prose"><a href="/library">Audiobook Project library</a><h1>${escape(title)}</h1>${body}</main></body></html>`;
+  const page = requestPage;
   app.get('/requests/:token', (req, res) => {
     const status = queue.status(req.params.token);
     if (!status) return res.status(404).type('html').send(page('Request expired', '<p>Please return to the library to request a new download.</p>'));
     const { book, format, confirmed } = status;
     const message = { queued: 'Your full audiobook is queued for preparation. We will email you when it is ready. Longer books and busy queues can take several days; no delivery date is guaranteed.', working: 'Your full audiobook is being prepared and checked. We will email you when the download is ready.', failed: 'We could not finish this recording after several attempts. No complete download is available. Please try again later.', ready: 'Your full audiobook is ready. This request page expires 30 days after the delivery email is sent.' }[status.status];
     const body = !confirmed ? `<p>Confirm that you requested the full audiobook in ${format.toUpperCase()}. This is free and does not subscribe you to marketing emails.</p><form method="post" action="/requests/${req.params.token}/confirm"><button class="btn primary">Confirm audiobook request</button></form>` : `<p>${message}</p>${status.status === 'ready' ? `<a class="btn primary" href="/requests/${req.params.token}/download">Download ${format.toUpperCase()}</a>` : ''}`;
-    res.type('html').send(page(book.title, `${body}<p><a href="${bookUrl(book)}">Listen to the sample</a></p><form method="post" action="/requests/${req.params.token}/cancel"><button class="btn">Cancel request and remove my email</button></form>`));
+    res.type('html').send(page(book.title, `${body}<p><a class="btn request-listen" href="${bookUrl(book)}">${status.status === 'ready' ? 'Listen online' : 'Listen while you wait'} &rarr;</a></p><form class="request-cancel" method="post" action="/requests/${req.params.token}/cancel"><button class="request-cancel-button">Cancel request and remove my email</button></form>`, {book, format, status: status.status}));
   });
   app.post('/requests/:token/confirm', sameOrigin, async (req, res) => {
     try { await queue.confirm(req.params.token); res.redirect(303, `/requests/${req.params.token}`); }

@@ -41,3 +41,17 @@ test('all books share the dock and chapter layout while downloads reflect availa
   else {assert.equal(v.downloads,'');assert.equal(v.feedLink,'');assert.match(v.requestForm,/Get the full audiobook free/);}
  }
 });
+
+test('source chapter lists cover the whole catalog without making missing audio playable',async()=>{
+ const {default:lists}=await import('../src/library-chapters.json',{with:{type:'json'}});
+ assert.equal(Object.keys(lists).length,200);
+ for(const book of previews){
+  const toc=lists[book.slug];assert.ok(toc.titles.length);assert.ok(toc.previewIndex>=0 && toc.previewIndex<toc.titles.length);
+  const v=bookVars(book,'https://example.org');
+  assert.equal((v.chapters.match(/<li>/g)||[]).length,toc.titles.length);
+  assert.equal((v.chapters.match(/data-src=/g)||[]).length,1);
+  assert.equal((v.chapters.match(/lib-ch-time/g)||[]).length,1);
+  assert.match(v.chapters,new RegExp(`data-chapter-number="${toc.previewIndex+1}" data-chapter-total="${toc.titles.length}"`));
+ }
+ const alice=lists['alices-adventures-in-wonderland'];assert.equal(alice.titles.length,13);assert.equal(alice.titles[0],'All in the Golden Afternoon');assert.match(alice.titles[12],/Alice’s Evidence/);
+});

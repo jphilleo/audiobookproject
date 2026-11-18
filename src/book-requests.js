@@ -1,5 +1,6 @@
 // Single-process durable request queue. Keep this store outside all public/static directories.
 import fs from 'node:fs/promises';
+import { requestEmail } from './request-presentation.js';
 import path from 'node:path';
 import crypto from 'node:crypto';
 const DAY = 86400000;
@@ -75,7 +76,7 @@ export class BookRequests {
     if (daily?.until > now && daily.count >= 90) return;
     // Stable persisted payload + idempotency key prevent repeated emails across restarts/retries.
     await this.locked(async () => { if (!this.state.mailBudget || this.state.mailBudget.until <= now) this.state.mailBudget = { until: now + DAY, count: 0 };
-      this.state.mailBudget.count++; item.firstAttempt ||= now; item.payload ||= { to: r.email, subject, text }; item.tries++; item.next = now + Math.min(3600000, 60000 * 2 ** item.tries); await this.save(); });
+      this.state.mailBudget.count++; item.firstAttempt ||= now; item.payload ||= { to: r.email, subject, text, html: requestEmail({book: this.lookup(r.slug), format:r.format, kind, link:`${this.origin}/requests/${r.token}`}) }; item.tries++; item.next = now + Math.min(3600000, 60000 * 2 ** item.tries); await this.save(); });
     try {
       await this.send({ ...item.payload, key: `${hash(r.token)}-${kind}` });
       await this.locked(async () => { item.sent = this.now(); delete item.payload; if (kind === 'delivery') r.expires = this.now() + 30 * DAY; await this.save(); });
@@ -110,11 +111,11 @@ export class BookRequests {
   }
 }
 
-export async function sendResend({ to, subject, text, key }) {
+export async function sendResend({ to, subject, text, html, key }) {
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST', signal: AbortSignal.timeout(20000),
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json', 'Idempotency-Key': key },
-    body: JSON.stringify({ from: process.env.REQUEST_EMAIL_FROM, to: [to], subject, text }),
+    body: JSON.stringify({ from: process.env.REQUEST_EMAIL_FROM, to: [to], subject, text, html }),
   });
   if (!response.ok) throw new Error(`Email provider status ${response.status}`);
   const result = await response.json(); if (!result.id) throw new Error('Email provider did not accept message');

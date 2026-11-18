@@ -580,3 +580,25 @@ html.lib-embedded .lib-player-dock { display: none; }
 .lib-author-books > li { padding: 1rem 0; border-bottom: 1px solid var(--line); }
 .lib-author-books h2 { margin-top: 0; }
 @media(max-width:640px) { .lib-edition dl > div { grid-template-columns: 1fr; gap: .3rem; } }
+
+.lib-ch-unavailable { display:grid; grid-template-columns:12px minmax(0,1fr); gap:16px; align-items:center; min-height:44px; padding:10px 8px; color:var(--ink-2); font-size:14px; }
+
+/* Private audiobook request pages */
+.request-page { min-height:100vh; padding:0 20px 40px; background:var(--bg); }
+.request-brand { max-width:640px; margin:0 auto; padding:36px 0 26px; font-size:18px; font-weight:650; }
+.request-brand a { text-decoration:none; color:var(--ink); } .request-brand span { color:var(--ink-2); font-weight:400; }
+.request-card { max-width:640px; margin:0 auto; padding:36px; border:1px solid var(--line); border-radius:20px; background:var(--soft); }
+.request-book { display:flex; align-items:center; gap:24px; padding-bottom:28px; border-bottom:1px solid var(--line); }
+.request-cover { width:88px; height:132px; object-fit:cover; border-radius:5px; flex-shrink:0; box-shadow:0 8px 24px #0002; }
+.request-status { color:var(--brand); font-size:12px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; margin:0 0 10px; }
+.request-card h1 { font-size:30px; line-height:1.2; margin:0; letter-spacing:-.02em; }
+.request-meta { color:var(--ink-2); font-size:14px; margin:12px 0 0; }
+.request-content { padding-top:12px; font-size:16px; line-height:1.65; color:var(--ink-2); }
+.request-content p { margin:16px 0 24px; }
+.request-content .btn { min-height:46px; white-space:normal; text-align:center; }
+.request-cancel { border-top:1px solid var(--line); margin-top:28px; padding-top:20px; }
+.request-cancel-button { border:0; padding:4px 0; background:none; color:var(--ink-2); font:inherit; font-size:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.request-footer { max-width:640px; margin:24px auto 0; padding:0; text-align:center; color:var(--ink-2); font-size:12px; line-height:2; }
+.request-footer a { color:var(--ink-2); }
+@media(max-width:480px) { .request-card { padding:24px; } .request-book { gap:16px; } .request-cover { width:64px; height:96px; } .request-card h1 { font-size:24px; } .request-content .btn { width:100%; } .request-status { font-size:10px; } }
+.request-card { flex:none; width:100%; }
