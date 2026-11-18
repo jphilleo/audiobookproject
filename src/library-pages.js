@@ -52,7 +52,7 @@ const STATE = { narrating: "Narrating now", soon: "Coming soon" };
 // Playable books and previews link to their pages. Other titles stay placeholders.
 function card(b, { listen = false, lengthLine = false, delivery = false } = {}) {
   const caption = `${cover(b)}<strong>${esc(name(b))}</strong><span>${esc(b.author)}</span>`;
-  if (b.state === "preview") return `<li><a href="${bookUrl(b)}">${caption}<span class="lib-listen">${delivery ? "Full audiobook by email · Listen to sample" : `First chapter · ${length(b.durationMs)}`}</span></a></li>`;
+  if (b.state === "preview") return `<li><a href="${bookUrl(b)}">${caption}${listen ? '<span class="lib-listen">Listen</span>' : ""}</a></li>`;
   if (b.state !== "ready") return `<li class="lib-pending"><div>${caption}<span class="lib-badge">${STATE[b.state]}</span></div></li>`;
   const extra = listen ? '<span class="lib-listen">Listen now</span>' : lengthLine ? `<span>${length(b.durationMs)}</span>` : "";
   return `<li><a href="${bookUrl(b)}">${caption}${extra}</a></li>`;
@@ -87,8 +87,8 @@ export function libraryVars(origin, { delivery = false } = {}) {
   };
   return {
     title: "Free Public-Domain Audiobooks — Audiobook Project",
-    description: delivery ? "Free audiobooks of public-domain classics. Listen to samples and request the full book in M4B or MP3 by email. Finished recordings are also available instantly." : "Listen to first chapters and complete audiobooks of public-domain classics. Download complete books in M4B or MP3. No account needed.",
-    libraryIntro: delivery ? "Public-domain classics, read aloud by AI voices. Listen to a sample and get the full audiobook free by email. Books that need preparation enter the queue after you confirm your address; finished recordings can be downloaded instantly." : "Public-domain classics, read aloud by AI voices. Listen to a first chapter or a complete audiobook. Complete books are also available to download or add to a podcast app.",
+    description: delivery ? "Free audiobooks of public-domain classics. Listen to samples and request the full book in M4B or MP3 by email. Finished recordings are also available instantly." : "Explore free audiobooks of public-domain classics. Listen online and discover M4B and MP3 downloads.",
+    libraryIntro: delivery ? "Public-domain classics, read aloud by AI voices. Get your audiobook free in M4B or MP3." : "Public-domain classics, read aloud by AI voices. Find your next listen.",
     canonical: esc(`${origin}/library`),
     grid,
     browseAuthors: '<p><a href="/library/authors">Browse audiobooks by author</a></p>',
@@ -129,7 +129,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
     ...(author ? [{ "@type": "ListItem", position: 2, name: b.author, item: `${origin}${authorUrl(b.authorSlug)}` }] : []),
     { "@type": "ListItem", position: author ? 3 : 2, name: b.title, item: url },
   ] };
-  const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play" : "Play chapter 1"}</span></button>`;
+  const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play" : "Play sample"}</span></button>`;
   const skip = (seconds, forward = false) => `<button type="button" class="btn lib-skip" data-skip="${forward ? seconds : -seconds}" aria-label="${forward ? "Forward" : "Back"} ${seconds} seconds">
           <svg viewBox="0 0 32 32" aria-hidden="true"><g${forward ? ' transform="translate(32 0) scale(-1 1)"' : ""}><path d="M16 6a11 11 0 1 1-9.5 5.5"/><path class="lib-skip-arrow" d="M17 2.5 12 6l5 3.5z"/></g><text x="16" y="18" text-anchor="middle" dominant-baseline="middle">${seconds}</text></svg>
         </button>`;
@@ -138,7 +138,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
   const downloadIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>';
   const requestForm = delivery ? `<details class="lib-request"><summary class="btn lib-download">${downloadIcon}${b.ready ? "Email me a download link" : "Get the full audiobook free"}</summary>
       <form data-book-request data-slug="${esc(b.slug)}">
-        <p>${b.ready ? "We’ll email you a link to the complete recording after you confirm your address." : "Listen to the sample now. Confirm your email and we’ll prepare the full audiobook and send a download link. Preparation can take several days, depending on book length and the queue."}</p>
+        <p>${b.ready ? "We’ll email you a link to the complete recording after you confirm your address." : "Confirm your email and we’ll prepare the full audiobook and send a download link. Preparation can take several days, depending on book length and the queue."}</p>
         <label>Email address<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
         <fieldset><legend>Download format</legend><label><input type="radio" name="format" value="m4b" checked> M4B · audiobook apps, with chapters</label><label><input type="radio" name="format" value="mp3"> MP3 · most audio players</label></fieldset>
         <label class="request-honey" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
@@ -148,8 +148,8 @@ export function bookVars(b, origin, { delivery = false } = {}) {
       </form></details>` : "";
   return {
     requestForm,
-    title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : delivery ? `${b.title} by ${b.author} — Free Audiobook` : `${b.title} Audiobook by ${b.author} — Free Sample`),
-    description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : delivery ? `Get ${b.title} by ${b.author} as a free M4B or MP3 audiobook by email. Listen to a sample now; the full recording is prepared after you confirm your request.` : `Listen to the first chapter of ${b.title} by ${b.author} free. ${length(b.durationMs)}.`),
+    title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : delivery ? `${b.title} by ${b.author} — Free Audiobook` : `${b.title} by ${b.author} — Free Audiobook`),
+    description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : delivery ? `Get ${b.title} by ${b.author} as a free M4B or MP3 audiobook by email. Listen to a sample now; the full recording is prepared after you confirm your request.` : `Explore ${b.title} by ${b.author} as a free audiobook. Listen online with AI narration.`),
     canonical: esc(url),
     ogimage: b.cover ? esc(`${origin}${fileUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
     booktitle: bookTitle,
@@ -157,7 +157,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
     authorLink,
     year: b.year ? ` · ${esc(b.year)}` : "",
     cover: cover(b, "lib-cover lg"),
-    meta: esc(`${b.ready ? `Complete audiobook · ${length(b.durationMs)} · ${b.chapters.length} chapters` : `First chapter preview · ${length(b.durationMs)}`} · read by ${b.voice.name}, an AI voice`),
+    meta: esc(`${b.ready ? `Complete audiobook · ${length(b.durationMs)} · ${b.chapters.length} chapters` : "Audiobook"} · read by ${b.voice.name}, an AI voice`),
     bookClass: b.ready ? "lib-full" : "",
     previewPlay: b.ready ? "" : `<div class="lib-actions">${play}</div>`,
     player: b.ready ? `<section class="lib-player-dock" aria-label="Audiobook player"><div class="lib-player">
@@ -205,23 +205,23 @@ export function bookVars(b, origin, { delivery = false } = {}) {
       </div>` : "",
     previewIntro: b.ready ? "" : `<audio id="lib-audio" preload="none"></audio>${error}${description}`,
     about: b.ready ? `<h2 class="lib-about-heading">About the audiobook</h2>${description}` : "",
-    chaptersHeading: b.ready ? "Chapters" : "First chapter",
+    chaptersHeading: b.ready ? "Chapters" : "Listen",
     feedLink: b.ready ? `<link rel="alternate" type="application/rss+xml" title="${bookTitle} (podcast feed)" href="${feed}">` : "",
     chapters: list,
     source: esc(sourceUrl(b)),
     editionDetails: `<section class="lib-edition"><h2>About this recording</h2><dl>
       <div><dt>Book</dt><dd>${bookTitle}${b.year ? ` (${esc(b.year)})` : ""}, by ${authorLink}</dd></div>
       <div><dt>Narration</dt><dd>${esc(b.voice.name)}, an AI voice using Kokoro · English</dd></div>
-      <div><dt>Available now</dt><dd>${b.ready ? `Complete recording · ${length(b.durationMs)} · ${b.chapters.length} chapters` : `First-chapter sample · ${length(b.durationMs)}`}</dd></div>
+      ${b.ready ? `<div><dt>Complete recording</dt><dd>${length(b.durationMs)} · ${b.chapters.length} chapters</dd></div>` : ""}
       <div><dt>Text edition</dt><dd><a href="${esc(sourceUrl(b))}" rel="noopener">Read the source edition at Standard Ebooks</a></dd></div></dl>
-      ${b.ready ? '<p>Choose M4B for audiobook apps with chapter navigation, or MP3 for broad audio-player support. You can also listen to every chapter on this page.</p>' : delivery ? '<p>To get the full recording, request M4B or MP3 above and confirm your email. We will send a download link after preparation and checks are complete.</p>' : '<p>The first chapter is available to listen to now. Full-book downloads are not available on this page yet.</p>'}
+      ${b.ready ? '<p>Choose M4B for audiobook apps with chapter navigation, or MP3 for broad audio-player support. You can also listen to every chapter on this page.</p>' : delivery ? '<p>To get the full recording, request M4B or MP3 above and confirm your email. We will send a download link after preparation and checks are complete.</p>' : ''}
       </section>`,
-    related: related.length ? `<section class="lib-related"><h2>More audiobooks to explore</h2><ul>${related.map(r=>`<li><a href="${bookUrl(r)}">${esc(r.title)}</a><span>${esc(r.author)} · ${r.ready ? 'Complete audiobook' : 'Free sample'}</span></li>`).join('')}</ul>${author ? `<p><a href="${authorUrl(author.slug)}">All ${esc(author.name)} audiobooks</a></p>` : ''}</section>` : '',
+    related: related.length ? `<section class="lib-related"><h2>More audiobooks to explore</h2><ul>${related.map(r=>`<li><a href="${bookUrl(r)}">${esc(r.title)}</a><span>${esc(r.author)} · Audiobook</span></li>`).join('')}</ul>${author ? `<p><a href="${authorUrl(author.slug)}">All ${esc(author.name)} audiobooks</a></p>` : ''}</section>` : '',
     jsonld: jsonLdTag(b.ready ? {...ld, "@id":`${url}#audiobook`} : {
       "@context":"https://schema.org", "@type":"Book", "@id":`${url}#book`, name:b.title, url,
       author:{"@type":"Person",name:b.author}, description:b.description, inLanguage:'en',
       image:b.cover ? `${origin}${fileUrl(b,b.cover)}` : undefined,
-      workExample:{"@type":"AudioObject",name:`${b.title} — first-chapter sample`,description:'An AI-narrated first-chapter sample, not the complete audiobook.',duration:`PT${Math.round(b.durationMs/1000)}S`,contentUrl:abs(origin,audioUrl(b,b.chapters[0].file)),encodingFormat:'audio/mp4',isAccessibleForFree:true}
+      workExample:{"@type":"AudioObject",name:`${b.title} — audio sample`,description:'An AI-narrated audio sample from the book.',duration:`PT${Math.round(b.durationMs/1000)}S`,contentUrl:abs(origin,audioUrl(b,b.chapters[0].file)),encodingFormat:'audio/mp4',isAccessibleForFree:true}
     }) + jsonLdTag(crumbs),
   };
 }
@@ -268,13 +268,13 @@ export function sampleBookHtml() {
 
 export function authorsVars(origin) {
   const authors=authorGroups();
-  return { title:'Audiobooks by Author — Audiobook Project', description:'Browse free audiobook recordings and samples by author. Explore classic books, source editions, narrators and available downloads.', canonical:esc(`${origin}/library/authors`), heading:'Audiobooks by author', intro:'Explore authors with several books in the library. Each book page identifies the recording or sample available to listen to.',
+  return { title:'Audiobooks by Author — Audiobook Project', description:'Browse free audiobooks by author. Explore classic books, source editions, narrators and downloads.', canonical:esc(`${origin}/library/authors`), heading:'Audiobooks by author', intro:'Explore classic authors and find your next audiobook.',
     content:`<ul class="lib-author-list">${authors.map(a=>`<li><a href="${authorUrl(a.slug)}">${esc(a.name)}</a><span>${a.books.length} books</span></li>`).join('')}</ul>`,jsonld:jsonLdTag({'@context':'https://schema.org','@type':'CollectionPage',name:'Audiobooks by author',url:`${origin}/library/authors`}) };
 }
 export function authorVars(slug, origin, {delivery=false}={}) {
   const a=authorGroups().find(a=>a.slug===slug);if(!a)return null;
   const books=[...a.books].sort((x,y)=>x.title.localeCompare(y.title));const url=`${origin}${authorUrl(slug)}`;
-  return {title:esc(`${a.name} Audiobooks — Free Recordings & Samples`),description:esc(`Explore ${books.length} books by ${a.name}, including ${books.slice(0,2).map(b=>b.shortTitle||b.title).join(' and ')}. Listen to AI-narrated recordings and samples.`),canonical:esc(url),heading:esc(`${a.name} audiobooks`),intro:esc(`Explore ${books.length} books by ${a.name}. Listen to a sample, check the narrator and source edition, and see which complete recordings are available.`),
-    content:`<p><a href="/library/authors">All authors</a></p><ul class="lib-author-books">${books.map(b=>`<li><h2><a href="${bookUrl(b)}">${esc(b.title)}</a></h2><p>${esc(b.description)}</p><p>${b.ready ? `Complete audiobook · ${length(b.durationMs)} · M4B and MP3` : delivery ? 'Free sample · Full recording by email after preparation' : `First-chapter sample · ${length(b.durationMs)}`}</p></li>`).join('')}</ul>`,
+  return {title:esc(`${a.name} Audiobooks — Free Audiobook Library`),description:esc(`Explore ${books.length} books by ${a.name}, including ${books.slice(0,2).map(b=>b.shortTitle||b.title).join(' and ')}. Discover free AI-narrated audiobooks.`),canonical:esc(url),heading:esc(`${a.name} audiobooks`),intro:esc(`Explore ${books.length} books by ${a.name}. Discover your next audiobook, its narrator, and its source edition.`),
+    content:`<p><a href="/library/authors">All authors</a></p><ul class="lib-author-books">${books.map(b=>`<li><h2><a href="${bookUrl(b)}">${esc(b.title)}</a></h2><p>${esc(b.description)}</p><p>${b.ready ? `Complete audiobook · ${length(b.durationMs)} · M4B and MP3` : delivery ? 'Free audiobook by email' : 'Free audiobook'}</p></li>`).join('')}</ul>`,
     jsonld:jsonLdTag({'@context':'https://schema.org','@type':'CollectionPage',name:`${a.name} audiobooks`,url,mainEntity:{'@type':'ItemList',numberOfItems:books.length,itemListElement:books.map((b,i)=>({'@type':'ListItem',position:i+1,name:b.title,url:`${origin}${bookUrl(b)}`}))}})+jsonLdTag({'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Library',item:`${origin}/library`},{'@type':'ListItem',position:2,name:'Authors',item:`${origin}/library/authors`},{'@type':'ListItem',position:3,name:a.name,item:url}]}) };
 }

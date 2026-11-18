@@ -7,7 +7,7 @@ test('all 200 books have unique canonical URLs, titles, descriptions and truthfu
  const seen={title:new Set(),description:new Set(),canonical:new Set()};
  for(const b of previews){const vars=bookVars(b,'https://audiobookproject.org');
   for(const key of Object.keys(seen)){assert.ok(vars[key]);assert.ok(!seen[key].has(vars[key]),key+': '+b.slug);seen[key].add(vars[key]);}
-  assert.ok(vars.editionDetails.includes('First-chapter sample'));assert.ok(!vars.requestForm);
+  assert.ok(!/first.chapter|preview/i.test(vars.editionDetails));assert.ok(!vars.requestForm);
   const schemas=[...vars.jsonld.matchAll(/<script[^>]*>(.*?)<\/script>/g)].map(x=>JSON.parse(x[1]));
   assert.equal(schemas[0]['@type'],'Book');assert.equal(schemas[0].duration,undefined);assert.equal(schemas[0].workExample['@type'],'AudioObject');assert.equal(schemas[0].workExample.duration,'PT123S');assert.equal(schemas[1]['@type'],'BreadcrumbList');
  }

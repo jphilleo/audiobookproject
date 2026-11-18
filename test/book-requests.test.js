@@ -58,7 +58,7 @@ test('expired and canceled tokens cannot trigger work or reveal addresses',async
 test('preview offers full book only when delivery is enabled, without claiming completion',()=>{
  const b={slug:'book',authorSlug:'author',title:'A book',author:'Author',preview:true,ready:false,voice:{name:'Emma'},durationMs:1000,description:'A description',source:'author/book',chapters:[{title:'One',file:'chapters/001.m4a',durationMs:1000}]};
  const off=bookVars(b,'https://example.org');assert.equal(off.requestForm,'');
- const on=bookVars(b,'https://example.org',{delivery:true});assert.match(on.requestForm,/Get the full audiobook free/);assert.match(on.requestForm,/several days/);assert.doesNotMatch(on.title,/Complete/);assert.match(on.meta,/preview/);assert.match(on.jsonld,/first-chapter sample/);assert.doesNotMatch(on.jsonld,/"@type":"Audiobook"/);
+ const on=bookVars(b,'https://example.org',{delivery:true});assert.match(on.requestForm,/Get the full audiobook free/);assert.match(on.requestForm,/several days/);assert.doesNotMatch(on.title,/Complete/);assert.doesNotMatch(on.meta,/preview|first chapter/i);assert.match(on.jsonld,/audio sample/);assert.doesNotMatch(on.jsonld,/"@type":"Audiobook"/);
 });
 test('interrupted jobs recover as queued and corrupt durable state fails closed',async t=>{
  const {q,request,options}=await setup(t);const token=await request();await q.confirm(token);
