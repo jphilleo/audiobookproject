@@ -105,7 +105,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
   const author = authorGroups().find(a=>a.slug===b.authorSlug);
   const authorLink = author ? `<a href="${authorUrl(b.authorSlug)}">${esc(b.author)}</a>` : esc(b.author);
   const related = relatedBooks(b);
-  const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${esc(audioUrl(b, c.file))}" data-index="${i}" data-duration="${c.durationMs / 1000}">${b.ready ? '<span class="lib-ch-icon" aria-hidden="true"></span>' : ""}<span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
+  const chapters = b.chapters.map((c, i) => `<li><button type="button" data-src="${esc(audioUrl(b, c.file))}" data-index="${i}" data-duration="${c.durationMs / 1000}"><span class="lib-ch-icon" aria-hidden="true"></span><span class="lib-ch-title">${esc(c.title)}</span><span class="lib-ch-time">${clock(c.durationMs)}</span></button></li>`);
   const SHOWN = 10;
   const list = chapters.length > SHOWN + 2
     ? `${chapters.slice(0, SHOWN).join("\n        ")}
@@ -129,7 +129,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
     ...(author ? [{ "@type": "ListItem", position: 2, name: b.author, item: `${origin}${authorUrl(b.authorSlug)}` }] : []),
     { "@type": "ListItem", position: author ? 3 : 2, name: b.title, item: url },
   ] };
-  const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>${b.ready ? "Play" : "Play sample"}</span></button>`;
+  const play = `<button type="button" class="btn primary" id="lib-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Play</span></button>`;
   const skip = (seconds, forward = false) => `<button type="button" class="btn lib-skip" data-skip="${forward ? seconds : -seconds}" aria-label="${forward ? "Forward" : "Back"} ${seconds} seconds">
           <svg viewBox="0 0 32 32" aria-hidden="true"><g${forward ? ' transform="translate(32 0) scale(-1 1)"' : ""}><path d="M16 6a11 11 0 1 1-9.5 5.5"/><path class="lib-skip-arrow" d="M17 2.5 12 6l5 3.5z"/></g><text x="16" y="18" text-anchor="middle" dominant-baseline="middle">${seconds}</text></svg>
         </button>`;
@@ -158,9 +158,9 @@ export function bookVars(b, origin, { delivery = false } = {}) {
     year: b.year ? ` · ${esc(b.year)}` : "",
     cover: cover(b, "lib-cover lg"),
     meta: esc(`${b.ready ? `Complete audiobook · ${length(b.durationMs)} · ${b.chapters.length} chapters` : "Audiobook"} · read by ${b.voice.name}, an AI voice`),
-    bookClass: b.ready ? "lib-full" : "",
-    previewPlay: b.ready ? "" : `<div class="lib-actions">${play}</div>`,
-    player: b.ready ? `<section class="lib-player-dock" aria-label="Audiobook player"><div class="lib-player">
+    bookClass: "lib-full",
+    previewPlay: "",
+    player: `<section class="lib-player-dock" aria-label="Audiobook player"><div class="lib-player">
         <div class="lib-track">
           ${b.cover ? cover(b, "lib-cover lib-player-cover") : ""}
           <div class="lib-track-text">
@@ -173,7 +173,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
           ${skip(15)}
           ${play}
           ${skip(30, true)}
-          <button type="button" class="btn lib-chapter-step" id="lib-next" aria-label="Next chapter" title="Next chapter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h3v14h-3zM5 5l10 7-10 7z"/></svg></button>
+          <button type="button" class="btn lib-chapter-step" id="lib-next" aria-label="Next chapter" title="Next chapter"${b.chapters.length < 2 ? " disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h3v14h-3zM5 5l10 7-10 7z"/></svg></button>
         </div>
         <details class="lib-speed-menu" id="lib-speed-menu">
           <summary id="lib-speed" aria-label="Playback speed, 1×"><span id="lib-speed-label">1×</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary>
@@ -188,7 +188,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
         </div>
         <audio id="lib-audio" preload="none"></audio>
         ${error}
-      </div></section>` : "",
+      </div></section>`,
     downloads: b.ready ? `<div class="lib-downloads">
         <a class="btn lib-download" href="${esc(audioUrl(b, b.m4b.file))}" download aria-label="Download M4B, ${megabytes(b.m4b.bytes)}">${downloadIcon}M4B <span class="lib-size">${megabytes(b.m4b.bytes)}</span></a>
         <a class="btn lib-download" href="${esc(audioUrl(b, b.mp3.file))}" download aria-label="Download MP3, ${megabytes(b.mp3.bytes)}">${downloadIcon}MP3 <span class="lib-size">${megabytes(b.mp3.bytes)}</span></a>
@@ -203,9 +203,9 @@ export function bookVars(b, origin, { delivery = false } = {}) {
           </div>
         </details>
       </div>` : "",
-    previewIntro: b.ready ? "" : `<audio id="lib-audio" preload="none"></audio>${error}${description}`,
-    about: b.ready ? `<h2 class="lib-about-heading">About the audiobook</h2>${description}` : "",
-    chaptersHeading: b.ready ? "Chapters" : "Listen",
+    previewIntro: "",
+    about: `<h2 class="lib-about-heading">About the audiobook</h2>${description}`,
+    chaptersHeading: "Chapters",
     feedLink: b.ready ? `<link rel="alternate" type="application/rss+xml" title="${bookTitle} (podcast feed)" href="${feed}">` : "",
     chapters: list,
     source: esc(sourceUrl(b)),

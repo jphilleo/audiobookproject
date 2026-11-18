@@ -25,3 +25,19 @@ test('complete-book schema includes full downloads and correct duration',()=>{
  const b={...previews[0],ready:true,preview:false,m4b:{file:'book.m4b',bytes:12345},mp3:{file:'book.mp3',bytes:12345}};
  const v=bookVars(b,'https://example.org');const ld=JSON.parse([...v.jsonld.matchAll(/<script[^>]*>(.*?)<\/script>/g)][0][1]);assert.equal(ld['@type'],'Audiobook');assert.equal(ld.encoding.length,2);assert.equal(ld.duration,'PT123S');assert.match(v.editionDetails,/Complete recording/);
 });
+
+
+test('all books share the dock and chapter layout while downloads reflect availability',()=>{
+ for(const ready of [false,true]) {
+  const book={...previews[0],ready,m4b:ready?{file:'book.m4b',bytes:100}:undefined,mp3:ready?{file:'book.mp3',bytes:100}:undefined};
+  const v=bookVars(book,'https://example.org',{delivery:true});
+  assert.equal(v.bookClass,'lib-full');assert.equal(v.chaptersHeading,'Chapters');
+  assert.equal(v.previewPlay,'');assert.equal(v.previewIntro,'');
+  assert.match(v.player,/lib-player-dock/);assert.match(v.player,/id="lib-seek"/);
+  assert.equal((v.player.match(/id="lib-audio"/g)||[]).length,1);
+  assert.match(v.chapters,/lib-ch-icon/);assert.match(v.about,/About the audiobook/);
+  assert.match(v.player,/id="lib-next"[^>]*disabled/);
+  if(ready) {assert.match(v.downloads,/Download M4B/);assert.match(v.feedLink,/rss/);}
+  else {assert.equal(v.downloads,'');assert.equal(v.feedLink,'');assert.match(v.requestForm,/Get the full audiobook free/);}
+ }
+});
