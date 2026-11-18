@@ -16,7 +16,7 @@ REQUEST_EMAIL_FROM=Audiobook Project <books@delivery.audiobookproject.org>
 RESEND_API_KEY=<sending-only key for the verified sender domain>
 ```
 
-Create REQUEST_DIR owned by the audiobook service user, mode 0700. Store Resend's sender-domain DNS records in Cloudflare, verify the domain, then use a sending-only key restricted to that domain. Resend account setup, DNS verification, actual email receipt, and production activation are still pending as of this implementation. Do not advertise the request form while these are pending.
+Create REQUEST_DIR owned by the audiobook service user, mode 0700. Store Resend's sender-domain DNS records in Cloudflare, verify the domain, then use a sending-only key restricted to that domain. Activated on 2026-11-17 after DNS verification and real inbox tests. Sender: books@delivery.audiobookproject.org. The sending-only key is restricted to this domain and stored in /etc/audiobook-requests.env (root-owned, mode 0600), loaded by the systemd requests.conf override. No credential is stored in Git.
 
 Run only one web-server process against REQUEST_DIR. The worker is part of that process and uses one lower-priority child process for full narration. systemd's default control-group shutdown terminates that child when the service stops. Interrupted jobs return to queued on startup and reuse valid narration checkpoints. Do not run an independent worker against the same store.
 
@@ -41,4 +41,6 @@ This prints counts and book job states, never recipient addresses or private lin
 - Unit and local HTTP tests: confirmation gating, duplicate jobs, existing-book reuse, format/email validation, throttling, durable email retry, generation failure, cancellation/expiry, same-origin protections, and truthful preview metadata.
 - Local Chrome: form submission, format selection, success message, desktop layout, 390px mobile layout. Outbound mail was captured locally, not sent.
 - Isolated server fixture: real Kokoro narration of two chapters, assembly of both formats, complete decode/duration/coverage verification. Test recording was never published as a library book.
-- Still required before enabling production: verified Resend sender, real confirmation and delivery email receipt, live existing-book download test, and a monitored real catalog-book generation.
+- Live Resend activation: verified sender and public DNS; confirmation and ready emails reached the Gmail inbox for Christmas Carol (M4B) and Jekyll and Hyde (MP3). Both downloads completed and decoded fully without errors.
+- Live Chrome caught and verified the fix for confirmation POSTs: same-origin referrer policy retains the Origin header while excluding private referrers from other sites. All 57 automated tests pass.
+- A third request submitted through the live public form started full narration of The Prophet. Its confirmation arrived and the durable worker entered working state. Final generation/delivery is not yet verified.
