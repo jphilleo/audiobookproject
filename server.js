@@ -1,4 +1,5 @@
 import express from "express";
+import { installAnalytics } from "./src/analytics.js";
 import multer from "multer";
 import fs from "node:fs";
 import path from "node:path";
@@ -9,7 +10,7 @@ import { recommendVoice } from "./src/voice-recommendation.js";
 import { floatToPcm16, wavHeader } from "./src/audio.js";
 import * as lib from "./src/library.js";
 import { PAGES, INFO_PAGES, render, appVars, infoVars } from "./src/pages.js";
-import { LIBRARY_DIR, publishedBooks, findBook, bookUrl } from "./src/catalog.js";
+import { LIBRARY_DIR, CATALOG, publishedBooks, findBook, bookUrl } from "./src/catalog.js";
 import { libraryVars, bookVars, feedXml, authorsVars, authorVars } from "./src/library-pages.js";
 import { DEV, RELOAD_SCRIPT, devReload } from "./src/dev-reload.js";
 
@@ -25,6 +26,11 @@ const app = express();
 // Behind Cloudflare (or any proxy), trust X-Forwarded-Proto so HTTPS is detected and cookies are marked secure.
 if (process.env.TRUST_PROXY) app.set("trust proxy", true);
 app.use(express.json());
+const analytics = await installAnalytics(app, {
+  routes: [...Object.keys(PAGES), ...Object.keys(INFO_PAGES), '/library', '/library/authors', '/requests',
+    ...CATALOG.map(bookUrl), ...CATALOG.map(b=>`/library/authors/${b.authorSlug}`)],
+  books: CATALOG.map(b=>b.slug),
+});
 if (DEV) devReload(app, root);
 // Pages: converter landing pages share views/app.html; info pages have their own views. All share the header/footer partials.
 const origin = (req) => process.env.PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
@@ -65,7 +71,7 @@ app.get("/library/:author/:slug/feed.xml", (req, res, next) => {
 app.use("/library-audio", (req, res, next) => (/\.(m4a|m4b|mp3|jpg|png|svg|webp)$/i.test(req.path) ? next() : res.status(404).end()),
   express.static(LIBRARY_DIR, { index: false, maxAge: "30d" }));
 
-app.get("/robots.txt", (req, res) => res.type("text/plain").send(`User-agent: *\nDisallow: /api/\nSitemap: ${origin(req)}/sitemap.xml\n`));
+app.get("/robots.txt", (req, res) => res.type("text/plain").send(`User-agent: *\nDisallow: /api/\nDisallow: /admin/\nSitemap: ${origin(req)}/sitemap.xml\n`));
 app.get("/sitemap.xml", (req, res) => {
   const xml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
   const entries=[...Object.keys(PAGES),...Object.entries(INFO_PAGES).filter(([,p])=>!p.hidden).map(([r])=>r)].map(url=>({url})).concat(librarySitemapEntries());
@@ -203,3 +209,6 @@ await lib.deleteExpired();
 setInterval(() => lib.deleteExpired().catch((err) => console.error("Cleanup failed:", err)), 3600000);
 app.listen(PORT, () => console.log(`Audiobook prototype on http://localhost:${PORT}`));
 loadTts().then(() => console.log("Kokoro voice model loaded"));
+
+// Finish writing aggregate counts before a normal deployment shutdown.
+if (analytics) process.on('SIGTERM', () => analytics.stop().finally(()=>process.exit(0)));

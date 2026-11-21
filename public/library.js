@@ -110,7 +110,14 @@ rows.forEach((r, i) => r.addEventListener("click", () => {
     window.parent.openAudiobook(document, location.pathname, i);
   } else toggleChapter(i);
 }));
+const track = event => window.audiobookAnalytics?.(event, {path: bookPath});
+let countedPlayback = false;
+audio.addEventListener("playing", () => { if (!countedPlayback) { track('chapter_play'); countedPlayback = true; } });
+audio.addEventListener("pause", () => { countedPlayback = false; });
+audio.addEventListener("loadstart", () => { countedPlayback = false; });
+audio.addEventListener("error", () => track('audio_error'));
 audio.addEventListener("ended", () => {
+  track('chapter_complete'); countedPlayback = false;
   if (current + 1 < rows.length) play(current + 1);
   else { finished = true; store.set(null); sync(); }
 });
@@ -210,6 +217,7 @@ feedBtn?.addEventListener("click", async () => {
   const url = feedBtn.dataset.feed;
   try {
     await navigator.clipboard.writeText(url);
+    track("podcast_copy");
     clearTimeout(feedReset);
     feedStatus.textContent = "Link copied";
     feedReset = setTimeout(() => { feedStatus.textContent = ""; }, 3500);

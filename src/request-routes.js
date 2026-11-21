@@ -35,6 +35,10 @@ export async function installRequestRoutes(app, overrides = {}) {
     }),
   });
   await queue.init();
+  const track = (req,event,slug,format) => {
+    if(req.get('DNT')==='1'||req.get('Sec-GPC')==='1')return;
+    app.locals.analytics?.record({event,path:'/requests',book:slug,format},true);
+  };
   const sameOrigin = (req, res, next) => {
     if (req.get('origin') !== origin) return res.status(403).json({ error: 'Please submit the form from this site.' });
     next();
@@ -42,7 +46,7 @@ export async function installRequestRoutes(app, overrides = {}) {
   app.use('/requests', (_req, res, next) => { res.set({ 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'same-origin' }); next(); });
   app.post('/api/library-requests', sameOrigin, async (req, res) => {
     res.set('Cache-Control', 'no-store');
-    try { await queue.request({ ...req.body, ip: req.ip }); res.status(202).json({ message: 'Check your email for a confirmation link. If it does not arrive, check spam or try again tomorrow. We start preparing the book after you confirm.' }); }
+    try { await queue.request({ ...req.body, ip: req.ip }); track(req,'request_accepted',req.body.slug,req.body.format); res.status(202).json({ message: 'Check your email for a confirmation link. If it does not arrive, check spam or try again tomorrow. We start preparing the book after you confirm.' }); }
     catch (e) { res.status(400).json({ error: e.message }); }
   });
   const page = requestPage;
@@ -55,7 +59,7 @@ export async function installRequestRoutes(app, overrides = {}) {
     res.type('html').send(page(book.title, `${body}<p><a class="btn request-listen" href="${bookUrl(book)}">${status.status === 'ready' ? 'Listen online' : 'Listen while you wait'} &rarr;</a></p><form class="request-cancel" method="post" action="/requests/${req.params.token}/cancel"><button class="request-cancel-button">Cancel request and remove my email</button></form>`, {book, format, status: status.status}));
   });
   app.post('/requests/:token/confirm', sameOrigin, async (req, res) => {
-    try { await queue.confirm(req.params.token); res.redirect(303, `/requests/${req.params.token}`); }
+    try { const before=queue.get(req.params.token); const wasConfirmed=before?.confirmed; await queue.confirm(req.params.token); if(!wasConfirmed)track(req,'request_confirmed',before?.slug,before?.format); res.redirect(303, `/requests/${req.params.token}`); }
     catch (e) { res.status(400).type('html').send(page('Unable to confirm', `<p>${escape(e.message)}</p>`)); }
   });
   app.post('/requests/:token/cancel', sameOrigin, async (req, res) => { await queue.cancel(req.params.token); res.type('html').send(page('Request removed', '<p>Your email address and this request have been removed.</p>')); });
@@ -63,8 +67,9 @@ export async function installRequestRoutes(app, overrides = {}) {
     const r = queue.get(req.params.token);
     if (!r?.confirmed || queue.status(req.params.token).status !== 'ready') return res.status(404).end();
     const b = existing(r.slug);
-    if (b) return res.redirect(302, audioUrl(b, b[r.format].file));
+    if (b) {track(req,'download_served',r.slug,r.format); return res.redirect(302, audioUrl(b, b[r.format].file));}
     if (!(await local(r.slug))) return res.status(503).send('Download temporarily unavailable. Please try again later.');
+    res.on('finish',()=>{if(res.statusCode===200)track(req,'download_served',r.slug,r.format);});
     res.download(path.join(audioDir, r.slug, `${r.slug}.${r.format}`), `${r.slug}.${r.format}`);
   });
   const timer = setInterval(() => queue.tick().catch(() => console.error('Book request queue check failed')), 10000); timer.unref();
