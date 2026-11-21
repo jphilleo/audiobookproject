@@ -602,3 +602,10 @@ html.lib-embedded .lib-player-dock { display: none; }
 .request-footer a { color:var(--ink-2); }
 @media(max-width:480px) { .request-card { padding:24px; } .request-book { gap:16px; } .request-cover { width:64px; height:96px; } .request-card h1 { font-size:24px; } .request-content .btn { width:100%; } .request-status { font-size:10px; } }
 .request-card { flex:none; width:100%; }
+
+/* Optional visitor measurement sits above the listening controls. */
+.analytics-choice {position:fixed;z-index:90;bottom:calc(var(--dock-height, 0px) + 16px);left:16px;width:min(480px,calc(100vw - 32px));padding:20px;background:var(--bg, #fff);color:var(--ink, #182c24);border:1px solid var(--line, #bacbbe);border-radius:14px;box-shadow:0 8px 32px #0002;font-size:14px;line-height:1.5}
+.analytics-choice p{margin:0 0 14px}.analytics-choice strong{font-size:16px}.analytics-choice div{display:flex;gap:10px;flex-wrap:wrap}.analytics-choice button{min-height:44px;padding:10px 14px;border:1px solid #638773;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer}.analytics-choice button[data-choice=yes]{background:#205b45;color:white}.analytics-choice a{text-decoration:underline;color:inherit}
+body:has(.lib-player-dock) .analytics-choice {bottom:calc(var(--dock-height, 140px) + 16px)}
+html.lib-embedded .analytics-choice {bottom:16px}
+body.has-player .analytics-choice {bottom:126px}

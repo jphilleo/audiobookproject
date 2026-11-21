@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { visitorFromRequest } from './analytics.js';
 import { requestPage } from './request-presentation.js';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -37,7 +38,7 @@ export async function installRequestRoutes(app, overrides = {}) {
   await queue.init();
   const track = (req,event,slug,format) => {
     if(req.get('DNT')==='1'||req.get('Sec-GPC')==='1')return;
-    app.locals.analytics?.record({event,path:'/requests',book:slug,format},true);
+    app.locals.analytics?.record({event,path:'/requests',book:slug,format,visitor:visitorFromRequest(req)},true);
   };
   const sameOrigin = (req, res, next) => {
     if (req.get('origin') !== origin) return res.status(403).json({ error: 'Please submit the form from this site.' });
