@@ -20,7 +20,7 @@
     <ul>
       <li><strong>The book you upload</strong>, converted to plain text, plus its title, author and cover.</li>
       <li><strong>The audio we make</strong> from it, and which voice and chapters you chose.</li>
-      <li><strong>An essential cookie</strong> containing a random ID, so your browser can find its own books. It is separate from the optional visitor analytics cookie described below.</li>
+      <li><strong>An essential cookie</strong> containing a random ID, so your browser can find its own books. It is not used for website analytics.</li>
     </ul>
     <p>Your browser also remembers your last voice and where you stopped listening. That stays on your device and is never sent to us.</p>
 
@@ -28,7 +28,7 @@
     <ul>
       <li>The converter does not require an account or email. Optional library download requests require an email address.</li>
       <li>We don't use your books to train AI models.</li>
-      <li>We don't show ads or sell your data. Optional visitor analytics uses a first-party cookie only if you allow it.</li>
+      <li>We don't show ads or sell your data. Our website analytics does not set a tracking cookie.</li>
       <li>We don't send your books to other companies. The free voices run on our own servers.</li>
     </ul>
 
@@ -45,10 +45,10 @@
     <p>When premium voices launch, the text of chapters you choose to narrate with them will be sent to that voice provider to generate the audio. We'll name the provider and link its privacy policy before you choose a premium voice. Free voices never leave our servers.</p>
 
     <h2 id="analytics">Website analytics</h2>
-    <p>We keep daily totals of page views, public audiobook plays, download clicks, podcast-app clicks, successful requests and confirmations, and converter activity. We group traffic into broad source categories (such as search or direct) and mobile or desktop screen sizes. These aggregate totals do not require a visitor identifier.</p>
-    <p>If you choose <strong>Allow visitor analytics</strong>, we also store a random first-party cookie named <code>ap_analytics</code> for up to 90 days. It lets us count a returning browser once and measure the proportion of consenting visitors who listen or download. We store your preference on this browser for 90 days. A browser is not necessarily a person: different devices count separately, and shared browsers count together.</p>
-    <p>On our server, the random cookie is converted to a keyed hash. For each day we keep only whether that anonymous browser visited, listened, clicked a download, or received a download link or file. We do not attach the pages, books, email requests, account details, or payment records to that browser identifier. Analytics is hosted on our own server; it does not use fingerprinting or session replay.</p>
-    <p><a href="#analytics" data-analytics-settings>Change analytics preferences</a> at any time. Declining or withdrawing removes the visitor cookie and stops future identified measurement; existing anonymous stage records expire within 90 days. We honor Do Not Track and Global Privacy Control, which disable analytics collection. Analytics never stores emails, uploaded book details, private link tokens, query strings, or IP addresses. Network addresses are held briefly in memory to limit endpoint abuse and cleared every minute. All analytics records are retained for at most 90 days.</p>
+    <p>We count page views, public audiobook plays, download clicks, podcast-app clicks, successful requests and confirmations, and converter activity. We group traffic into broad source categories and mobile or desktop screen sizes.</p>
+    <p>To estimate daily unique visitors and listening and download-click rates, our server briefly uses the network address and browser User-Agent that accompany a normal web request. It creates a keyed hash with a random key that changes each UTC day. The previous key is discarded. Analytics does not save the raw address or User-Agent, and does not link visitors across days. Network changes, shared networks and similar browsers can affect these estimates.</p>
+    <p>For each daily hash we retain only whether it visited, listened or clicked a download—not its pages, books, email, payment details or uploaded content. Analytics is hosted on our own server. We do not create a cookie, local-storage identifier or session recording for analytics. Any visitor cookie from our earlier optional system is removed when you next visit; previous declines remain honored until their saved preference expires.</p>
+    <p>Do Not Track and Global Privacy Control disable analytics collection. Private link tokens, query strings, emails and uploaded book details are excluded. Daily stage flags and aggregate counts expire within 90 days. Network addresses used for endpoint abuse limits are held briefly in memory and cleared every minute. Website server logs are separate, as described below.</p>
     <h2>Server logs</h2>
     <p>Like any website, our hosting provider may keep standard server logs (IP address, time, page requested) for security, for up to 30 days.</p>
 
