@@ -14,7 +14,7 @@ Environment=NARRATION_WORKER_DIR=/var/lib/audiobook/narration
 Environment=KOKORO_DTYPE=fp32
 Environment=OMP_NUM_THREADS=2
 Environment=OPENBLAS_NUM_THREADS=2
-ExecStart=/usr/bin/flock -n /var/lib/audiobook/narration/worker.lock /usr/bin/node scripts/narration-worker.js
+ExecStart=/usr/bin/flock -F -n /var/lib/audiobook/narration/worker.lock /usr/bin/node scripts/narration-worker.js
 Restart=always
 RestartSec=15
 CPUQuota=200%
