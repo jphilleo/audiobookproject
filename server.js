@@ -68,6 +68,15 @@ app.get("/library/:author/:slug/feed.xml", (req, res, next) => {
 });
 // Finished audio never changes in place, so it can be cached for a long time.
 // Only the audio and covers are public; source files, manifests and logs are not.
+// Preserve old origin URLs after verified cloud offload, including open players.
+app.use('/library-audio/:slug', (req,res,next) => {
+  const book = publishedBooks().find(b=>b.slug===req.params.slug);
+  const file = req.path.slice(1);
+  if(book?.ready && book.audioStorage === 'r2' && process.env.LIBRARY_AUDIO_URL &&
+    [...book.chapters,book.m4b,book.mp3].some(item=>item?.file===file))
+    return res.redirect(302, `${process.env.LIBRARY_AUDIO_URL.replace(/\/+$/,'')}/${book.slug}/${file}`);
+  next();
+});
 app.use("/library-audio", (req, res, next) => (/\.(m4a|m4b|mp3|jpg|png|svg|webp)$/i.test(req.path) ? next() : res.status(404).end()),
   express.static(LIBRARY_DIR, { index: false, maxAge: "30d" }));
 

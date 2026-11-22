@@ -71,6 +71,19 @@ while(!stopping) {
     state.priorities=[...requestedBooks(requests).keys()];
     state.reason=await health();
     const job=selectJob(state.jobs,requests,reservations);
+    if(!state.reason && process.env.R2_BUCKET && (!job || !requestedBooks(requests).has(job.slug))) {
+      const candidate=Object.values(state.jobs).find(j=>j.status==='complete' && !(j.offloadNext>Date.now()) && !j.offloaded);
+      if(candidate) {
+        const m=await read(path.join(library,candidate.slug,'manifest.json'),{});
+        if(m.audioStorage==='origin'||m.offloadedAt) {
+          state.active=candidate.slug;state.reason='Offloading verified audio';yielding=false;await save();
+          const code=await run('scripts/offload-worker-book.js',[library,candidate.slug],candidate);
+          if(code===0)candidate.offloaded=true;
+          else candidate.offloadNext=Date.now()+300000;
+        } else candidate.offloaded=true;
+        state.active=null;await save();continue;
+      }
+    }
     if(state.reason||!job) {state.active=null;await save();await delay(10000);continue;}
     yielding=false;state.active=job.slug;state.reason=null;job.status='generating';job.started=Date.now();await save();
     let code=0;

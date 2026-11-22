@@ -30,9 +30,14 @@ Release a reservation manually only after stopping its Mac job.
 Publication copies verified audio into a versioned directory and atomically
 switches the manifest. Existing pages remain intact until this succeeds. Source,
 audit and verification records remain. Disposable PCM and duplicated working
-audio are removed after validation/publication. Currently new recordings use
-origin storage. R2 offload requires scoped server credentials; no broad desktop
-OAuth credential is copied to the server. The worker stops below 20 GB free.
+audio are removed after validation/publication. New recordings initially use origin storage. When /etc/audiobook-storage.env
+provides scoped R2 credentials, idle capacity uploads them to R2, verifies every
+remote checksum and range playback, then removes the origin audio. Old origin
+URLs redirect to the verified cloud object. Upload failure leaves local files
+intact and retries after five minutes. No desktop OAuth credential is copied.
+The worker stops below 20 GB free. Required storage settings: R2_ACCESS_KEY_ID,
+R2_SECRET_ACCESS_KEY, R2_ENDPOINT, R2_BUCKET; mode 0600, root owned. Only the
+worker loads these credentials, not the website.
 
 Inspect: systemctl status audiobook-narration; narration/state.json (no email
 addresses); narration/<slug>.log. Stop: systemctl stop audiobook-narration.

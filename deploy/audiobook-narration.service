@@ -12,6 +12,8 @@ Environment=REQUEST_DIR=/var/lib/audiobook/requests
 Environment=DATA_DIR=/var/lib/audiobook/books
 Environment=NARRATION_WORKER_DIR=/var/lib/audiobook/narration
 Environment=KOKORO_DTYPE=fp32
+Environment=LIBRARY_AUDIO_URL=https://audio.audiobookproject.org
+EnvironmentFile=-/etc/audiobook-storage.env
 Environment=OMP_NUM_THREADS=2
 Environment=OPENBLAS_NUM_THREADS=2
 ExecStart=/usr/bin/flock -F -n /var/lib/audiobook/narration/worker.lock /usr/bin/node scripts/narration-worker.js
@@ -23,6 +25,7 @@ AllowedCPUs=2-3
 MemoryHigh=2500M
 MemoryMax=3G
 MemorySwapMax=0
+OOMPolicy=continue
 IOWeight=10
 Nice=15
 IOSchedulingClass=idle
