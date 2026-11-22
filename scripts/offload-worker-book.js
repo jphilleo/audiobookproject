@@ -31,7 +31,7 @@ for(const item of files) {
  }
  if(!await verified()) {
   await new Promise((resolve,reject)=>{
-   const child=spawn('curl',['--config','-','--fail','--silent','--show-error','--max-time','1800','--limit-rate','4M','--upload-file',local,'--header',`Content-Type: ${item.file.endsWith('.mp3')?'audio/mpeg':'audio/mp4'}`,'--header','Cache-Control: public, max-age=2592000',`${endpoint}/${bucket}/${object}`],{stdio:['pipe','ignore','ignore']});
+   const child=spawn('curl',['-4','--config','-','--fail','--silent','--show-error','--max-time','1800','--limit-rate','4M','--upload-file',local,'--header',`Content-Type: ${item.file.endsWith('.mp3')?'audio/mpeg':'audio/mp4'}`,'--header','Cache-Control: public, max-age=2592000',`${endpoint}/${bucket}/${object}`],{stdio:['pipe','ignore','ignore']});
    child.stdin.end(`aws-sigv4 = "aws:amz:auto:s3"\nuser = "${key}:${secret}"\n`);
    child.on('error',reject);child.on('close',code=>code===0?resolve():reject(new Error('Cloud upload failed')));
   });
