@@ -11,7 +11,7 @@ import { floatToPcm16, wavHeader } from "./src/audio.js";
 import * as lib from "./src/library.js";
 import { PAGES, INFO_PAGES, render, appVars, infoVars } from "./src/pages.js";
 import { LIBRARY_DIR, CATALOG, publishedBooks, findBook, bookUrl } from "./src/catalog.js";
-import { libraryVars, bookVars, feedXml, authorsVars, authorVars } from "./src/library-pages.js";
+import { libraryVars, bookVars, feedXml, authorsVars, authorVars, audioUrl } from "./src/library-pages.js";
 import { DEV, RELOAD_SCRIPT, devReload } from "./src/dev-reload.js";
 
 import { installRequestRoutes, requestsEnabled } from "./src/request-routes.js";
@@ -74,7 +74,7 @@ app.use('/library-audio/:slug', (req,res,next) => {
   const file = req.path.slice(1);
   if(book?.ready && book.audioStorage === 'r2' && process.env.LIBRARY_AUDIO_URL &&
     [...book.chapters,book.m4b,book.mp3].some(item=>item?.file===file))
-    return res.redirect(302, `${process.env.LIBRARY_AUDIO_URL.replace(/\/+$/,'')}/${book.slug}/${file}`);
+    return res.redirect(302, audioUrl(book,file));
   next();
 });
 app.use("/library-audio", (req, res, next) => (/\.(m4a|m4b|mp3|jpg|png|svg|webp)$/i.test(req.path) ? next() : res.status(404).end()),

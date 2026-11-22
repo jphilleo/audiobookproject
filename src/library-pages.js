@@ -22,7 +22,8 @@ export const audioUrl = (b, file) => {
     const version = /^[a-z0-9-]+$/.test(b.previewRelease || "") ? `${b.previewRelease}/` : "";
     return `${AUDIO_BASE}/previews/${version}${b.slug}.m4a`;
   }
-  return `${AUDIO_BASE}/${b.slug}/${file}`;
+  const revision = /^[a-f0-9]{16}$/.test(b.audioRevision || "") ? `?v=${b.audioRevision}` : "";
+  return `${AUDIO_BASE}/${b.slug}/${file}${revision}`;
 };
 const abs = (origin, url) => (/^https?:/.test(url) ? url : `${origin}${url}`);
 // Feeds give each episode's size; the file may only exist in remote storage, so this can be missing.

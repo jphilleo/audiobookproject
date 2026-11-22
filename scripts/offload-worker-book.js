@@ -18,30 +18,38 @@ if(manifest.ready && manifest.audioStorage==='r2' && manifest.offloadedAt) {
  process.exit(0);
 }
 if(!manifest.ready||manifest.audioStorage!=='origin')process.exit(0);
+const revision=crypto.randomBytes(8).toString('hex');
 for(const item of files) {
  const local=path.join(folder,item.file),hash=crypto.createHash('sha256');
  for await(const chunk of createReadStream(local))hash.update(chunk);
  const expected=hash.digest('hex'),object=[slug,...item.file.split('/')].map(encodeURIComponent).join('/');
- const publicUrl=`${base}/${object}`;
+ const publicUrl=`${base}/${object}?v=${revision}`;
  async function verified() {
   const response=await fetch(publicUrl,{signal:AbortSignal.timeout(1800000)});
   if(!response.ok){await response.body?.cancel();return false;}
   const h=crypto.createHash('sha256');for await(const chunk of response.body)h.update(chunk);
   return h.digest('hex')===expected;
  }
- if(!await verified()) {
+ { // Upload before the first public read to avoid caching a missing object.
   await new Promise((resolve,reject)=>{
    const child=spawn('curl',['-4','--config','-','--fail','--silent','--show-error','--max-time','1800','--limit-rate','4M','--upload-file',local,'--header',`Content-Type: ${item.file.endsWith('.mp3')?'audio/mpeg':'audio/mp4'}`,'--header','Cache-Control: public, max-age=2592000',`${endpoint}/${bucket}/${object}`],{stdio:['pipe','ignore','ignore']});
    child.stdin.end(`aws-sigv4 = "aws:amz:auto:s3"\nuser = "${key}:${secret}"\n`);
    child.on('error',reject);child.on('close',code=>code===0?resolve():reject(new Error('Cloud upload failed')));
   });
-  if(!await verified())throw new Error('Cloud checksum mismatch');
+  // Newly written objects can briefly be unavailable through the public edge.
+  // Retry verification, never weaken it or remove local files on a mismatch.
+  let valid=false;
+  for(let attempt=0;attempt<6;attempt++) {
+   if(await verified()){valid=true;break;}
+   if(attempt<5)await new Promise(resolve=>setTimeout(resolve,Number(process.env.OFFLOAD_RETRY_MS || 1000)*2**attempt));
+  }
+  if(!valid)throw new Error(`Cloud verification failed: ${item.file}`);
  }
  const range=await fetch(publicUrl,{headers:{Range:'bytes=0-1023'},signal:AbortSignal.timeout(30000)});
  if(range.status!==206)throw new Error('Cloud playback range check failed');
  await range.body?.cancel();
 }
-manifest.audioStorage='r2';manifest.offloadedAt=new Date().toISOString();
+manifest.audioStorage='r2';manifest.audioRevision=revision;manifest.offloadedAt=new Date().toISOString();
 await fs.writeFile(file+'.offload-tmp',JSON.stringify(manifest,null,2));await fs.rename(file+'.offload-tmp',file);
 // Old origin URLs are redirected by the website after the manifest switch.
 for(const item of files)await fs.rm(path.join(folder,item.file),{force:true});
