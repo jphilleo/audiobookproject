@@ -26,7 +26,12 @@ export async function installRequestRoutes(app, overrides = {}) {
     const child = spawn(cmd, args, { ...options, stdio: 'ignore' });
     child.on('error', reject); child.on('close', code => code === 0 ? resolve() : reject(new Error('Preparation failed')));
   });
-  const queue = new BookRequests({ dir, origin, lookup, send: overrides.send || sendResend,
+  const queue = new BookRequests({ dir, origin, lookup,
+    externalStatus: process.env.NARRATION_WORKER_DIR ? async () => {
+      try { return JSON.parse(await fs.readFile(path.join(process.env.NARRATION_WORKER_DIR, 'state.json'), 'utf8')).jobs || {}; }
+      catch (e) { if(e.code === 'ENOENT') return {}; throw e; }
+    } : undefined,
+    send: overrides.send || sendResend,
     available: overrides.available || (async slug => Boolean(existing(slug) || await local(slug))),
     generate: overrides.generate || (async slug => {
       const stats = await fs.statfs(dir); if (stats.bavail * stats.bsize < 15e9) throw new Error('Insufficient space');

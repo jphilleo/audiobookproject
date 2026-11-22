@@ -6,8 +6,8 @@ import crypto from 'node:crypto';
 const DAY = 86400000;
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 export class BookRequests {
-  constructor({ dir, origin, lookup, generate, available, send, now = Date.now, maxJobs = 20 }) {
-    Object.assign(this, { dir, origin, lookup, generate, available, send, now, maxJobs });
+  constructor({ dir, origin, lookup, generate, available, send, externalStatus, now = Date.now, maxJobs = 20 }) {
+    Object.assign(this, { dir, origin, lookup, generate, available, send, externalStatus, now, maxJobs });
     this.chain = Promise.resolve(); this.running = false;
   }
   async init() {
@@ -95,6 +95,18 @@ export class BookRequests {
           if (job?.status === 'ready') await this.mail(r, 'delivery', `Your full audiobook of ${book.title} is ready in ${r.format.toUpperCase()}:\n\n${link}\n\nThis download page is available for 30 days. This is the audiobook you requested, not a mailing-list subscription.`, `Your audiobook is ready: ${book.title}`);
           if (job?.status === 'failed') await this.mail(r, 'failure', `We could not finish your audiobook of ${book.title}. No download is ready. You can check the request or remove your email here:\n\n${link}\n\nWe are sorry we could not fulfill this request.`, `Audiobook preparation unsuccessful: ${book.title}`);
         }
+      }
+      if (this.externalStatus) {
+        const statuses = await this.externalStatus();
+        await this.locked(async () => {
+          for (const job of Object.values(this.state.jobs)) {
+            if (await this.available(job.slug)) { job.status = 'ready'; job.completed ||= this.now(); }
+            else if (statuses[job.slug]?.status === 'failed') job.status = 'failed';
+            else job.status = ['generating', 'checking', 'publishing'].includes(statuses[job.slug]?.status) ? 'working' : 'queued';
+          }
+          await this.save();
+        });
+        return;
       }
       if (this.generating) return;
       const job = Object.values(this.state.jobs).find(j => j.status === 'queued' && (!j.next || j.next <= this.now()) && Object.values(this.state.requests).some(r => r.slug === j.slug && r.confirmed));

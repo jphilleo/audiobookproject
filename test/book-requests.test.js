@@ -65,3 +65,12 @@ test('interrupted jobs recover as queued and corrupt durable state fails closed'
  q.state.jobs.book.status='working';await q.save();const resumed=new BookRequests(options);await resumed.init();assert.equal(resumed.state.jobs.book.status,'queued');
  await fs.writeFile(path.join(options.dir,'requests.json'),'broken');await assert.rejects(new BookRequests(options).init());
 });
+test('external worker reconciles progress without generating inside website',async t=>{
+ const statuses={book:{status:'generating'}};
+ const {q,request,generated,setReady,mail}=await setup(t,{externalStatus:async()=>statuses});
+ const token=await request();await q.confirm(token);await q.tick();
+ assert.equal(q.status(token).status,'working');assert.equal(generated.length,0);
+ statuses.book.status='checking';await q.tick();assert.equal(mail.length,0);
+ setReady();await q.tick();await q.tick();assert.equal(q.status(token).status,'ready');assert.equal(mail.length,1);
+ assert.equal(generated.length,0);
+});

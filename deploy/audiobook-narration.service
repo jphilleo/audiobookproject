@@ -1,0 +1,39 @@
+[Unit]
+Description=Audiobook priority narration worker
+Wants=network-online.target
+After=network-online.target audiobook.service
+[Service]
+Type=simple
+User=audiobook
+Group=audiobook
+WorkingDirectory=/opt/audiobook/app
+Environment=LIBRARY_DIR=/var/lib/audiobook/library
+Environment=REQUEST_DIR=/var/lib/audiobook/requests
+Environment=DATA_DIR=/var/lib/audiobook/books
+Environment=NARRATION_WORKER_DIR=/var/lib/audiobook/narration
+Environment=KOKORO_DTYPE=fp32
+Environment=OMP_NUM_THREADS=2
+Environment=OPENBLAS_NUM_THREADS=2
+ExecStart=/usr/bin/flock -n /var/lib/audiobook/narration/worker.lock /usr/bin/node scripts/narration-worker.js
+Restart=always
+RestartSec=15
+CPUQuota=200%
+CPUWeight=10
+AllowedCPUs=2-3
+MemoryHigh=2500M
+MemoryMax=3G
+MemorySwapMax=0
+IOWeight=10
+Nice=15
+IOSchedulingClass=idle
+TasksMax=128
+KillMode=mixed
+TimeoutStopSec=120
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/audiobook /opt/audiobook/app/node_modules
+UMask=0077
+[Install]
+WantedBy=multi-user.target
