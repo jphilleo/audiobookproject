@@ -191,9 +191,28 @@ class Sea {
 }
 
 function buildSea() {
+  // Keep the water above either player, including resized or replaced docks.
+  // Embedded pages already end above the parent player's dock.
+  let player;
+  const positionSea = () => {
+    const height = player?.getBoundingClientRect().height || 0;
+    document.documentElement.style.setProperty("--sea-player-height", `${height}px`);
+  };
+  const playerSize = new ResizeObserver(positionSea);
+  const watchPlayer = () => {
+    const next = document.querySelector(".lib-player-dock, #player");
+    if (next === player) return;
+    playerSize.disconnect();
+    player = next;
+    if (player) playerSize.observe(player);
+    positionSea();
+  };
+  new MutationObserver(watchPlayer).observe(document.body, { childList: true });
+  watchPlayer();
   // The gutters' water, fixed to the bottom of the window on wide screens.
   const fixed = document.createElement("div");
   fixed.className = "sea";
+  fixed.style.bottom = "var(--sea-player-height, 0px)";
   fixed.setAttribute("aria-hidden", "true");
   document.body.append(fixed);
   const gutters = ["left", "right"].map((name, i) => {
