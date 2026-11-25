@@ -1,7 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {CATALOG} from '../src/catalog.js';
 import {bookVars} from '../src/library-pages.js';
-import {authorGroups,relatedBooks,librarySitemapEntries,bookModified} from '../src/library-seo.js';
+import {authorGroups,relatedBooks,librarySitemapEntries,bookModified,SEO_UPDATED} from '../src/library-seo.js';
+import reading from '../src/library-reading.json' with {type:'json'};
 const previews=CATALOG.map(b=>({...b,preview:true,ready:false,voice:{name:'Emma'},durationMs:123000,chapters:[{title:'Chapter One',file:'chapters/001.m4a',durationMs:123000}]}));
 test('all 200 books have unique canonical URLs, titles, descriptions and truthful parseable structured data',()=>{
  const seen={title:new Set(),description:new Set(),canonical:new Set()};
@@ -15,8 +16,32 @@ test('all 200 books have unique canonical URLs, titles, descriptions and truthfu
 });
 test('author hubs and sitemap contain only real public pages and stable modification dates',()=>{
  const groups=authorGroups(previews);assert.equal(groups.length,33);assert.ok(groups.every(a=>a.books.length>=2));
- const entries=librarySitemapEntries(previews);assert.equal(entries.length,235);assert.equal(new Set(entries.map(e=>e.url)).size,235);assert.ok(entries.every(e=>e.modified==='2026-11-17'));assert.ok(entries.every(e=>!e.url.includes('/requests/')));
- assert.equal(bookModified({builtAt:'2099-01-01'}),'2026-11-17');
+ const entries=librarySitemapEntries(previews);assert.equal(entries.length,235);assert.equal(new Set(entries.map(e=>e.url)).size,235);assert.ok(entries.every(e=>e.modified===SEO_UPDATED));assert.ok(entries.every(e=>!e.url.includes('/requests/')));
+ assert.equal(bookModified({builtAt:'2099-01-01'}),SEO_UPDATED);
+});
+
+test('every book has distinct source-backed reading material, safely rendered',()=>{
+ assert.equal(Object.keys(reading).length,CATALOG.length);
+ const excerpts=new Set();
+ for(const book of previews){
+  const r=reading[book.slug];
+  assert.equal(r.source,`https://standardebooks.org/ebooks/${book.source}`);
+  assert.match(r.sourceSha256,/^[a-f0-9]{64}$/);
+  assert.ok(r.synopsis.length);assert.ok(r.excerpt.split(/\s+/).length>=30);
+  assert.ok(!excerpts.has(r.excerpt));excerpts.add(r.excerpt);
+  const v=bookVars(book,'https://example.org');
+  assert.match(v.reading,/Read an excerpt/);assert.match(v.about,/Standard Ebooks/);
+  assert.ok(!/<script/i.test(v.reading));
+ }
+ assert.deepEqual(reading.meditations.translators,['George Long']);
+ const translated=previews.find(b=>b.slug==='crime-and-punishment');
+ assert.match(bookVars(translated,'https://example.org').editionDetails,/Constance Garnett/);
+});
+
+test('related links stay within the catalog and diversify beyond completed books',()=>{
+ const linked=new Set();
+ for(const b of previews){const links=relatedBooks(b,previews);assert.equal(new Set(links.map(x=>x.slug)).size,4);for(const r of links){assert.notEqual(r.slug,b.slug);linked.add(r.slug);}}
+ assert.ok(linked.size>150,`Only ${linked.size} books receive related links`);
 });
 test('related books exclude the current book and prioritize the same author',()=>{
  const b=previews.find(b=>b.author==='Charles Dickens');const related=relatedBooks(b,previews);assert.ok(related.every(r=>r.slug!==b.slug));assert.equal(related[0].author,b.author);

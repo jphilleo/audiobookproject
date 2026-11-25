@@ -426,6 +426,14 @@ body.at-sea .sea { opacity: 0; }
 .lib-about { margin-top: 28px; }
 .lib-book .lib-about-heading { margin-bottom: 8px; }
 .lib-about-heading + .lib-about { margin-top: 0; }
+.lib-synopsis { margin: 1.25rem 0; }
+.lib-synopsis summary { cursor: pointer; font-weight: 600; text-decoration: underline; text-underline-offset: .2em; }
+.lib-synopsis p { max-width: 70ch; }
+.lib-reading { margin: 2.5rem 0; }
+.lib-reading-label { color: var(--muted); margin-bottom: .8rem; }
+.lib-reading blockquote { margin: 0; padding: .2rem 0 .2rem 1.25rem; border-left: 3px solid var(--line); max-width: 70ch; }
+.lib-reading blockquote p { margin: 0; line-height: 1.8; }
+.lib-reading-credit { color: var(--muted); font-size: .85rem; }
 html:has(.lib-player-dock) { scroll-padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
 body:has(.lib-player-dock) { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
 .lib-player-dock {

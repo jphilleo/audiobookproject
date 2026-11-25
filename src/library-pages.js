@@ -2,6 +2,7 @@
 // each book's page and its podcast feed. Book data comes from src/catalog.js.
 import fs from "node:fs";
 import chapterLists from "./library-chapters.json" with { type: "json" };
+import reading from "./library-reading.json" with { type: "json" };
 import path from "node:path";
 import { readyBooks, publishedBooks, libraryStatus, bookUrl, sourceUrl, bookDir, smallCover, CATALOG } from "./catalog.js";
 
@@ -101,6 +102,7 @@ export function libraryVars(origin, { delivery = false } = {}) {
 /* ---------- A book ---------- */
 
 export function bookVars(b, origin, { delivery = false } = {}) {
+  const details = reading[b.slug];
   const url = `${origin}${bookUrl(b)}`;
   const feed = esc(`${url}/feed.xml`);
   const bookTitle = esc(b.title);
@@ -126,6 +128,8 @@ export function bookVars(b, origin, { delivery = false } = {}) {
   const ld = {
     "@context": "https://schema.org", "@type": "Audiobook", name: b.title, url,
     author: { "@type": "Person", name: b.author },
+    ...(details?.translators.length ? {translator:details.translators.map(name=>({'@type':'Person',name}))} : {}),
+    isBasedOn:sourceUrl(b),
     readBy: { "@type": "Person", name: `${b.voice.name} (AI voice)` },
     duration: `PT${Math.round(b.durationMs / 1000)}S`,
     image: b.cover ? `${origin}${fileUrl(b, b.cover)}` : undefined,
@@ -156,7 +160,7 @@ export function bookVars(b, origin, { delivery = false } = {}) {
       </form></details>` : "";
   return {
     requestForm,
-    title: esc(b.ready ? `${b.title} by ${b.author} — Free Complete Audiobook` : delivery ? `${b.title} by ${b.author} — Free Audiobook` : `${b.title} by ${b.author} — Free Audiobook`),
+    title: esc(`${b.title} Audiobook — ${b.author} | Listen Free`),
     description: esc(b.ready ? `Listen to the complete audiobook of ${b.title} by ${b.author} free. ${length(b.durationMs)}, ${b.chapters.length} chapters. Stream online or download M4B or MP3.` : delivery ? `Get ${b.title} by ${b.author} as a free M4B or MP3 audiobook by email. Listen to a sample now; the full recording is prepared after you confirm your request.` : `Explore ${b.title} by ${b.author} as a free audiobook. Listen online with AI narration.`),
     canonical: esc(url),
     ogimage: b.cover ? esc(`${origin}${fileUrl(b, b.cover)}`) : esc(`${origin}/brand/icon-512.png`),
@@ -212,7 +216,11 @@ export function bookVars(b, origin, { delivery = false } = {}) {
         </details>
       </div>` : "",
     previewIntro: "",
-    about: `<h2 class="lib-about-heading">About the audiobook</h2>${description}`,
+    about: `<section class="lib-book-about"><h2 class="lib-about-heading">About the audiobook</h2>${description}
+      ${details?.synopsis.length ? `<details class="lib-synopsis"><summary>More about ${bookTitle}</summary>${details.synopsis.map(p=>`<p>${esc(p)}</p>`).join('')}<p class="lib-reading-credit">Synopsis from <a href="${esc(details.source)}">Standard Ebooks</a>.</p></details>` : ''}</section>`,
+    reading: details ? `<section class="lib-reading" aria-labelledby="reading-heading"><h2 id="reading-heading">Read an excerpt</h2>
+      <p class="lib-reading-label">${esc(details.excerptTitle)}</p><blockquote><p>${esc(details.excerpt)}</p></blockquote>
+      <p class="lib-reading-credit">From the <a href="${esc(details.source)}">Standard Ebooks text edition</a>. <a href="#chapters">Listen to the audiobook</a>.</p></section>` : '',
     chaptersHeading: "Chapters",
     feedLink: b.ready ? `<link rel="alternate" type="application/rss+xml" title="${bookTitle} (podcast feed)" href="${feed}">` : "",
     chapters: list,
@@ -220,6 +228,8 @@ export function bookVars(b, origin, { delivery = false } = {}) {
     editionDetails: `<section class="lib-edition"><h2>About this recording</h2><dl>
       <div><dt>Book</dt><dd>${bookTitle}${b.year ? ` (${esc(b.year)})` : ""}, by ${authorLink}</dd></div>
       <div><dt>Narration</dt><dd>${esc(b.voice.name)}, an AI voice using Kokoro · English</dd></div>
+      ${details?.translators.length ? `<div><dt>Translation</dt><dd>${details.translators.map(esc).join(', ')}</dd></div>` : ''}
+      ${details?.subjects.length ? `<div><dt>Subjects</dt><dd>${details.subjects.slice(0,4).map(s=>esc(s.replace(/--/g,' · '))).join('; ')}</dd></div>` : ''}
       ${b.ready ? `<div><dt>Complete recording</dt><dd>${length(b.durationMs)} · ${b.chapters.length} chapters</dd></div>` : ""}
       <div><dt>Text edition</dt><dd><a href="${esc(sourceUrl(b))}" rel="noopener">Read the source edition at Standard Ebooks</a></dd></div></dl>
       ${b.ready ? '<p>Choose M4B for audiobook apps with chapter navigation, or MP3 for broad audio-player support. You can also listen to every chapter on this page.</p>' : delivery ? '<p>To get the full recording, request M4B or MP3 above and confirm your email. We will send a download link after preparation and checks are complete.</p>' : ''}
@@ -228,6 +238,9 @@ export function bookVars(b, origin, { delivery = false } = {}) {
     jsonld: jsonLdTag(b.ready ? {...ld, "@id":`${url}#audiobook`} : {
       "@context":"https://schema.org", "@type":"Book", "@id":`${url}#book`, name:b.title, url,
       author:{"@type":"Person",name:b.author}, description:b.description, inLanguage:'en',
+      ...(details?.translators.length ? {translator:details.translators.map(name=>({'@type':'Person',name}))} : {}),
+      ...(b.year && /^\d{4}$/.test(String(b.year)) ? {datePublished:String(b.year)} : {}),
+      isBasedOn:sourceUrl(b),
       image:b.cover ? `${origin}${fileUrl(b,b.cover)}` : undefined,
       workExample:{"@type":"AudioObject",name:`${b.title} — audio sample`,description:'An AI-narrated audio sample from the book.',duration:`PT${Math.round(b.durationMs/1000)}S`,contentUrl:abs(origin,audioUrl(b,b.chapters[0].file)),encodingFormat:'audio/mp4',isAccessibleForFree:true}
     }) + jsonLdTag(crumbs),
